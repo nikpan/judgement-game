@@ -1,0 +1,23 @@
+{
+  "name": "judgement-game",
+  "version": "1.0.0",
+  "description": "Judgement - The card game",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikpan/judgement-game.git"
+  },
+  "keywords": [
+    "judgement",
+    "card-game"
+  ],
+  "author": "nikpan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nikpan/judgement-game/issues"
+  },
+  "homepage": "https://github.com/nikpan/judgement-game#readme"
+}
