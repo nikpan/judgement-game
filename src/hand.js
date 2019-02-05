@@ -3,11 +3,13 @@ import Card from './card';
 
 export default class Hand extends React.Component {
     render(){
+        
+        const cards = this.props.cards;
         return (
             <div>
-                <h2>Hand</h2>
+                <h2>{this.props.name}'s Hand</h2>
                 <div>
-                    <Card suit="H" value="A" />
+                    {cards.map((card => <Card suit={card.suit} value={card.value}></Card>))}
                 </div>
             </div>
         )

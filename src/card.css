@@ -1,0 +1,9 @@
+.cardDiv {
+    /* height: 100px; */
+    display: inline;
+    padding: 0px 2px;
+}
+
+.cardImg {
+    height: 100px;
+}

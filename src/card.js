@@ -1,5 +1,6 @@
 import React from 'react';
-import AC from '../public/resources/img/AC.png';
+import './card.css';
+import { getImageSrc } from './imgLoader';
 
 export default class Card extends React.Component {
     constructor() {
@@ -9,7 +10,7 @@ export default class Card extends React.Component {
     render() {
         if( this.validateProps() ){
             return (
-                <div>{this.renderCard()}</div>
+                <div className="cardDiv">{this.renderCard()}</div>
             )
         }
         else {
@@ -56,9 +57,10 @@ export default class Card extends React.Component {
     }
 
     renderCard(){
-        // const imgName = "/public/resources/" + this.props.value + this.props.suit + ".png";
+        let imgName = "./resources/img/" + this.props.value + this.props.suit + ".png";
+        console.log(imgName);
         return (
-            <img src={AC} alt="cardImage" />
+            <img src={getImageSrc(this.props.value + this.props.suit)} className="cardImg" alt="cardImage" />
         )
     }
 }

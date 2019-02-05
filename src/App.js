@@ -4,14 +4,47 @@ import Hand from './hand'
 
 class App extends React.Component {
   render() {
+
+    let cards = [
+      [
+        {suit: 'H', value: 'A'},
+        {suit: 'D', value: '2'},
+        {suit: 'S', value: '3'},
+        {suit: 'S', value: 'J'},
+        {suit: 'C', value: 'Q'}
+      ],
+      [
+        {suit: 'H', value: '2'},
+        {suit: 'D', value: 'A'},
+        {suit: 'S', value: 'K'},
+        {suit: 'S', value: '9'},
+        {suit: 'C', value: 'J'}
+      ],
+      [
+        {suit: 'H', value: '4'},
+        {suit: 'D', value: '7'},
+        {suit: 'S', value: '9'},
+        {suit: 'S', value: '10'},
+        {suit: 'C', value: 'Q'}
+      ],
+      [
+        {suit: 'H', value: '7'},
+        {suit: 'D', value: '3'},
+        {suit: 'S', value: '3'},
+        {suit: 'S', value: '6'},
+        {suit: 'C', value: 'J'}
+      ]
+    ];
     return (
       <div>
         <h1>
           Judgement Game
         </h1>
         <div>
-          <Hand>
-          </Hand>
+          <Hand name='Nikhil' cards={cards[0]}/>
+          <Hand name='Abhisha' cards={cards[1]}/>
+          <Hand name='Niraj' cards={cards[2]}/>
+          <Hand name='Mayuri' cards={cards[3]}/>
         </div>
       </div>
     );
