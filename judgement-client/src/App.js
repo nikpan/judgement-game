@@ -1,8 +1,17 @@
 import React from 'react';
 import './App.css';
-import Hand from './hand'
+import Hand from './components/hand'
+import HiddenHand from './components/hiddenHand';
 
 class App extends React.Component {
+  state = {}
+  componentDidMount() {
+    console.log("componendDidMount");
+    fetch('http://localhost:3001/users')
+      .then(res => res.json())
+      .then(users => console.log(users));
+  }
+
   render() {
 
     let cards = [
@@ -44,7 +53,7 @@ class App extends React.Component {
           <Hand name='Nikhil' cards={cards[0]}/>
           <Hand name='Abhisha' cards={cards[1]}/>
           <Hand name='Niraj' cards={cards[2]}/>
-          <Hand name='Mayuri' cards={cards[3]}/>
+          <HiddenHand name='Mayuri' cardCount='5'/>
         </div>
       </div>
     );

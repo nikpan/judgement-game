@@ -8,7 +8,13 @@ export default class Card extends React.Component {
     }
 
     render() {
-        if( this.validateProps() ){
+        if (this.props.hidden) {
+            return (
+                <div className="cardDiv">
+                    <img src={getImageSrc('BlueBack')} className='cardImg' alt='card back'/></div>
+            )
+        }
+        else if( this.validateProps() ){
             return (
                 <div className="cardDiv">{this.renderCard()}</div>
             )
