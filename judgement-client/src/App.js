@@ -7,9 +7,15 @@ class App extends React.Component {
   state = {}
   componentDidMount() {
     console.log("componendDidMount");
-    fetch('http://localhost:3001/users')
-      .then(res => res.json())
-      .then(users => console.log(users));
+
+    const ws = new WebSocket('ws://localhost:3001')
+    ws.onopen = function onWebSocketConnectionOpen() {
+      console.debug('Connection established!');
+      ws.send('Hola from the client side');
+    };
+    ws.onmessage = function onWebSocketMessageReceived(msg) {
+      console.debug('Message from server: ' + msg.data);
+    }
   }
 
   render() {

@@ -1,41 +1,76 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const http = require('http');
+const WebSocket = require('ws');
+const express = require('express');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+/**
+ * Get port from environment and store in Express.
+ */
+const app = express();
+const port = normalizePort(process.env.PORT || '3001');
+app.set('port', port);
 
-var app = express();
+/**
+ * Create HTTP server.
+ */
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+const server = http.createServer(app);
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+/**
+ * initialize the WebSocket server instance
+ */
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+const wss = new WebSocket.Server({ server });
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+wss.on('connection', function connection(ws) {
+  console.log('A new connection!');
+
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message);
+  })
+
+  ws.send('hola from websocket server!');
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+/**
+ * Listen on provided port, on all network interfaces.
+ */
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
-module.exports = app;
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  console.log('Error: ' + error);
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  console.log('Listening...')
+}
