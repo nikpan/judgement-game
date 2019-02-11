@@ -1,75 +1,77 @@
 const http = require('http');
 const WebSocket = require('ws');
 const express = require('express');
+const StandardDeck = require('./deck');
 
-/**
- * Get port from environment and store in Express.
- */
 const app = express();
 const port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
 const server = http.createServer(app);
-
-/**
- * initialize the WebSocket server instance
- */
-
 const wss = new WebSocket.Server({ server });
+
+let clientWebSockets = [];
+
+console.log(StandardDeck.remaining());
 
 wss.on('connection', function connection(ws) {
   console.log('A new connection!');
 
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
-  })
+    if(JSON.parse(message)) {
+      message = JSON.parse(message);
+      if(message.action === 'Join')
+      {
+        clientWebSockets.push({ socket: ws, name: message.name});
+        console.log(message.name + " added");
+        printAllClients();
+      }
+      if(message.action === 'Deal')
+      {
+        // create a new deck and deal cards
+        var data = {
+          action: 'Hand',
+          cards: StandardDeck.drawRandom(52 / clientWebSockets.length )
+        }
+        ws.send(JSON.stringify(data));        
+      }
+    }
+  });
 
-  ws.send('hola from websocket server!');
+  ws.on('close', function outgoing(code, reason) {
+    var toRemove = clientWebSockets.findIndex(clientWs => clientWs.socket === ws);
+    console.log("Bye bye " + toRemove + clientWebSockets[toRemove].name);
+    clientWebSockets.splice(toRemove, 1);
+    printAllClients();
+  });
 });
-
-/**
- * Listen on provided port, on all network interfaces.
- */
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-/**
- * Normalize a port into a number, string, or false.
- */
+function printAllClients() {
+  console.log("Current list of clients :");
+  clientWebSockets.forEach(clientWs => {
+    console.log(clientWs.name);
+  });
+}
 
 function normalizePort(val) {
   var port = parseInt(val, 10);
-
   if (isNaN(port)) {
-    // named pipe
     return val;
   }
-
   if (port >= 0) {
-    // port number
     return port;
   }
-
   return false;
 }
-
-/**
- * Event listener for HTTP server "error" event.
- */
 
 function onError(error) {
   console.log('Error: ' + error);
 }
-
-/**
- * Event listener for HTTP server "listening" event.
- */
 
 function onListening() {
   console.log('Listening...')

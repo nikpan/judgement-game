@@ -4,18 +4,64 @@ import Hand from './components/hand'
 import HiddenHand from './components/hiddenHand';
 
 class App extends React.Component {
-  state = {}
-  componentDidMount() {
-    console.log("componendDidMount");
+  constructor(props) {
+    super(props);
+    this.state = {
+      webSocket: null,
+      name: 'Nikhil'
+    };
+    this.setState((prevState, props) => {
+      return {webSocket: null, name: 'Nikhil'}
+    });
+    this.onSetNameClick = this.onSetNameClick.bind(this);
+    this.onDealClick = this.onDealClick.bind(this);
+  }
 
-    const ws = new WebSocket('ws://localhost:3001')
-    ws.onopen = function onWebSocketConnectionOpen() {
+  getInitialState() {
+    return this.state = {webSocket: null, name: 'Nikhil'};
+  }
+
+  componentDidMount() {
+  }
+
+  openConnection() {
+    const ws = new WebSocket('ws://localhost:3001');
+    this.setState((prevState, props) => {
+      return {webSocket: ws}
+    });
+    ws.onopen = () => {
       console.debug('Connection established!');
-      ws.send('Hola from the client side');
+      var data = { 
+        action: 'Join', 
+        name: this.state.name 
+      }; 
+      ws.send(JSON.stringify(data));
     };
     ws.onmessage = function onWebSocketMessageReceived(msg) {
       console.debug('Message from server: ' + msg.data);
+    };
+  }
+
+  closeConnection() {
+    if(this.state.webSocket) {
+      this.state.webSocket.close();
     }
+  }
+
+  handleChange(event) {
+    this.setState({name: event.target.value});
+  }
+
+  onSetNameClick() {
+    this.closeConnection();
+    this.openConnection();
+  }
+
+  onDealClick() {
+    var data = {
+      action: 'Deal'
+     }
+    this.state.webSocket.send(JSON.stringify(data));
   }
 
   render() {
@@ -55,6 +101,12 @@ class App extends React.Component {
         <h1>
           Judgement Game
         </h1>
+        <label>
+          Name: 
+          <input type='text' value={this.state.name} onChange={(event) => this.handleChange(event)}></input>
+        </label>
+        <button onClick={this.onSetNameClick}>Submit</button>
+        <button onClick={this.onDealClick}>Deal!</button>
         <div>
           <Hand name='Nikhil' cards={cards[0]}/>
           <Hand name='Abhisha' cards={cards[1]}/>
