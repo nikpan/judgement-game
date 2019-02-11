@@ -1,7 +1,7 @@
 const http = require('http');
 const WebSocket = require('ws');
 const express = require('express');
-const StandardDeck = require('./deck');
+const getStandardDeck = require('./deck');
 
 const app = express();
 const port = normalizePort(process.env.PORT || '3001');
@@ -11,8 +11,8 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 let clientWebSockets = [];
-
-console.log(StandardDeck.remaining());
+var deck = getStandardDeck();
+console.log(getStandardDeck().remaining());
 
 wss.on('connection', function connection(ws) {
   console.log('A new connection!');
@@ -29,12 +29,15 @@ wss.on('connection', function connection(ws) {
       }
       if(message.action === 'Deal')
       {
-        // create a new deck and deal cards
-        var data = {
-          action: 'Hand',
-          cards: StandardDeck.drawRandom(52 / clientWebSockets.length )
-        }
-        ws.send(JSON.stringify(data));        
+        //TODO: figure out a way to reset deck
+        console.log(deck.remaining());
+        clientWebSockets.forEach(clientWs => {
+          var data = {
+            action: 'Hand',
+            cards: deck.random(52 / clientWebSockets.length )
+          }
+          clientWs.socket.send(JSON.stringify(data));
+        });
       }
     }
   });

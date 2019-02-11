@@ -8,11 +8,12 @@ class App extends React.Component {
     super(props);
     this.state = {
       webSocket: null,
-      name: 'Nikhil'
+      name: 'Nikhil',
+      myCards: []
     };
-    this.setState((prevState, props) => {
-      return {webSocket: null, name: 'Nikhil'}
-    });
+    // this.setState((prevState, props) => {
+    //   return {webSocket: null, name: 'Nikhil'}
+    // });
     this.onSetNameClick = this.onSetNameClick.bind(this);
     this.onDealClick = this.onDealClick.bind(this);
   }
@@ -37,7 +38,12 @@ class App extends React.Component {
       }; 
       ws.send(JSON.stringify(data));
     };
-    ws.onmessage = function onWebSocketMessageReceived(msg) {
+    ws.onmessage = (msg) => {
+      var msgData = JSON.parse(msg.data);
+      if(msgData.action === 'Hand') {
+        var cardsFromServer = msgData.cards;
+        this.setState({myCards: cardsFromServer});
+      }
       console.debug('Message from server: ' + msg.data);
     };
   }
@@ -60,7 +66,7 @@ class App extends React.Component {
   onDealClick() {
     var data = {
       action: 'Deal'
-     }
+     };
     this.state.webSocket.send(JSON.stringify(data));
   }
 
@@ -108,9 +114,10 @@ class App extends React.Component {
         <button onClick={this.onSetNameClick}>Submit</button>
         <button onClick={this.onDealClick}>Deal!</button>
         <div>
-          <Hand name='Nikhil' cards={cards[0]}/>
-          <Hand name='Abhisha' cards={cards[1]}/>
-          <Hand name='Niraj' cards={cards[2]}/>
+          <Hand name={this.state.name} cards={this.state.myCards}></Hand>
+          {/* <Hand name='Nikhil' cards={cards[0]}/> */}
+          {/* <Hand name='Abhisha' cards={cards[1]}/> */}
+          {/* <Hand name='Niraj' cards={cards[2]}/> */}
           <HiddenHand name='Mayuri' cardCount='5'/>
         </div>
       </div>
