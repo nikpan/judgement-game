@@ -1,7 +1,6 @@
-//TODO: make this extend card deck
 var Deck = require('card-deck');
 
-cards = [
+const cards = [
     { suit: 'S', value: 'A'},
     { suit: 'S', value: '2'},
     { suit: 'S', value: '3'},
@@ -59,9 +58,22 @@ cards = [
     { suit: 'C', value: 'K'},
   ];
   
-  function getStandardDeck() {
-    var deck = new Deck();
-    deck.cards(cards);  
-    return deck;
+class StandardDeck {
+  constructor() {
+    this._deck = new Deck(JSON.parse(JSON.stringify(cards)));
   }
-  module.exports = getStandardDeck
+  
+  resetDeck() {
+    this._deck.cards(JSON.parse(JSON.stringify(cards)));
+  }
+
+  drawRandom(count) {
+    return this._deck.drawRandom(count);
+  }
+
+  remaining() {
+    return this._deck.remaining();
+  }
+}
+
+module.exports = StandardDeck
