@@ -115,9 +115,6 @@ class App extends React.Component {
         <button onClick={this.onDealClick}>Deal!</button>
         <div>
           <Hand name={this.state.name} cards={this.state.myCards}></Hand>
-          {/* <Hand name='Nikhil' cards={cards[0]}/> */}
-          {/* <Hand name='Abhisha' cards={cards[1]}/> */}
-          {/* <Hand name='Niraj' cards={cards[2]}/> */}
           <HiddenHand name='Mayuri' cardCount='5'/>
         </div>
       </div>
