@@ -9,17 +9,11 @@ class App extends React.Component {
     this.state = {
       webSocket: null,
       name: 'Nikhil',
-      myCards: []
+      myCards: [],
+      otherPlayers: []
     };
-    // this.setState((prevState, props) => {
-    //   return {webSocket: null, name: 'Nikhil'}
-    // });
     this.onSetNameClick = this.onSetNameClick.bind(this);
     this.onDealClick = this.onDealClick.bind(this);
-  }
-
-  getInitialState() {
-    return this.state = {webSocket: null, name: 'Nikhil'};
   }
 
   componentDidMount() {
@@ -43,6 +37,12 @@ class App extends React.Component {
       if(msgData.action === 'Hand') {
         var cardsFromServer = msgData.cards;
         this.setState({myCards: cardsFromServer});
+      }
+      if(msgData.action === 'AllPlayers') {
+        let otherPlayerInfos = msgData.players;
+        let toRemove = otherPlayerInfos.findIndex(player => player.name === this.state.name);
+        otherPlayerInfos.splice(toRemove, 1);
+        this.setState({otherPlayers: otherPlayerInfos});
       }
       console.debug('Message from server: ' + msg.data);
     };
@@ -71,37 +71,10 @@ class App extends React.Component {
   }
 
   render() {
-
-    let cards = [
-      [
-        {suit: 'H', value: 'A'},
-        {suit: 'D', value: '2'},
-        {suit: 'S', value: '3'},
-        {suit: 'S', value: 'J'},
-        {suit: 'C', value: 'Q'}
-      ],
-      [
-        {suit: 'H', value: '2'},
-        {suit: 'D', value: 'A'},
-        {suit: 'S', value: 'K'},
-        {suit: 'S', value: '9'},
-        {suit: 'C', value: 'J'}
-      ],
-      [
-        {suit: 'H', value: '4'},
-        {suit: 'D', value: '7'},
-        {suit: 'S', value: '9'},
-        {suit: 'S', value: '10'},
-        {suit: 'C', value: 'Q'}
-      ],
-      [
-        {suit: 'H', value: '7'},
-        {suit: 'D', value: '3'},
-        {suit: 'S', value: '3'},
-        {suit: 'S', value: '6'},
-        {suit: 'C', value: 'J'}
-      ]
-    ];
+    let otherPlayers = [];
+    this.state.otherPlayers.forEach(player => {
+      otherPlayers.push(<HiddenHand name={player.name} cardCount={player.cardCount}></HiddenHand>)
+    });
     return (
       <div>
         <h1>
@@ -115,8 +88,7 @@ class App extends React.Component {
         <button onClick={this.onDealClick}>Deal!</button>
         <div>
           <Hand name={this.state.name} cards={this.state.myCards}></Hand>
-          {/* <Hand name='Niraj' cards={cards[2]}/> */}
-          <HiddenHand name='Mayuri' cardCount='5'/>
+          {otherPlayers}
         </div>
       </div>
     );

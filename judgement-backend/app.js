@@ -10,7 +10,7 @@ app.set('port', port);
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-let clientWebSockets = [];
+let clients = [];
 let deck = new StandardDeck();
 
 wss.on('connection', function connection(ws) {
@@ -22,29 +22,31 @@ wss.on('connection', function connection(ws) {
       message = JSON.parse(message);
       if(message.action === 'Join')
       {
-        clientWebSockets.push({ socket: ws, name: message.name});
-        console.log(message.name + " added");
-        printAllClients();
+        clients.push({ socket: ws, name: message.name, hand: []});
+        sendPlayerInfoToAll();
       }
       if(message.action === 'Deal')
       {
         deck.resetDeck();
-        clientWebSockets.forEach(clientWs => {
+        clients.forEach(clientWs => {
+          let hand = deck.drawRandom(Math.floor(52 / clients.length));
+          clientWs.hand = hand;
           var data = {
             action: 'Hand',
-            cards: deck.drawRandom(52 / clientWebSockets.length )
+            cards: hand
           }
           clientWs.socket.send(JSON.stringify(data));
         });
+        sendPlayerInfoToAll();
       }
     }
   });
 
   ws.on('close', function outgoing(code, reason) {
-    var toRemove = clientWebSockets.findIndex(clientWs => clientWs.socket === ws);
-    console.log("Bye bye " + toRemove + clientWebSockets[toRemove].name);
-    clientWebSockets.splice(toRemove, 1);
-    printAllClients();
+    var toRemove = clients.findIndex(clientWs => clientWs.socket === ws);
+    clients.splice(toRemove, 1);
+    
+    sendPlayerInfoToAll();
   });
 });
 
@@ -52,9 +54,25 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+function sendPlayerInfoToAll() {
+  let playerInfos = [];
+  clients.forEach(clientWs => {
+    playerInfos.push({
+      name: clientWs.name,
+      cardCount: clientWs.hand.length
+    });
+  });
+  clients.forEach(clientWs => {
+    clientWs.socket.send(JSON.stringify({
+      action: 'AllPlayers',
+      players: playerInfos
+    }));
+  });
+}
+
 function printAllClients() {
   console.log("Current list of clients :");
-  clientWebSockets.forEach(clientWs => {
+  clients.forEach(clientWs => {
     console.log(clientWs.name);
   });
 }
