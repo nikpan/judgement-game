@@ -1,3 +1,5 @@
+//@ts-check
+
 import React from 'react';
 import './App.css';
 import Hand from './components/hand'

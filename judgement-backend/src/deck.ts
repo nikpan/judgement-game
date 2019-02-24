@@ -59,6 +59,7 @@ const cards = [
   ];
   
 class StandardDeck {
+  private _deck: any;
   constructor() {
     this._deck = new Deck(JSON.parse(JSON.stringify(cards)));
   }
@@ -67,7 +68,7 @@ class StandardDeck {
     this._deck.cards(JSON.parse(JSON.stringify(cards)));
   }
 
-  drawRandom(count) {
+  drawRandom(count: number) {
     return this._deck.drawRandom(count);
   }
 
