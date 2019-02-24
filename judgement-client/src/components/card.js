@@ -39,7 +39,7 @@ export default class Card extends React.Component {
                 ret = ret && false;
                 break;
         }
-        switch (this.props.value) {
+        switch (this.props.rank) {
             case "A":
             case "2":
             case "3":
@@ -63,10 +63,10 @@ export default class Card extends React.Component {
     }
 
     renderCard(){
-        let imgName = "./resources/img/" + this.props.value + this.props.suit + ".png";
+        let imgName = "./resources/img/" + this.props.rank + this.props.suit + ".png";
         console.log(imgName);
         return (
-            <img src={getImageSrc(this.props.value + this.props.suit)} className="cardImg" alt="cardImage" />
+            <img src={getImageSrc(this.props.rank + this.props.suit)} className="cardImg" alt="cardImage" />
         )
     }
 }

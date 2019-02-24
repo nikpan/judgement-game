@@ -44,6 +44,10 @@ class Room {
     this._players.forEach(player => {
       const hand = this._deck.drawRandom(Math.floor(52 / this._players.length));
       player.hand = hand;
+      player.sendMessage({
+        action: MessageType.Hand,
+        cards: player.hand
+      })
     });
 
     this.sendPlayerInfoToAll();

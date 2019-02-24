@@ -9,7 +9,7 @@ export default class Hand extends React.Component {
             <div>
                 <h2>{this.props.name}'s Hand</h2>
                 <div>
-                    {cards.map((card => <Card suit={card.suit} value={card.value}></Card>))}
+                    {cards.map((card => <Card suit={card.suit} rank={card.rank}></Card>))}
                 </div>
             </div>
         )

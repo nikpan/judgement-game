@@ -33,10 +33,6 @@ class Player {
     }
     if (message.action === 'Deal') {
       this._room.deal();
-      this.sendMessage({
-        action: MessageType.Hand,
-        cards: this.hand
-      })
     }
   }
 
