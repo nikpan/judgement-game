@@ -8,6 +8,8 @@ export const enum MessageType {
 }
 export interface Message {
   action: MessageType;
+  players?: any;
+  cards?: any;
 }
 
 export interface MessageHand extends Message { cards: Card[] };

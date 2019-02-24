@@ -16,10 +16,10 @@ class Room {
    */
   public sendPlayerInfoToAll(): void {
     let playerInfos = [];
-    this._players.forEach(clientWs => {
+    this._players.forEach(player => {
       playerInfos.push({
-        name: clientWs.name,
-        cardCount: clientWs.hand.length
+        name: player.name,
+        cardCount: player.hand.length
       });
     });
     this._players.forEach(clientWs => {
@@ -34,9 +34,9 @@ class Room {
    * removePlayer
    */
   public removePlayer(player: Player): void {
-    var toRemove = this._players.findIndex(clientWs => clientWs.socket === socket);
+    var toRemove = this._players.findIndex(p => p.socket === player.socket);
     this._players.splice(toRemove, 1);
-    this._room.sendPlayerInfoToAll();
+    this.sendPlayerInfoToAll();
   }
 
   /**
@@ -44,6 +44,7 @@ class Room {
    */
   public addPlayer(player: Player): void {
     this._players.push(player);
+    this.sendPlayerInfoToAll();
   }
 
   public resetDeck(): void {
@@ -55,11 +56,10 @@ class Room {
 
     this._players.forEach(player => {
       const hand = this._deck.drawRandom(Math.floor(52 / this._players.length));
-      player.sendMessage({
-        action: MessageType.Hand,
-        cards: hand
-      });
+      player.hand = hand;
     });
+
+    this.sendPlayerInfoToAll();
   }
 }
 

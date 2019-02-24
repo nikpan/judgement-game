@@ -1,13 +1,13 @@
 import WebSocket from 'ws';
-import { Hand } from './card';
+import { Card } from './card';
 import Room from './room';
 import { Message } from './message';
 
 class Player {
-  private socket: WebSocket;
+  public socket: WebSocket;
   private _room: Room;
   public name: string;
-  public hand: Hand[];
+  public hand: Card[];
 
   constructor(socket: WebSocket, room: Room) {
     this.socket = socket;
@@ -22,38 +22,29 @@ class Player {
     });
 
     socket.on('close', (code, reason) => {
-      var toRemove = this._players.findIndex(clientWs => clientWs.socket === socket);
-      this._players.splice(toRemove, 1);
-      this._room.sendPlayerInfoToAll();
+      this._room.removePlayer(this);
     });
   }
   handleMessage(message: any) {
     if (message.action === 'Join') {
-      let foo:Player = this;
-      this._room.addPlayer(foo);
-      this._players.push({ socket: socket, name: message.name, hand: [] });
-      this._room.sendPlayerInfoToAll();
+      this.name = message.name;
+      this.hand = [];
+      this._room.addPlayer(this);
     }
     if (message.action === 'Deal') {
-      deck.resetDeck();
-      this._players.forEach(clientWs => {
-        let hand = deck.drawRandom(Math.floor(52 / this._players.length));
-        clientWs.hand = hand;
-        var data = {
-          action: 'Hand',
-          cards: hand
-        }
-        clientWs.socket.send(JSON.stringify(data));
-      });
-      this._room.sendPlayerInfoToAll();
+      this._room.deal();
+      this.sendMessage({
+        action: MessageType.Hand,
+        cards: this.hand
+      })
     }
   }
 
   /**
    * sendMessage
    */
-  public socketsage(message: Message) {
-    this._socket.send(JSON.stringify(message));
+  public sendMessage(message: Message) {
+    this.socket.send(JSON.stringify(message));
   }
 }
 
