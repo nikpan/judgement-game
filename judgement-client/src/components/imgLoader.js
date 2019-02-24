@@ -1,12 +1,3 @@
-// export const getStyles = (imgUrl) => {
-//     return {
-//         cardImg: {
-//             src: url(imgUrl),
-//             height: 'inherit'
-//         }
-//     }
-// }
-
 import CA from '../resources/img/AC.png';
 import C2 from '../resources/img/2C.png';
 import C3 from '../resources/img/3C.png';
@@ -65,64 +56,64 @@ import HK from '../resources/img/KH.png';
 
 import BlueBack from '../resources/img/blue_back.png';
 
-export const getImageSrc = (imgId) => {
-    switch (imgId) {
-        case 'AC': return CA;
-        case '2C': return C2;
-        case '3C': return C3;
-        case '4C': return C4;
-        case '5C': return C5;
-        case '6C': return C6;
-        case '7C': return C7;
-        case '8C': return C8;
-        case '9C': return C9;
-        case '10C': return C10;
-        case 'JC': return CJ;
-        case 'QC': return CQ;
-        case 'KC': return CK;
-        
-        case 'AD': return DA;
-        case '2D': return D2;
-        case '3D': return D3;
-        case '4D': return D4;
-        case '5D': return D5;
-        case '6D': return D6;
-        case '7D': return D7;
-        case '8D': return D8;
-        case '9D': return D9;
-        case '10D': return D10;
-        case 'JD': return DJ;
-        case 'QD': return DQ;
-        case 'KD': return DK;
+export default function getImageSrc(imgId) {
+  switch (imgId) {
+    case 'AC': return CA;
+    case '2C': return C2;
+    case '3C': return C3;
+    case '4C': return C4;
+    case '5C': return C5;
+    case '6C': return C6;
+    case '7C': return C7;
+    case '8C': return C8;
+    case '9C': return C9;
+    case '10C': return C10;
+    case 'JC': return CJ;
+    case 'QC': return CQ;
+    case 'KC': return CK;
 
-        case 'AH': return HA;
-        case '2H': return H2;
-        case '3H': return H3;
-        case '4H': return H4;
-        case '5H': return H5;
-        case '6H': return H6;
-        case '7H': return H7;
-        case '8H': return H8;
-        case '9H': return H9;
-        case '10H': return H10;
-        case 'JH': return HJ;
-        case 'QH': return HQ;
-        case 'KH': return HK;
+    case 'AD': return DA;
+    case '2D': return D2;
+    case '3D': return D3;
+    case '4D': return D4;
+    case '5D': return D5;
+    case '6D': return D6;
+    case '7D': return D7;
+    case '8D': return D8;
+    case '9D': return D9;
+    case '10D': return D10;
+    case 'JD': return DJ;
+    case 'QD': return DQ;
+    case 'KD': return DK;
 
-        case 'AS': return SA;
-        case '2S': return S2;
-        case '3S': return S3;
-        case '4S': return S4;
-        case '5S': return S5;
-        case '6S': return S6;
-        case '7S': return S7;
-        case '8S': return S8;
-        case '9S': return S9;
-        case '10S': return S10;
-        case 'JS': return SJ;
-        case 'QS': return SQ;
-        case 'KS': return SK;
+    case 'AH': return HA;
+    case '2H': return H2;
+    case '3H': return H3;
+    case '4H': return H4;
+    case '5H': return H5;
+    case '6H': return H6;
+    case '7H': return H7;
+    case '8H': return H8;
+    case '9H': return H9;
+    case '10H': return H10;
+    case 'JH': return HJ;
+    case 'QH': return HQ;
+    case 'KH': return HK;
 
-        case 'BlueBack': return BlueBack;
-    }
+    case 'AS': return SA;
+    case '2S': return S2;
+    case '3S': return S3;
+    case '4S': return S4;
+    case '5S': return S5;
+    case '6S': return S6;
+    case '7S': return S7;
+    case '8S': return S8;
+    case '9S': return S9;
+    case '10S': return S10;
+    case 'JS': return SJ;
+    case 'QS': return SQ;
+    case 'KS': return SK;
+
+    case 'BlueBack': return BlueBack;
+  }
 }

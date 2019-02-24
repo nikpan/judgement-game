@@ -1,5 +1,3 @@
-//@ts-check
-
 import React from 'react';
 import './App.css';
 import Hand from './components/hand'
@@ -24,40 +22,40 @@ class App extends React.Component {
   openConnection() {
     const ws = new WebSocket('ws://localhost:3001');
     this.setState((prevState, props) => {
-      return {webSocket: ws}
+      return { webSocket: ws }
     });
     ws.onopen = () => {
       console.debug('Connection established!');
-      var data = { 
-        action: 'Join', 
-        name: this.state.name 
-      }; 
+      var data = {
+        action: 'Join',
+        name: this.state.name
+      };
       ws.send(JSON.stringify(data));
     };
     ws.onmessage = (msg) => {
       var msgData = JSON.parse(msg.data);
-      if(msgData.action === 'Hand') {
+      if (msgData.action === 'Hand') {
         var cardsFromServer = msgData.cards;
-        this.setState({myCards: cardsFromServer});
+        this.setState({ myCards: cardsFromServer });
       }
-      if(msgData.action === 'AllPlayers') {
+      if (msgData.action === 'AllPlayers') {
         let otherPlayerInfos = msgData.players;
         let toRemove = otherPlayerInfos.findIndex(player => player.name === this.state.name);
         otherPlayerInfos.splice(toRemove, 1);
-        this.setState({otherPlayers: otherPlayerInfos});
+        this.setState({ otherPlayers: otherPlayerInfos });
       }
       console.debug('Message from server: ' + msg.data);
     };
   }
 
   closeConnection() {
-    if(this.state.webSocket) {
+    if (this.state.webSocket) {
       this.state.webSocket.close();
     }
   }
 
   handleChange(event) {
-    this.setState({name: event.target.value});
+    this.setState({ name: event.target.value });
   }
 
   onSetNameClick() {
@@ -68,7 +66,7 @@ class App extends React.Component {
   onDealClick() {
     var data = {
       action: 'Deal'
-     };
+    };
     this.state.webSocket.send(JSON.stringify(data));
   }
 
@@ -83,7 +81,7 @@ class App extends React.Component {
           Judgement Game
         </h1>
         <label>
-          Name: 
+          Name:
           <input type='text' value={this.state.name} onChange={(event) => this.handleChange(event)}></input>
         </label>
         <button onClick={this.onSetNameClick}>Submit</button>
