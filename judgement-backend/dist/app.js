@@ -1,16 +1,25 @@
-const http = require('http');
-const WebSocket = require('ws');
-const express = require('express');
-const StandardDeck = require('./deck');
-const app = express();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const http_1 = __importDefault(require("http"));
+const ws_1 = __importDefault(require("ws"));
+const express_1 = __importDefault(require("express"));
+const deck_1 = __importDefault(require("./deck"));
+const Player_1 = __importDefault(require("./Player"));
+const room_1 = __importDefault(require("./room"));
+const app = express_1.default();
 const port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const server = http_1.default.createServer(app);
+const wss = new ws_1.default.Server({ server });
 let clients = [];
-let deck = new StandardDeck();
+let deck = new deck_1.default();
+let room = new room_1.default();
 wss.on('connection', function connection(ws) {
     console.log('A new connection!');
+    let player = new Player_1.default(ws, room);
     ws.on('message', function incoming(message) {
         console.log('received: %s', message);
         if (JSON.parse(message)) {

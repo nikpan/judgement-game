@@ -1,7 +1,9 @@
-const http = require('http');
-const WebSocket = require('ws');
-const express = require('express');
-const StandardDeck = require('./deck');
+import http from 'http';
+import WebSocket from 'ws';
+import express from 'express';
+import StandardDeck from './deck';
+import Player from './Player';
+import Room from './room';
 
 const app = express();
 const port = normalizePort(process.env.PORT || '3001');
@@ -12,21 +14,19 @@ const wss = new WebSocket.Server({ server });
 
 let clients = [];
 let deck = new StandardDeck();
-
+let room = new Room();
 wss.on('connection', function connection(ws) {
   console.log('A new connection!');
-
+  let player = new Player(ws, room);
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
-    if(JSON.parse(message)) {
+    if (JSON.parse(message)) {
       message = JSON.parse(message);
-      if(message.action === 'Join')
-      {
-        clients.push({ socket: ws, name: message.name, hand: []});
+      if (message.action === 'Join') {
+        clients.push({ socket: ws, name: message.name, hand: [] });
         sendPlayerInfoToAll();
       }
-      if(message.action === 'Deal')
-      {
+      if (message.action === 'Deal') {
         deck.resetDeck();
         clients.forEach(clientWs => {
           let hand = deck.drawRandom(Math.floor(52 / clients.length));
@@ -45,7 +45,7 @@ wss.on('connection', function connection(ws) {
   ws.on('close', function outgoing(code, reason) {
     var toRemove = clients.findIndex(clientWs => clientWs.socket === ws);
     clients.splice(toRemove, 1);
-    
+
     sendPlayerInfoToAll();
   });
 });

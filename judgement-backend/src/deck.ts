@@ -1,80 +1,81 @@
-var Deck = require('card-deck');
+import Deck from 'card-deck';
+import { Card, Suit } from './card';
 
-const cards = [
-    { suit: 'S', value: 'A'},
-    { suit: 'S', value: '2'},
-    { suit: 'S', value: '3'},
-    { suit: 'S', value: '4'},
-    { suit: 'S', value: '5'},
-    { suit: 'S', value: '6'},
-    { suit: 'S', value: '7'},
-    { suit: 'S', value: '8'},
-    { suit: 'S', value: '9'},
-    { suit: 'S', value: '10'},
-    { suit: 'S', value: 'J'},
-    { suit: 'S', value: 'Q'},
-    { suit: 'S', value: 'K'},
-  
-    { suit: 'H', value: 'A'},
-    { suit: 'H', value: '2'},
-    { suit: 'H', value: '3'},
-    { suit: 'H', value: '4'},
-    { suit: 'H', value: '5'},
-    { suit: 'H', value: '6'},
-    { suit: 'H', value: '7'},
-    { suit: 'H', value: '8'},
-    { suit: 'H', value: '9'},
-    { suit: 'H', value: '10'},
-    { suit: 'H', value: 'J'},
-    { suit: 'H', value: 'Q'},
-    { suit: 'H', value: 'K'},
-  
-    { suit: 'D', value: 'A'},
-    { suit: 'D', value: '2'},
-    { suit: 'D', value: '3'},
-    { suit: 'D', value: '4'},
-    { suit: 'D', value: '5'},
-    { suit: 'D', value: '6'},
-    { suit: 'D', value: '7'},
-    { suit: 'D', value: '8'},
-    { suit: 'D', value: '9'},
-    { suit: 'D', value: '10'},
-    { suit: 'D', value: 'J'},
-    { suit: 'D', value: 'Q'},
-    { suit: 'D', value: 'K'},
-  
-    { suit: 'C', value: 'A'},
-    { suit: 'C', value: '2'},
-    { suit: 'C', value: '3'},
-    { suit: 'C', value: '4'},
-    { suit: 'C', value: '5'},
-    { suit: 'C', value: '6'},
-    { suit: 'C', value: '7'},
-    { suit: 'C', value: '8'},
-    { suit: 'C', value: '9'},
-    { suit: 'C', value: '10'},
-    { suit: 'C', value: 'J'},
-    { suit: 'C', value: 'Q'},
-    { suit: 'C', value: 'K'},
-  ];
-  
+const cards: Card[] = [
+  { suit: Suit.Spades, rank: 'A' },
+  { suit: Suit.Spades, rank: '2' },
+  { suit: Suit.Spades, rank: '3' },
+  { suit: Suit.Spades, rank: '4' },
+  { suit: Suit.Spades, rank: '5' },
+  { suit: Suit.Spades, rank: '6' },
+  { suit: Suit.Spades, rank: '7' },
+  { suit: Suit.Spades, rank: '8' },
+  { suit: Suit.Spades, rank: '9' },
+  { suit: Suit.Spades, rank: '10' },
+  { suit: Suit.Spades, rank: 'J' },
+  { suit: Suit.Spades, rank: 'Q' },
+  { suit: Suit.Spades, rank: 'K' },
+
+  { suit: Suit.Hearts, rank: 'A' },
+  { suit: Suit.Hearts, rank: '2' },
+  { suit: Suit.Hearts, rank: '3' },
+  { suit: Suit.Hearts, rank: '4' },
+  { suit: Suit.Hearts, rank: '5' },
+  { suit: Suit.Hearts, rank: '6' },
+  { suit: Suit.Hearts, rank: '7' },
+  { suit: Suit.Hearts, rank: '8' },
+  { suit: Suit.Hearts, rank: '9' },
+  { suit: Suit.Hearts, rank: '10' },
+  { suit: Suit.Hearts, rank: 'J' },
+  { suit: Suit.Hearts, rank: 'Q' },
+  { suit: Suit.Hearts, rank: 'K' },
+
+  { suit: Suit.Diamonds, rank: 'A' },
+  { suit: Suit.Diamonds, rank: '2' },
+  { suit: Suit.Diamonds, rank: '3' },
+  { suit: Suit.Diamonds, rank: '4' },
+  { suit: Suit.Diamonds, rank: '5' },
+  { suit: Suit.Diamonds, rank: '6' },
+  { suit: Suit.Diamonds, rank: '7' },
+  { suit: Suit.Diamonds, rank: '8' },
+  { suit: Suit.Diamonds, rank: '9' },
+  { suit: Suit.Diamonds, rank: '10' },
+  { suit: Suit.Diamonds, rank: 'J' },
+  { suit: Suit.Diamonds, rank: 'Q' },
+  { suit: Suit.Diamonds, rank: 'K' },
+
+  { suit: Suit.Clubs, rank: 'A' },
+  { suit: Suit.Clubs, rank: '2' },
+  { suit: Suit.Clubs, rank: '3' },
+  { suit: Suit.Clubs, rank: '4' },
+  { suit: Suit.Clubs, rank: '5' },
+  { suit: Suit.Clubs, rank: '6' },
+  { suit: Suit.Clubs, rank: '7' },
+  { suit: Suit.Clubs, rank: '8' },
+  { suit: Suit.Clubs, rank: '9' },
+  { suit: Suit.Clubs, rank: '10' },
+  { suit: Suit.Clubs, rank: 'J' },
+  { suit: Suit.Clubs, rank: 'Q' },
+  { suit: Suit.Clubs, rank: 'K' },
+];
+
 class StandardDeck {
   private _deck: any;
   constructor() {
     this._deck = new Deck(JSON.parse(JSON.stringify(cards)));
   }
-  
-  resetDeck() {
+
+  resetDeck(): void {
     this._deck.cards(JSON.parse(JSON.stringify(cards)));
   }
 
-  drawRandom(count: number) {
+  drawRandom(count: number): Card[] {
     return this._deck.drawRandom(count);
   }
 
-  remaining() {
+  remaining(): number {
     return this._deck.remaining();
   }
 }
 
-module.exports = StandardDeck
+export default StandardDeck
