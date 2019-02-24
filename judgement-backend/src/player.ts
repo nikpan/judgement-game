@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import { Card } from './card';
 import Room from './room';
-import { Message } from './message';
+import { Message, MessageType } from './message';
 
 class Player {
   public socket: WebSocket;
@@ -21,7 +21,7 @@ class Player {
       }
     });
 
-    socket.on('close', (code, reason) => {
+    socket.on('close', () => {
       this._room.removePlayer(this);
     });
   }
@@ -40,9 +40,6 @@ class Player {
     }
   }
 
-  /**
-   * sendMessage
-   */
   public sendMessage(message: Message) {
     this.socket.send(JSON.stringify(message));
   }

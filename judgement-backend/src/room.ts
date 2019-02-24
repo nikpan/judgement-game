@@ -11,9 +11,6 @@ class Room {
     this._deck = new StandardDeck();
   }
 
-  /**
-   * sendPlayerInfoToAll
-   */
   public sendPlayerInfoToAll(): void {
     let playerInfos = [];
     this._players.forEach(player => {
@@ -30,25 +27,15 @@ class Room {
     });
   }
 
-  /**
-   * removePlayer
-   */
   public removePlayer(player: Player): void {
     var toRemove = this._players.findIndex(p => p.socket === player.socket);
     this._players.splice(toRemove, 1);
     this.sendPlayerInfoToAll();
   }
 
-  /**
-   * addPlayer
-   */
   public addPlayer(player: Player): void {
     this._players.push(player);
     this.sendPlayerInfoToAll();
-  }
-
-  public resetDeck(): void {
-
   }
 
   public deal(): void {
@@ -60,6 +47,13 @@ class Room {
     });
 
     this.sendPlayerInfoToAll();
+  }
+
+  private printAllPlayers(): void {
+    console.log("Current list of clients :");
+    this._players.forEach(player => {
+      console.log(player.name);
+    });
   }
 }
 

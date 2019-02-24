@@ -8,10 +8,9 @@ const app = express();
 const port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
 
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const server: http.Server = http.createServer(app);
+const wss: WebSocket.Server = new WebSocket.Server({ server });
 
-let clients = [];
 let room = new Room();
 wss.on('connection', function connection(ws) {
   console.log('A new connection!');
@@ -22,30 +21,7 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-function sendPlayerInfoToAll() {
-  let playerInfos = [];
-  clients.forEach(clientWs => {
-    playerInfos.push({
-      name: clientWs.name,
-      cardCount: clientWs.hand.length
-    });
-  });
-  clients.forEach(clientWs => {
-    clientWs.socket.send(JSON.stringify({
-      action: 'AllPlayers',
-      players: playerInfos
-    }));
-  });
-}
-
-function printAllClients() {
-  console.log("Current list of clients :");
-  clients.forEach(clientWs => {
-    console.log(clientWs.name);
-  });
-}
-
-function normalizePort(val) {
+function normalizePort(val: string) {
   var port = parseInt(val, 10);
   if (isNaN(port)) {
     return val;
@@ -56,10 +32,10 @@ function normalizePort(val) {
   return false;
 }
 
-function onError(error) {
+function onError(error: Error): void {
   console.log('Error: ' + error);
 }
 
-function onListening() {
+function onListening(): void {
   console.log('Listening...')
 }

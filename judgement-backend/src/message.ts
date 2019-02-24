@@ -11,5 +11,3 @@ export interface Message {
   players?: any;
   cards?: any;
 }
-
-export interface MessageHand extends Message { cards: Card[] };
