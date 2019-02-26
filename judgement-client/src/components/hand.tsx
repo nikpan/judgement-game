@@ -4,6 +4,7 @@ import Card, { CardProps } from './card';
 export interface HandProps {
   cards: CardProps[];
   name: string;
+  cardSelected: (suit:string, rank:string) => void;
 }
 
 export default class Hand extends React.Component<HandProps> {
@@ -13,7 +14,7 @@ export default class Hand extends React.Component<HandProps> {
       <div>
         <h2>{this.props.name}'s Hand</h2>
         <div>
-          {cards.map((card => <Card suit={card.suit} rank={card.rank} hidden={false}></Card>))}
+          {cards.map((card => <Card suit={card.suit} rank={card.rank} hidden={false} cardSelected={this.props.cardSelected}></Card>))}
         </div>
       </div>
     )

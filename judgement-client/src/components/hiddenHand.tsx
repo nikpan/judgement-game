@@ -7,11 +7,12 @@ export interface HiddenHandProps {
 }
 
 export default class HiddenHand extends React.Component<HiddenHandProps> {
+  doNothing() {}
   render() {
     const cardCount = this.props.cardCount;
     let cards = [];
     for (let i = 0; i < cardCount; i++) {
-      cards.push(<Card hidden={true} suit='' rank='' />)
+      cards.push(<Card hidden={true} suit='' rank='' cardSelected={this.doNothing}/>)
     }
     return (
       <div>

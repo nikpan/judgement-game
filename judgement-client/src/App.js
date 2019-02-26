@@ -14,6 +14,7 @@ class App extends React.Component {
     };
     this.onSetNameClick = this.onSetNameClick.bind(this);
     this.onDealClick = this.onDealClick.bind(this);
+    this.onCardClick = this.onCardClick.bind(this);
   }
 
   componentDidMount() {
@@ -70,6 +71,10 @@ class App extends React.Component {
     this.state.webSocket.send(JSON.stringify(data));
   }
 
+  onCardClick(suit, rank){
+    window.alert(suit + rank);
+  }
+
   render() {
     let otherPlayers = [];
     this.state.otherPlayers.forEach(player => {
@@ -87,7 +92,7 @@ class App extends React.Component {
         <button onClick={this.onSetNameClick}>Submit</button>
         <button onClick={this.onDealClick}>Deal!</button>
         <div>
-          <Hand name={this.state.name} cards={this.state.myCards}></Hand>
+          <Hand name={this.state.name} cards={this.state.myCards} cardSelected={this.onCardClick}></Hand>
           {otherPlayers}
         </div>
       </div>

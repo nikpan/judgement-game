@@ -6,9 +6,14 @@ export interface CardProps {
   suit: string;
   rank: string;
   hidden?: boolean;
+  cardSelected: (suit:string, rank:string) => void;
 }
 
 export default class Card extends React.Component<CardProps> {
+  cardClickHandler = (event:any) => {
+    console.log(event);
+    this.props.cardSelected(this.props.suit, this.props.rank);
+  };
   render() {
     if (this.props.hidden) {
       return (
@@ -68,7 +73,7 @@ export default class Card extends React.Component<CardProps> {
     let imgName = "./resources/img/" + this.props.rank + this.props.suit + ".png";
     console.log(imgName);
     return (
-      <img src={getImageSrc(this.props.rank + this.props.suit)} className="cardImg" alt="cardImage" />
+      <img src={getImageSrc(this.props.rank + this.props.suit)} className="cardImg" alt="cardImage" onClick={this.cardClickHandler}/>
     )
   }
 }
