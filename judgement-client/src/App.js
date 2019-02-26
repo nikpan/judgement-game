@@ -72,7 +72,7 @@ class App extends React.Component {
   }
 
   onCardClick(suit, rank){
-    window.alert(suit + rank);
+    console.log(suit + rank);
   }
 
   render() {

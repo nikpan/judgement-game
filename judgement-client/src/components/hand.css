@@ -1,0 +1,12 @@
+.player {
+  display: flex;
+  flex-flow: row;
+}
+
+.playerHand {
+  flex-grow: 3;
+}
+
+.playedCard {
+  flex-grow: 1;
+}
