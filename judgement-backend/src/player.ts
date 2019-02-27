@@ -1,13 +1,20 @@
 import WebSocket from 'ws';
-import { Card } from './card';
+import { ICard } from './card';
 import Room from './room';
 import { Message, MessageType } from './message';
 
-class Player {
+export interface IPlayer {
+  socket: WebSocket;
+  name: string;
+  selectedCard: ICard | null;
+}
+
+class Player implements IPlayer {
   public socket: WebSocket;
   private _room: Room;
   public name: string;
-  public hand: Card[];
+  public hand: ICard[];
+  public selectedCard: ICard | null;
 
   constructor(socket: WebSocket, room: Room) {
     this.socket = socket;
@@ -33,6 +40,10 @@ class Player {
     }
     if (message.action === 'Deal') {
       this._room.deal();
+    }
+    if (message.action === 'PlayCard') {
+      this.selectedCard = message.card;
+      this._room.cardPlayed();
     }
   }
 

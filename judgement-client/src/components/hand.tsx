@@ -1,22 +1,30 @@
 import React from 'react';
-import Card, { CardProps } from './card';
+import Card, { ICard } from './card';
 import './hand.css'
 
 export interface HandProps {
-  cards: CardProps[];
+  cards: ICard[];
   name: string;
+  selectedCard: ICard | null;
   cardSelected: (suit:string, rank:string) => void;
 }
 
-export default class Hand extends React.Component<HandProps, {suit:string, rank:string }> {
-  state = {suit: '', rank: ''};
-
+export default class Hand extends React.Component<HandProps> {
   cardSelected = (suit:string, rank:string) => {
-    this.setState({suit: suit, rank: rank});
     this.props.cardSelected(suit, rank);
   };
-  doNothing = (suit: string, rank: string) => {}
   
+  selectedCard = () => {
+    if (this.props.selectedCard) return (
+      <Card
+        suit={this.props.selectedCard.suit}
+        rank={this.props.selectedCard.rank}
+        hidden={false}
+      />
+    )
+    return null;
+  }
+
   render() {
     const cards = this.sortCards(this.props.cards);
     return (
@@ -24,11 +32,7 @@ export default class Hand extends React.Component<HandProps, {suit:string, rank:
         <h2>{this.props.name}'s Hand</h2>
         <div className='player'>
           <div className='playedCard'>
-            <Card 
-              suit={this.state.suit} 
-              rank={this.state.rank} 
-              hidden={false} 
-              cardSelected={this.doNothing} />
+            {this.selectedCard()}
           </div>
           <div className='playerHand'>
             {cards.map((card => 
@@ -36,15 +40,16 @@ export default class Hand extends React.Component<HandProps, {suit:string, rank:
                 suit={card.suit} 
                 rank={card.rank} 
                 hidden={false} 
-                cardSelected={this.cardSelected}>
-              </Card>))}
+                cardSelected={this.cardSelected}
+              />
+              ))}
           </div>
         </div>
       </div>
     )
   }
 
-  private sortCards(cards: CardProps[]) {
+  private sortCards(cards: ICard[]) {
     cards.sort((a,b) => {
       if (a.suit > b.suit) {
         return 1;

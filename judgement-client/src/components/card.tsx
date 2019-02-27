@@ -2,17 +2,22 @@ import * as React from 'react';
 import './card.css';
 import getImageSrc from './imgLoader';
 
-export interface CardProps {
+export interface ICard {
   suit: string;
   rank: string;
-  hidden?: boolean;
-  cardSelected: (suit:string, rank:string) => void;
+}
+
+export interface CardProps extends ICard {
+  hidden: boolean;
+  cardSelected?: (suit:string, rank:string) => void;
 }
 
 export default class Card extends React.Component<CardProps> {
   cardClickHandler = (event:any) => {
     console.log(event);
-    this.props.cardSelected(this.props.suit, this.props.rank);
+    if(this.props.cardSelected){
+      this.props.cardSelected(this.props.suit, this.props.rank);
+    }
   };
   render() {
     if (this.props.hidden) {

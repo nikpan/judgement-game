@@ -1,7 +1,7 @@
 import Deck from 'card-deck';
-import { Card, Suit } from './card';
+import { ICard, Suit } from './card';
 
-const cards: Card[] = [
+const cards: ICard[] = [
   { suit: Suit.Spades, rank: 'A' },
   { suit: Suit.Spades, rank: '2' },
   { suit: Suit.Spades, rank: '3' },
@@ -69,7 +69,7 @@ class StandardDeck {
     this._deck.cards(JSON.parse(JSON.stringify(cards)));
   }
 
-  drawRandom(count: number): Card[] {
+  drawRandom(count: number): ICard[] {
     return this._deck.drawRandom(count);
   }
 

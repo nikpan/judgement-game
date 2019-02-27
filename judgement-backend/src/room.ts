@@ -1,6 +1,7 @@
 import Player from "./Player";
 import StandardDeck from "./deck";
 import { MessageType } from "./message";
+import { ICard } from "./card";
 
 class Room {
   _players: Player[];
@@ -16,7 +17,8 @@ class Room {
     this._players.forEach(player => {
       playerInfos.push({
         name: player.name,
-        cardCount: player.hand.length
+        cardCount: player.hand.length,
+        selectedCard: player.selectedCard
       });
     });
     this._players.forEach(clientWs => {
@@ -25,6 +27,10 @@ class Room {
         players: playerInfos
       })
     });
+  }
+  
+  public cardPlayed(): any {
+    this.sendPlayerInfoToAll();
   }
 
   public removePlayer(player: Player): void {

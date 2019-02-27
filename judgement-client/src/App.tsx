@@ -2,40 +2,51 @@ import React from 'react';
 import './App.css';
 import Hand from './components/hand'
 import HiddenHand from './components/hiddenHand';
-import { CardProps } from './components/card';
+import { CardProps, ICard } from './components/card';
 
 export interface AppState {
   webSocket: WebSocket | null;
   name: string;
   myCards: CardProps[];
   otherPlayers: PlayerInfo[];
+  cardPlayed: boolean;
+  selectedCard: ICard | null;
 }
 
 enum MessageType {
   Deal = 'Deal',
   Join = 'Join',
   Hand = 'Hand',
-  AllPlayers = 'AllPlayers'
+  AllPlayers = 'AllPlayers',
+  PlayCard = 'PlayCard'
 }
 
 interface PlayerInfo {
   name: string;
   cardCount: number;
+  selectedCard: ICard | null;
 }
 
 interface ServerMessage {
   action: MessageType;
   cards?: CardProps[];
   players?: PlayerInfo[];
+  card?: ICard;
+  name?: string;
 }
 
 class App extends React.Component<{},AppState> {
-  initialState = {
-    webSocket: null,
-    name: 'Nikhil',
-    myCards: [],
-    otherPlayers: []
-  };
+  constructor(props:any) {
+    super(props);
+    this.state = {
+      webSocket: null,
+      name: 'Nikhil',
+      myCards: [],
+      otherPlayers: [],
+      cardPlayed: false,
+      selectedCard: null
+    };
+  }
 
   componentDidMount() {
   }
@@ -92,14 +103,35 @@ class App extends React.Component<{},AppState> {
   }
 
   onCardClick = (suit: string, rank: string) => {
+    if(this.state.cardPlayed == true) return;
+    if(this.state.webSocket != null) {
+      this.state.webSocket.send(JSON.stringify({
+        action: 'PlayCard',
+        card: {suit, rank}
+      }))
+    }
+    this.setState({
+      cardPlayed: true, 
+      selectedCard: {
+        suit: suit, 
+        rank: rank,
+      }
+    });
     console.log(suit + rank);
   }
 
-  render() {
-    let otherPlayers:any[] = [];
-    this.state.otherPlayers.forEach(player => {
-      otherPlayers.push(<HiddenHand name={player.name} cardCount={player.cardCount}></HiddenHand>)
-    });
+  renderOtherPlayers = () => {
+    if(this.state.otherPlayers) {
+      let otherPlayers = new Array();
+      this.state.otherPlayers.forEach(player => {
+        otherPlayers.push(<HiddenHand selectedCard={player.selectedCard} name={player.name} cardCount={player.cardCount} />)
+      })
+      return otherPlayers;
+    }
+    return null;
+  }
+
+  render = () => {
     return (
       <div>
         <h1>
@@ -113,11 +145,12 @@ class App extends React.Component<{},AppState> {
         <button onClick={this.onDealClick}>Deal!</button>
         <div>
           <Hand 
-            name={this.state.name} 
-            cards={this.state.myCards} 
+            name={this.state.name}
+            cards={this.state.myCards}
+            selectedCard={this.state.selectedCard} 
             cardSelected={this.onCardClick}
           />
-          {otherPlayers}
+          {this.renderOtherPlayers()}
         </div>
       </div>
     );
