@@ -30,11 +30,11 @@ export default class HiddenHand extends React.Component<HiddenHandProps> {
       <div>
         <h2>{this.props.name}'s Hand</h2>
         <div className='player'>
-          <div className='playedCard'>
-            {this.selectedCard()}
-          </div> 
           <div className='playerHand'>
             {cards}
+          </div>
+          <div className='playedCard'>
+            {this.selectedCard()}
           </div>
         </div>
       </div>

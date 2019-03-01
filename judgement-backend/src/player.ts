@@ -42,13 +42,20 @@ class Player implements IPlayer {
       this._room.deal();
     }
     if (message.action === 'PlayCard') {
-      this.selectedCard = message.card;
-      this._room.cardPlayed();
+      let playedCard = message.card;
+      if (this.playedCardIsValid(playedCard)) {
+        this.selectedCard = message.card;
+        this._room.cardPlayed();
+      }
     }
   }
 
   public sendMessage(message: Message) {
     this.socket.send(JSON.stringify(message));
+  }
+  
+  private playedCardIsValid(playedCard: any): boolean {
+    return true;
   }
 }
 

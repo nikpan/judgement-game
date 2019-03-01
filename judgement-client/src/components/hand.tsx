@@ -31,9 +31,6 @@ export default class Hand extends React.Component<HandProps> {
       <div>
         <h2>{this.props.name}'s Hand</h2>
         <div className='player'>
-          <div className='playedCard'>
-            {this.selectedCard()}
-          </div>
           <div className='playerHand'>
             {cards.map((card => 
               <Card 
@@ -43,6 +40,9 @@ export default class Hand extends React.Component<HandProps> {
                 cardSelected={this.cardSelected}
               />
               ))}
+          </div>
+          <div className='playedCard'>
+            {this.selectedCard()}
           </div>
         </div>
       </div>
