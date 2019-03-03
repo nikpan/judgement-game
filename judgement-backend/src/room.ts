@@ -1,11 +1,11 @@
 import Player from "./Player";
 import StandardDeck from "./deck";
 import { MessageType } from "./message";
-import { ICard } from "./card";
+import { ICard, Winner, Suit } from "./card";
 
 class Room {
-  _players: Player[];
-  _deck: StandardDeck;
+  private _players: Player[];
+  private _deck: StandardDeck;
 
   constructor() {
     this._players = [];
@@ -31,6 +31,33 @@ class Room {
   
   public cardPlayed(): any {
     this.sendPlayerInfoToAll();
+    // if all players have played compute and declare winner
+    if(this.allPlayersHavePlayedCard())
+    {
+      // Everyone has played. Compute winner
+      let winner = 0;
+      for (let i = 0; i < this._players.length; i++) {
+        const player = this._players[i];
+        if(Winner(this._players[winner].selectedCard, player.selectedCard, Suit.Spades) === -1){
+          winner = i;
+        }
+      }
+      console.log(this._players[winner].name + ' is the winner');
+      setTimeout(() => {
+        this._players.forEach(player => {
+          player.selectedCard = null;
+        });
+        this.sendPlayerInfoToAll();
+      }, 5000);
+    }
+  }
+
+  private allPlayersHavePlayedCard(): boolean{
+    let result = true;
+    this._players.forEach(p => {
+      result = result && p.selectedCard != null;
+    });
+    return result;
   }
 
   public removePlayer(player: Player): void {
@@ -50,10 +77,7 @@ class Room {
     this._players.forEach(player => {
       const hand = this._deck.drawRandom(Math.floor(52 / this._players.length));
       player.hand = hand;
-      player.sendMessage({
-        action: MessageType.Hand,
-        cards: player.hand
-      })
+      player.sendHand();
     });
 
     this.sendPlayerInfoToAll();

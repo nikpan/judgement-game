@@ -30,6 +30,7 @@ class Player implements IPlayer {
 
     socket.on('close', () => {
       this._room.removePlayer(this);
+      console.log(`${this.name} has left`);
     });
   }
   handleMessage(message: any) {
@@ -43,19 +44,30 @@ class Player implements IPlayer {
     }
     if (message.action === 'PlayCard') {
       let playedCard = message.card;
-      if (this.playedCardIsValid(playedCard)) {
+      let toRemove = this.hand.findIndex(card => card.suit === playedCard.suit && card.rank === playedCard.rank);
+      if (toRemove !== -1) {
         this.selectedCard = message.card;
+        this.hand.splice(toRemove, 1);
         this._room.cardPlayed();
+        this.sendHand();
       }
     }
   }
 
-  public sendMessage(message: Message) {
-    this.socket.send(JSON.stringify(message));
+  public sendHand() {
+    this.sendMessage({
+      action: MessageType.Hand,
+      cards: this.hand
+    });
   }
-  
-  private playedCardIsValid(playedCard: any): boolean {
-    return true;
+
+  public sendMessage(message: Message) {
+    if (this.socket.OPEN) {
+      this.socket.send(JSON.stringify(message));
+    }
+    else{
+      console.log(`Error: Player::sendMessage Can't send message because socket is not open. Player:${this.name}`);
+    }
   }
 }
 

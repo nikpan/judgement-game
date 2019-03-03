@@ -9,7 +9,6 @@ export interface AppState {
   name: string;
   myCards: CardProps[];
   otherPlayers: PlayerInfo[];
-  cardPlayed: boolean;
   selectedCard: ICard | null;
 }
 
@@ -43,7 +42,6 @@ class App extends React.Component<{},AppState> {
       name: 'Nikhil',
       myCards: [],
       otherPlayers: [],
-      cardPlayed: false,
       selectedCard: null
     };
   }
@@ -71,8 +69,8 @@ class App extends React.Component<{},AppState> {
       if (msgData.action === 'AllPlayers' && msgData.players) {
         let otherPlayerInfos = msgData.players;
         let toRemove = otherPlayerInfos.findIndex((player: { name: string; }) => player.name === this.state.name);
-        otherPlayerInfos.splice(toRemove, 1);
-        this.setState({ otherPlayers: otherPlayerInfos });
+        let myInfo = otherPlayerInfos.splice(toRemove, 1)[0];
+        this.setState({ otherPlayers: otherPlayerInfos, selectedCard: myInfo.selectedCard});
       }
       console.debug('Message from server: ' + msg.data);
     };
@@ -103,15 +101,17 @@ class App extends React.Component<{},AppState> {
   }
 
   onCardClick = (suit: string, rank: string) => {
-    if(this.state.cardPlayed == true) return;
+    if(this.state.selectedCard != null) return;
     if(this.state.webSocket != null) {
       this.state.webSocket.send(JSON.stringify({
         action: 'PlayCard',
-        card: {suit, rank}
+        card: {
+          suit: suit, 
+          rank: rank
+        }
       }))
     }
     this.setState({
-      cardPlayed: true, 
       selectedCard: {
         suit: suit, 
         rank: rank,
