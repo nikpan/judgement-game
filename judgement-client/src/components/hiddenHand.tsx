@@ -15,7 +15,6 @@ export default class HiddenHand extends React.Component<HiddenHandProps> {
       <Card 
         suit={this.props.selectedCard.suit} 
         rank={this.props.selectedCard.rank} 
-        hidden={false}
       />
     )
     return null;

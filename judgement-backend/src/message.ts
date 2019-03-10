@@ -1,5 +1,11 @@
 import { ICard, Suit } from "./card";
 
+export interface PlayerInfo {
+  cardCount: number;
+  name: string;
+  selectedCard: ICard;
+}
+
 export const enum MessageType {
   Join = 'Join',
   Deal = 'Deal',
@@ -8,13 +14,31 @@ export const enum MessageType {
   PlayCard = 'PlayCard',
   Error = 'Error'
 }
-export interface Message {
+
+export interface IMessage {
   action: MessageType;
-  players?: any;
-  cards?: any;
-  name?: string;
-  card?: ICard;
-  code?: string;
-  currentSuit?: Suit | null;
-  trumpSuit?: Suit | null;
 }
+
+export interface ErrorMessage extends IMessage {
+  code: string;
+}
+
+export interface PlayerInfoMessage extends IMessage {
+  players: PlayerInfo[];
+  currentSuit: Suit | null;
+  trumpSuit: Suit | null;
+}
+
+export interface PlayerHandMessage extends IMessage {
+  cards: ICard[];
+}
+
+export interface JoinMessage extends IMessage {
+  name: string;
+}
+
+export interface PlayCardMessage extends IMessage {
+  card: ICard;
+}
+
+export type Message = PlayCardMessage | JoinMessage | PlayerHandMessage | PlayerInfoMessage |  ErrorMessage;

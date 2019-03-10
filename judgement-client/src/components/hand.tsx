@@ -19,7 +19,6 @@ export default class Hand extends React.Component<HandProps> {
       <Card
         suit={this.props.selectedCard.suit}
         rank={this.props.selectedCard.rank}
-        hidden={false}
       />
     )
     return null;
@@ -33,10 +32,9 @@ export default class Hand extends React.Component<HandProps> {
         <div className='player'>
           <div className='playerHand'>
             {cards.map((card => 
-              <Card 
+              <Card
                 suit={card.suit} 
                 rank={card.rank} 
-                hidden={false} 
                 cardSelected={this.cardSelected}
               />
               ))}

@@ -65,7 +65,7 @@ class App extends React.Component<{},AppState> {
     ws.onopen = () => {
       console.debug('Connection established!');
       var data = {
-        action: 'Join',
+        action: MessageType.Join,
         name: this.state.name
       };
       ws.send(JSON.stringify(data));
@@ -94,7 +94,7 @@ class App extends React.Component<{},AppState> {
 
   onDealClick = () => {
     var data = {
-      action: 'Deal'
+      action: MessageType.Deal
     };
     if (this.state.webSocket != null) {
       this.state.webSocket.send(JSON.stringify(data));
@@ -105,7 +105,7 @@ class App extends React.Component<{},AppState> {
     if(this.state.selectedCard != null) return;
     if(this.state.webSocket != null) {
       this.state.webSocket.send(JSON.stringify({
-        action: 'PlayCard',
+        action: MessageType.PlayCard,
         card: {
           suit: suit, 
           rank: rank
@@ -174,11 +174,11 @@ class App extends React.Component<{},AppState> {
   }
 
   private handleServerMessage(msgData: ServerMessage) {
-    if (msgData.action === 'Hand' && msgData.cards) {
+    if (msgData.action === MessageType.Hand && msgData.cards) {
       var cardsFromServer = msgData.cards;
       this.setState({ myCards: cardsFromServer });
     }
-    if (msgData.action === 'AllPlayers' && msgData.players) {
+    if (msgData.action === MessageType.AllPlayers && msgData.players) {
       let otherPlayerInfos = msgData.players;
       let toRemove = otherPlayerInfos.findIndex((player: {
         name: string;
@@ -191,7 +191,7 @@ class App extends React.Component<{},AppState> {
         currentSuit: msgData.currentSuit!
        });
     }
-    if(msgData.action === 'Error' && msgData.code){
+    if(msgData.action === MessageType.Error && msgData.code){
       alert(`Error: ${msgData.code}`);
     }
   }
