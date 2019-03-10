@@ -6,14 +6,29 @@ import { ICard, Winner, Suit } from "./card";
 class Room {
   private _players: Player[];
   private _deck: StandardDeck;
-  public currentSuit: Suit;
-  public trumpSuit: Suit;
+  public currentSuit: Suit | null;
+  public trumpSuit: Suit | null;
+  private _currentPlayerId: number;
 
   constructor() {
     this._players = [];
     this._deck = new StandardDeck();
-    this.currentSuit = Suit.Hearts;
-    this.trumpSuit = Suit.Spades;
+    this.currentSuit = null;
+    this.trumpSuit = null;
+    this._currentPlayerId = 0;
+  }
+
+  public isPlayerTurn(playerId: number) {
+    if(this._currentPlayerId === 0) {
+      this._currentPlayerId = playerId;
+    }
+    return playerId === this._currentPlayerId
+  }
+
+  calcNextTurnPlayer(): number {
+    const currPlayerIndex = this._players.findIndex(player => player.id === this._currentPlayerId);
+    const nextPlayer = this._players[(currPlayerIndex + 1)%this._players.length];
+    return nextPlayer.id;
   }
 
   public sendPlayerInfoToAll(): void {
@@ -35,12 +50,15 @@ class Room {
     });
   }
   
-  public cardPlayed(): any {
+  public cardPlayed(player: Player): any {
+    if(this.firstCard()) this.setCurrentSuit(player);
+    this._currentPlayerId = this.calcNextTurnPlayer();
     this.sendPlayerInfoToAll();
     // if all players have played compute and declare winner
     if(this.allPlayersHavePlayedCard())
     {
-      // Everyone has played. Compute winner
+      // Everyone has played.
+      // 1. Compute winner
       let winner = 0;
       for (let i = 0; i < this._players.length; i++) {
         const player = this._players[i];
@@ -48,6 +66,10 @@ class Room {
           winner = i;
         }
       }
+      // 2. Update next trick starter and suit
+      this._currentPlayerId = this._players[winner].id;
+      this.currentSuit = null;
+
       console.log(this._players[winner].name + ' is the winner');
       setTimeout(() => {
         this._players.forEach(player => {
@@ -56,6 +78,14 @@ class Room {
         this.sendPlayerInfoToAll();
       }, 5000);
     }
+  }
+
+  private setCurrentSuit(player: Player) {
+    this.currentSuit = player.selectedCard.suit;
+  }
+
+  private firstCard() {
+    return this.currentSuit === null;
   }
 
   private allPlayersHavePlayedCard(): boolean{

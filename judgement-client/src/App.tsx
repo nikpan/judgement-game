@@ -21,7 +21,8 @@ enum MessageType {
   Join = 'Join',
   Hand = 'Hand',
   AllPlayers = 'AllPlayers',
-  PlayCard = 'PlayCard'
+  PlayCard = 'PlayCard',
+  Error = 'Error'
 }
 
 interface PlayerInfo {
@@ -37,8 +38,8 @@ interface ServerMessage {
   card?: ICard;
   name?: string;
   code?: string;
-  currentSuit?: Suit;
-  trumpSuit?: Suit;
+  currentSuit?: Suit | null;
+  trumpSuit?: Suit | null;
 }
 
 class App extends React.Component<{},AppState> {
@@ -189,6 +190,9 @@ class App extends React.Component<{},AppState> {
         trumpSuit: msgData.trumpSuit!,
         currentSuit: msgData.currentSuit!
        });
+    }
+    if(msgData.action === 'Error' && msgData.code){
+      alert(`Error: ${msgData.code}`);
     }
   }
 }

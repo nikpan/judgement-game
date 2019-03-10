@@ -15,6 +15,6 @@ export interface Message {
   name?: string;
   card?: ICard;
   code?: string;
-  currentSuit?: Suit;
-  trumpSuit?: Suit;
+  currentSuit?: Suit | null;
+  trumpSuit?: Suit | null;
 }

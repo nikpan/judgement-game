@@ -2,8 +2,10 @@ import WebSocket from 'ws';
 import { ICard } from './card';
 import Room from './room';
 import { Message, MessageType } from './message';
+import { getId } from './util';
 
 export interface IPlayer {
+  id: number;
   socket: WebSocket;
   name: string;
   selectedCard: ICard | null;
@@ -15,10 +17,12 @@ class Player implements IPlayer {
   public name: string;
   public hand: ICard[];
   public selectedCard: ICard | null;
+  public id: number;
 
   constructor(socket: WebSocket, room: Room) {
     this.socket = socket;
     this._room = room;
+    this.id = getId();
     socket.on('message', (message) => {
       try {
         let json = JSON.parse(message.toString());
@@ -55,10 +59,13 @@ class Player implements IPlayer {
         this.sendErrorMessage('CardNotInHand');
         return;
       }
-      
+      if(!this._room.isPlayerTurn(this.id)) {
+        this.sendErrorMessage('NotYourTurn');
+        return;
+      }
       this.selectedCard = message.card;
       this.hand.splice(toRemove, 1);
-      this._room.cardPlayed();
+      this._room.cardPlayed(this);
       this.sendHand();
     }
   }
@@ -66,8 +73,9 @@ class Player implements IPlayer {
   private validCard(playedCard: ICard): boolean {
     console.log(playedCard.suit);
     console.log(this._room.currentSuit);
+    if(this._room.currentSuit === null) return true;
     if(playedCard.suit === this._room.currentSuit) return true;
-    if(this.hand.some(card => card.suit === playedCard.suit)) return false;
+    if(this.hand.some(card => card.suit === this._room.currentSuit)) return false;
     return true;
   }
 
