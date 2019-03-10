@@ -38,7 +38,7 @@ class Player implements IPlayer {
     });
   }
 
-  handleMessage(message: any) {
+  private handleMessage(message: any) {
     if (message.action === 'Join') {
       this.handleJoinMessage(message);
     }
