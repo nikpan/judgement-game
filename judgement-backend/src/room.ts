@@ -6,10 +6,14 @@ import { ICard, Winner, Suit } from "./card";
 class Room {
   private _players: Player[];
   private _deck: StandardDeck;
+  public currentSuit: Suit;
+  public trumpSuit: Suit;
 
   constructor() {
     this._players = [];
     this._deck = new StandardDeck();
+    this.currentSuit = Suit.Hearts;
+    this.trumpSuit = Suit.Spades;
   }
 
   public sendPlayerInfoToAll(): void {
@@ -24,7 +28,9 @@ class Room {
     this._players.forEach(clientWs => {
       clientWs.sendMessage({
         action: MessageType.AllPlayers,
-        players: playerInfos
+        players: playerInfos,
+        currentSuit: this.currentSuit,
+        trumpSuit: this.trumpSuit
       })
     });
   }

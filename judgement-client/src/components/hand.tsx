@@ -1,16 +1,16 @@
 import React from 'react';
-import Card, { ICard } from './card';
+import Card, { ICard, Rank, Suit } from './card';
 import './hand.css'
 
 export interface HandProps {
   cards: ICard[];
   name: string;
   selectedCard: ICard | null;
-  cardSelected: (suit:string, rank:string) => void;
+  cardSelected: (suit:Suit, rank:Rank) => void;
 }
 
 export default class Hand extends React.Component<HandProps> {
-  cardSelected = (suit:string, rank:string) => {
+  cardSelected = (suit:Suit, rank:Rank) => {
     this.props.cardSelected(suit, rank);
   };
   

@@ -2,14 +2,18 @@ import React from 'react';
 import './App.css';
 import Hand from './components/hand'
 import HiddenHand from './components/hiddenHand';
-import { CardProps, ICard } from './components/card';
+import { ICard, Rank, Suit } from './components/card';
+import { Text, TextField, PrimaryButton as Button, Stack } from 'office-ui-fabric-react';
+import SpecialCard, { SpecialCardType } from './components/hiddenCard';
 
 export interface AppState {
   webSocket: WebSocket | null;
   name: string;
-  myCards: CardProps[];
+  myCards: ICard[];
   otherPlayers: PlayerInfo[];
   selectedCard: ICard | null;
+  currentSuit: Suit;
+  trumpSuit: Suit;
 }
 
 enum MessageType {
@@ -28,10 +32,13 @@ interface PlayerInfo {
 
 interface ServerMessage {
   action: MessageType;
-  cards?: CardProps[];
+  cards?: ICard[];
   players?: PlayerInfo[];
   card?: ICard;
   name?: string;
+  code?: string;
+  currentSuit?: Suit;
+  trumpSuit?: Suit;
 }
 
 class App extends React.Component<{},AppState> {
@@ -39,10 +46,12 @@ class App extends React.Component<{},AppState> {
     super(props);
     this.state = {
       webSocket: null,
-      name: 'Nikhil',
+      name: '',
       myCards: [],
       otherPlayers: [],
-      selectedCard: null
+      selectedCard: null,
+      currentSuit: Suit.Spades,
+      trumpSuit: Suit.Spades
     };
   }
 
@@ -62,16 +71,7 @@ class App extends React.Component<{},AppState> {
     };
     ws.onmessage = (msg) => {
       var msgData: ServerMessage = JSON.parse(msg.data);
-      if (msgData.action === 'Hand' && msgData.cards) {
-        var cardsFromServer = msgData.cards;
-        this.setState({ myCards: cardsFromServer });
-      }
-      if (msgData.action === 'AllPlayers' && msgData.players) {
-        let otherPlayerInfos = msgData.players;
-        let toRemove = otherPlayerInfos.findIndex((player: { name: string; }) => player.name === this.state.name);
-        let myInfo = otherPlayerInfos.splice(toRemove, 1)[0];
-        this.setState({ otherPlayers: otherPlayerInfos, selectedCard: myInfo.selectedCard});
-      }
+      this.handleServerMessage(msgData);
       console.debug('Message from server: ' + msg.data);
     };
   }
@@ -100,7 +100,7 @@ class App extends React.Component<{},AppState> {
     }
   }
 
-  onCardClick = (suit: string, rank: string) => {
+  onCardClick = (suit: Suit, rank: Rank) => {
     if(this.state.selectedCard != null) return;
     if(this.state.webSocket != null) {
       this.state.webSocket.send(JSON.stringify({
@@ -111,12 +111,6 @@ class App extends React.Component<{},AppState> {
         }
       }))
     }
-    this.setState({
-      selectedCard: {
-        suit: suit, 
-        rank: rank,
-      }
-    });
     console.log(suit + rank);
   }
 
@@ -137,12 +131,19 @@ class App extends React.Component<{},AppState> {
         <h1>
           Judgement Game
         </h1>
-        <label>
-          Name:
-          <input type='text' value={this.state.name} onChange={(event) => this.handleChange(event)}></input>
-        </label>
-        <button onClick={this.onSetNameClick}>Submit</button>
-        <button onClick={this.onDealClick}>Deal!</button>
+        <Stack gap={10} padding={10}>
+          <Stack horizontal gap={10}>
+            <TextField value={this.state.name} onChange={this.handleChange} placeholder='Your Name'/>
+            <Button onClick={this.onSetNameClick}>Submit</Button>
+          </Stack>
+          <Button onClick={this.onDealClick}>Deal!</Button>
+          <Stack horizontal verticalAlign='center'>
+            <Text>Trump Suit</Text>
+            <SpecialCard type={this.mapSuitToSpecialCardType(this.state.trumpSuit)} />
+            <Text>Current Suit</Text>            
+            <SpecialCard type={this.mapSuitToSpecialCardType(this.state.currentSuit)} />
+          </Stack>
+        </Stack>
         <div>
           <Hand 
             name={this.state.name}
@@ -154,6 +155,41 @@ class App extends React.Component<{},AppState> {
         </div>
       </div>
     );
+  }
+
+  private mapSuitToSpecialCardType(suit: Suit | null): SpecialCardType {
+    switch (suit) {
+      case Suit.Clubs:
+        return SpecialCardType.ClubsSuit
+      case Suit.Hearts:
+        return SpecialCardType.HeartsSuit
+      case Suit.Diamonds:
+        return SpecialCardType.DiamondsSuit
+      case Suit.Spades:
+        return SpecialCardType.SpadesSuit
+      default:
+        return SpecialCardType.BlueBack;
+    }
+  }
+
+  private handleServerMessage(msgData: ServerMessage) {
+    if (msgData.action === 'Hand' && msgData.cards) {
+      var cardsFromServer = msgData.cards;
+      this.setState({ myCards: cardsFromServer });
+    }
+    if (msgData.action === 'AllPlayers' && msgData.players) {
+      let otherPlayerInfos = msgData.players;
+      let toRemove = otherPlayerInfos.findIndex((player: {
+        name: string;
+      }) => player.name === this.state.name);
+      let myInfo = otherPlayerInfos.splice(toRemove, 1)[0];
+      this.setState({ 
+        otherPlayers: otherPlayerInfos, 
+        selectedCard: myInfo.selectedCard, 
+        trumpSuit: msgData.trumpSuit!,
+        currentSuit: msgData.currentSuit!
+       });
+    }
   }
 }
 

@@ -3,13 +3,22 @@ import './card.css';
 import getImageSrc from './imgLoader';
 
 export interface ICard {
-  suit: string;
-  rank: string;
+  suit: Suit;
+  rank: Rank;
 }
+
+export enum Suit {
+  Hearts = 'H',
+  Spades = 'S',
+  Diamonds = 'D',
+  Clubs = 'C'
+}
+
+export type Rank = 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K';
 
 export interface CardProps extends ICard {
   hidden: boolean;
-  cardSelected?: (suit:string, rank:string) => void;
+  cardSelected?: (suit:Suit, rank:Rank) => void;
 }
 
 export default class Card extends React.Component<CardProps> {

@@ -44,14 +44,31 @@ class Player implements IPlayer {
     }
     if (message.action === 'PlayCard') {
       let playedCard = message.card;
-      let toRemove = this.hand.findIndex(card => card.suit === playedCard.suit && card.rank === playedCard.rank);
-      if (toRemove !== -1) {
-        this.selectedCard = message.card;
-        this.hand.splice(toRemove, 1);
-        this._room.cardPlayed();
-        this.sendHand();
+      // Check if card suit is valid
+      if(!this.validCard(playedCard)) {
+        this.sendErrorMessage('InvalidCard');
+        return; 
       }
+      // Check if card is present in hand
+      let toRemove = this.hand.findIndex(card => card.suit === playedCard.suit && card.rank === playedCard.rank);
+      if(toRemove === -1) {
+        this.sendErrorMessage('CardNotInHand');
+        return;
+      }
+      
+      this.selectedCard = message.card;
+      this.hand.splice(toRemove, 1);
+      this._room.cardPlayed();
+      this.sendHand();
     }
+  }
+  
+  private validCard(playedCard: ICard): boolean {
+    console.log(playedCard.suit);
+    console.log(this._room.currentSuit);
+    if(playedCard.suit === this._room.currentSuit) return true;
+    if(this.hand.some(card => card.suit === playedCard.suit)) return false;
+    return true;
   }
 
   public sendHand() {
@@ -59,6 +76,13 @@ class Player implements IPlayer {
       action: MessageType.Hand,
       cards: this.hand
     });
+  }
+
+  public sendErrorMessage(errorCode: string){
+    this.sendMessage({
+      action: MessageType.Error,
+      code: errorCode
+    })
   }
 
   public sendMessage(message: Message) {

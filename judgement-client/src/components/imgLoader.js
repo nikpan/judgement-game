@@ -55,6 +55,10 @@ import HQ from '../resources/img/QH.png';
 import HK from '../resources/img/KH.png';
 
 import BlueBack from '../resources/img/blue_back.png';
+import ClubsSuit from '../resources/img/honor_clubs.png';
+import HeartsSuit from '../resources/img/honor_hearts.png';
+import SpadesSuit from '../resources/img/honor_spades.png';
+import DiamondsSuit from '../resources/img/honor_diamonds.png';
 
 export default function getImageSrc(imgId) {
   switch (imgId) {
@@ -115,5 +119,9 @@ export default function getImageSrc(imgId) {
     case 'KS': return SK;
 
     case 'BlueBack': return BlueBack;
+    case 'ClubsSuit': return ClubsSuit;
+    case 'DiamondsSuit': return DiamondsSuit;
+    case 'SpadesSuit': return SpadesSuit;
+    case 'HeartsSuit': return HeartsSuit;
   }
 }

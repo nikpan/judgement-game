@@ -1,11 +1,12 @@
-import { ICard } from "./card";
+import { ICard, Suit } from "./card";
 
 export const enum MessageType {
   Join = 'Join',
   Deal = 'Deal',
   Hand = 'Hand',
   AllPlayers = 'AllPlayers',
-  PlayCard = 'PlayCard'
+  PlayCard = 'PlayCard',
+  Error = 'Error'
 }
 export interface Message {
   action: MessageType;
@@ -13,4 +14,7 @@ export interface Message {
   cards?: any;
   name?: string;
   card?: ICard;
+  code?: string;
+  currentSuit?: Suit;
+  trumpSuit?: Suit;
 }
