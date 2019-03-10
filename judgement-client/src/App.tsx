@@ -4,7 +4,7 @@ import Hand from './components/hand'
 import HiddenHand from './components/hiddenHand';
 import { ICard, Rank, Suit } from './components/card';
 import { Text, TextField, PrimaryButton as Button, Stack } from 'office-ui-fabric-react';
-import SpecialCard, { SpecialCardType } from './components/hiddenCard';
+import SpecialCard, { SpecialCardType } from './components/specialCard';
 
 export interface AppState {
   webSocket: WebSocket | null;

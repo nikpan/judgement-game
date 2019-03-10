@@ -1,7 +1,7 @@
 import React from 'react';
 import Card, { ICard } from './card';
 import './hand.css'
-import SpecialCard, { SpecialCardType } from './hiddenCard';
+import SpecialCard, { SpecialCardType } from './specialCard';
 
 export interface HiddenHandProps {
   cardCount: number;
