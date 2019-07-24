@@ -27,6 +27,7 @@ export interface PlayerInfoMessage extends IMessage {
   players: PlayerInfo[];
   currentSuit: Suit | null;
   trumpSuit: Suit | null;
+  currentPlayerName: string | null;
 }
 
 export interface PlayerHandMessage extends IMessage {

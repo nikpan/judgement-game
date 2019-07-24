@@ -31,12 +31,20 @@ class Room {
     return nextPlayer.id;
   }
 
+  private getCurrentPlayerName(): string {
+    const currPlayerIndex = this._players.findIndex(p => p.id === this._currentPlayerId);
+    if(currPlayerIndex === -1) return "";
+    const currPlayer = this._players[currPlayerIndex];
+    return currPlayer.name;
+  }
+
   public sendPlayerInfoToAll(): void {
     let playerInfoMessage: PlayerInfoMessage = {
       action: MessageType.AllPlayers,
       players: this.gatherAllPlayerInfo(),
       currentSuit: this.currentSuit,
-      trumpSuit: this.trumpSuit
+      trumpSuit: this.trumpSuit,
+      currentPlayerName: this.getCurrentPlayerName()
     }
     this._players.forEach(clientWs => {
       clientWs.sendMessage(playerInfoMessage)

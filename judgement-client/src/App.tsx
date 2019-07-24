@@ -14,6 +14,7 @@ export interface AppState {
   selectedCard: ICard | null;
   currentSuit: Suit;
   trumpSuit: Suit;
+  currentPlayerName: string | null;
 }
 
 enum MessageType {
@@ -40,6 +41,7 @@ interface ServerMessage {
   code?: string;
   currentSuit?: Suit | null;
   trumpSuit?: Suit | null;
+  currentPlayerName?: string | null;
 }
 
 class App extends React.Component<{},AppState> {
@@ -52,7 +54,8 @@ class App extends React.Component<{},AppState> {
       otherPlayers: [],
       selectedCard: null,
       currentSuit: Suit.Spades,
-      trumpSuit: Suit.Spades
+      trumpSuit: Suit.Spades,
+      currentPlayerName: null,
     };
   }
 
@@ -143,6 +146,7 @@ class App extends React.Component<{},AppState> {
             <SpecialCard type={this.mapSuitToSpecialCardType(this.state.trumpSuit)} />
             <Text>Current Suit</Text>            
             <SpecialCard type={this.mapSuitToSpecialCardType(this.state.currentSuit)} />
+            <Text>Who's turn? <b>{this.state.currentPlayerName ? this.state.currentPlayerName : "None"}</b></Text>
           </Stack>
         </Stack>
         <div>
@@ -188,7 +192,8 @@ class App extends React.Component<{},AppState> {
         otherPlayers: otherPlayerInfos, 
         selectedCard: myInfo.selectedCard, 
         trumpSuit: msgData.trumpSuit!,
-        currentSuit: msgData.currentSuit!
+        currentSuit: msgData.currentSuit!,
+        currentPlayerName: msgData.currentPlayerName!
        });
     }
     if(msgData.action === MessageType.Error && msgData.code){
