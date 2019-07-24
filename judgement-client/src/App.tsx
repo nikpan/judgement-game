@@ -7,7 +7,7 @@ import { CardProps, ICard } from './components/card';
 export interface AppState {
   webSocket: WebSocket | null;
   name: string;
-  myCards: CardProps[];
+  myCards: ICard[];
   otherPlayers: PlayerInfo[];
   selectedCard: ICard | null;
 }
@@ -28,7 +28,7 @@ interface PlayerInfo {
 
 interface ServerMessage {
   action: MessageType;
-  cards?: CardProps[];
+  cards?: ICard[];
   players?: PlayerInfo[];
   card?: ICard;
   name?: string;
