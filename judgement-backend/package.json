@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node dist/app.js"
+    "start": "tsc && node dist/app.js"
   },
   "dependencies": {
     "@types/express": "^4.16.1",
