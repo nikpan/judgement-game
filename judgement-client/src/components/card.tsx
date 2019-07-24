@@ -3,13 +3,21 @@ import './card.css';
 import getImageSrc from './imgLoader';
 
 export interface ICard {
-  suit: string;
-  rank: string;
+  suit: Suit;
+  rank: Rank;
 }
 
+export enum Suit {
+  Hearts = 'H',
+  Spades = 'S',
+  Diamonds = 'D',
+  Clubs = 'C'
+}
+
+export type Rank = 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K';
+
 export interface CardProps extends ICard {
-  hidden: boolean;
-  cardSelected?: (suit:string, rank:string) => void;
+  cardSelected?: (suit:Suit, rank:Rank) => void;
 }
 
 export default class Card extends React.Component<CardProps> {
@@ -20,15 +28,16 @@ export default class Card extends React.Component<CardProps> {
     }
   };
   render() {
-    if (this.props.hidden) {
+    if (this.validateProps()) {
       return (
         <div className="cardDiv">
-          <img src={getImageSrc('BlueBack')} className='cardImg' alt='card back' /></div>
-      )
-    }
-    else if (this.validateProps()) {
-      return (
-        <div className="cardDiv">{this.renderCard()}</div>
+          <img 
+            src={getImageSrc(this.props.rank + this.props.suit)} 
+            className="cardImg" 
+            alt="cardImage" 
+            onClick={this.cardClickHandler}
+          />
+        </div>
       )
     }
     else {
@@ -72,13 +81,5 @@ export default class Card extends React.Component<CardProps> {
         break;
     }
     return ret;
-  }
-
-  renderCard() {
-    let imgName = "./resources/img/" + this.props.rank + this.props.suit + ".png";
-    console.log(imgName);
-    return (
-      <img src={getImageSrc(this.props.rank + this.props.suit)} className="cardImg" alt="cardImage" onClick={this.cardClickHandler}/>
-    )
   }
 }

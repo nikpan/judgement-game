@@ -1,16 +1,16 @@
 import React from 'react';
-import Card, { ICard } from './card';
+import Card, { ICard, Rank, Suit } from './card';
 import './hand.css'
 
 export interface HandProps {
   cards: ICard[];
   name: string;
   selectedCard: ICard | null;
-  cardSelected: (suit:string, rank:string) => void;
+  cardSelected: (suit:Suit, rank:Rank) => void;
 }
 
 export default class Hand extends React.Component<HandProps> {
-  cardSelected = (suit:string, rank:string) => {
+  cardSelected = (suit:Suit, rank:Rank) => {
     this.props.cardSelected(suit, rank);
   };
   
@@ -19,7 +19,6 @@ export default class Hand extends React.Component<HandProps> {
       <Card
         suit={this.props.selectedCard.suit}
         rank={this.props.selectedCard.rank}
-        hidden={false}
       />
     )
     return null;
@@ -33,10 +32,9 @@ export default class Hand extends React.Component<HandProps> {
         <div className='player'>
           <div className='playerHand'>
             {cards.map((card => 
-              <Card 
+              <Card
                 suit={card.suit} 
                 rank={card.rank} 
-                hidden={false} 
                 cardSelected={this.cardSelected}
               />
               ))}

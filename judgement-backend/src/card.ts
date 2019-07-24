@@ -15,14 +15,16 @@ export interface Hand {
   cards: ICard[];
 }
 
-export function Winner (firstPlayer:ICard, secondPlayer:ICard, trump:Suit):number {
-  if(firstPlayer.rank === secondPlayer.rank && firstPlayer.suit === secondPlayer.suit) return 0;
-  if(firstPlayer.suit !== secondPlayer.suit) {
-    if(firstPlayer.suit === trump) return 1;
-    if(secondPlayer.suit === trump) return -1;
+export function Winner (firstCard:ICard, secondCard:ICard, trump:Suit, defaultSuit:Suit):number {
+  if(firstCard.rank === secondCard.rank && firstCard.suit === secondCard.suit) return 0;
+  if(firstCard.suit !== secondCard.suit) {
+    if(firstCard.suit === trump) return 1;
+    if(secondCard.suit === trump) return -1;
+    if(firstCard.suit === defaultSuit) return 1;
+    if(secondCard.suit === defaultSuit) return -1;
     return 1;
   }
-  if(rankToValue(firstPlayer.rank) > rankToValue(secondPlayer.rank)) return 1;
+  if(rankToValue(firstCard.rank) > rankToValue(secondCard.rank)) return 1;
   return -1;
 }
 

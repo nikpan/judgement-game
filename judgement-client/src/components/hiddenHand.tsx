@@ -1,6 +1,7 @@
 import React from 'react';
 import Card, { ICard } from './card';
 import './hand.css'
+import SpecialCard, { SpecialCardType } from './specialCard';
 
 export interface HiddenHandProps {
   cardCount: number;
@@ -14,7 +15,6 @@ export default class HiddenHand extends React.Component<HiddenHandProps> {
       <Card 
         suit={this.props.selectedCard.suit} 
         rank={this.props.selectedCard.rank} 
-        hidden={false}
       />
     )
     return null;
@@ -24,7 +24,7 @@ export default class HiddenHand extends React.Component<HiddenHandProps> {
     const cardCount = this.props.cardCount;
     let cards = [];
     for (let i = 0; i < cardCount; i++) {
-      cards.push(<Card hidden={true} suit='' rank=''/>)
+      cards.push(<SpecialCard type={SpecialCardType.BlueBack}/>)
     }
     return (
       <div>

@@ -1,19 +1,50 @@
 import Player from "./Player";
 import StandardDeck from "./deck";
-import { MessageType } from "./message";
+import { MessageType, PlayerInfo, PlayerInfoMessage } from "./message";
 import { ICard, Winner, Suit } from "./card";
 
 class Room {
   private _players: Player[];
   private _deck: StandardDeck;
+  private _currentPlayerId: number;
+  public currentSuit: Suit | null;
+  public trumpSuit: Suit | null;
 
   constructor() {
     this._players = [];
     this._deck = new StandardDeck();
+    this._currentPlayerId = 0;
+    this.currentSuit = null;
+    this.trumpSuit = Suit.Spades;
+  }
+
+  public isPlayerTurn(playerId: number) {
+    if(this._currentPlayerId === 0) {
+      this._currentPlayerId = playerId;
+    }
+    return playerId === this._currentPlayerId
+  }
+
+  private calcNextTurnPlayer(): number {
+    const currPlayerIndex = this._players.findIndex(player => player.id === this._currentPlayerId);
+    const nextPlayer = this._players[(currPlayerIndex + 1)%this._players.length];
+    return nextPlayer.id;
   }
 
   public sendPlayerInfoToAll(): void {
-    let playerInfos = [];
+    let playerInfoMessage: PlayerInfoMessage = {
+      action: MessageType.AllPlayers,
+      players: this.gatherAllPlayerInfo(),
+      currentSuit: this.currentSuit,
+      trumpSuit: this.trumpSuit
+    }
+    this._players.forEach(clientWs => {
+      clientWs.sendMessage(playerInfoMessage)
+    });
+  }
+  
+  private gatherAllPlayerInfo(): PlayerInfo[] {
+    let playerInfos = []
     this._players.forEach(player => {
       playerInfos.push({
         name: player.name,
@@ -21,28 +52,25 @@ class Room {
         selectedCard: player.selectedCard
       });
     });
-    this._players.forEach(clientWs => {
-      clientWs.sendMessage({
-        action: MessageType.AllPlayers,
-        players: playerInfos
-      })
-    });
+    return playerInfos;
   }
-  
-  public cardPlayed(): any {
+
+  public cardPlayed(player: Player): any {
+    if(this.firstCard()) this.setCurrentSuit(player);
+    this._currentPlayerId = this.calcNextTurnPlayer();
     this.sendPlayerInfoToAll();
     // if all players have played compute and declare winner
     if(this.allPlayersHavePlayedCard())
     {
-      // Everyone has played. Compute winner
-      let winner = 0;
-      for (let i = 0; i < this._players.length; i++) {
-        const player = this._players[i];
-        if(Winner(this._players[winner].selectedCard, player.selectedCard, Suit.Spades) === -1){
-          winner = i;
-        }
-      }
+      // Everyone has played.
+      // 1. Compute winner
+      let winner = this.calcWinner();
+      // 2. Update next trick starter and suit
+      this._currentPlayerId = this._players[winner].id;
+      this.currentSuit = null;
+
       console.log(this._players[winner].name + ' is the winner');
+      // 3. Clear out the selected card of all players
       setTimeout(() => {
         this._players.forEach(player => {
           player.selectedCard = null;
@@ -50,6 +78,25 @@ class Room {
         this.sendPlayerInfoToAll();
       }, 5000);
     }
+  }
+
+  private calcWinner() {
+    let winner = 0;
+    for (let i = 0; i < this._players.length; i++) {
+      const player = this._players[i];
+      if (Winner(this._players[winner].selectedCard, player.selectedCard, this.trumpSuit, this.currentSuit) === -1) {
+        winner = i;
+      }
+    }
+    return winner;
+  }
+
+  private setCurrentSuit(player: Player) {
+    this.currentSuit = player.selectedCard.suit;
+  }
+
+  private firstCard() {
+    return this.currentSuit === null;
   }
 
   private allPlayersHavePlayedCard(): boolean{
