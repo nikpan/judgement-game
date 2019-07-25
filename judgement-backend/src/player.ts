@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import { ICard } from './card';
 import Room from './room';
-import { Message, MessageType, JoinMessage, PlayCardMessage } from './message';
+import { Message, MessageType, JoinMessage, PlayCardMessage, SetJudgementMessage } from './message';
 import { getId } from './util';
 
 export interface IPlayer {
@@ -48,6 +48,13 @@ class Player implements IPlayer {
     if (message.action === 'PlayCard') {
       this.handlePlayCardMessage(message);
     }
+    if (message.action === 'SetJudgement') {
+      this.handleSetJudgement(message);
+    }
+  }
+
+  private handleSetJudgement(message: SetJudgementMessage) {
+    this._room.setJudgement(this.name, message.prediction);
   }
 
   private handlePlayCardMessage(message: PlayCardMessage) {

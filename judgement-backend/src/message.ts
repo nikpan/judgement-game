@@ -12,7 +12,8 @@ export const enum MessageType {
   Hand = 'Hand',
   AllPlayers = 'AllPlayers',
   PlayCard = 'PlayCard',
-  Error = 'Error'
+  Error = 'Error',
+  AllScores = 'AllScores'
 }
 
 export interface IMessage {
@@ -42,4 +43,12 @@ export interface PlayCardMessage extends IMessage {
   card: ICard;
 }
 
-export type Message = PlayCardMessage | JoinMessage | PlayerHandMessage | PlayerInfoMessage |  ErrorMessage;
+export interface SetJudgementMessage extends IMessage {
+  prediction: number;
+}
+
+export interface PlayerScoreMessage extends IMessage {
+  scores: any;
+}
+
+export type Message = PlayCardMessage | JoinMessage | PlayerHandMessage | PlayerInfoMessage |  ErrorMessage | SetJudgementMessage | PlayerScoreMessage;

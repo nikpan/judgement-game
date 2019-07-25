@@ -1,12 +1,14 @@
 import Player from "./Player";
 import StandardDeck from "./deck";
-import { MessageType, PlayerInfo, PlayerInfoMessage } from "./message";
+import { MessageType, PlayerInfo, PlayerInfoMessage, PlayerScoreMessage } from "./message";
 import { ICard, Winner, Suit } from "./card";
+import ScoreCard, { JudgementScore } from "./scorecard";
 
 class Room {
   private _players: Player[];
   private _deck: StandardDeck;
   private _currentPlayerId: number;
+  private _scoreCard: ScoreCard;
   public currentSuit: Suit | null;
   public trumpSuit: Suit | null;
 
@@ -36,6 +38,16 @@ class Room {
     if(currPlayerIndex === -1) return "";
     const currPlayer = this._players[currPlayerIndex];
     return currPlayer.name;
+  }
+
+  private sendScoresToAll(scores: JudgementScore[]): void {
+    let allPlayerScores: PlayerScoreMessage = {
+      action: MessageType.AllScores,
+      scores: this._scoreCard.getScores()
+    }
+    this._players.forEach(clientWs => {
+      clientWs.sendMessage(allPlayerScores);
+    });
   }
 
   public sendPlayerInfoToAll(): void {
@@ -85,10 +97,14 @@ class Room {
         });
         this.sendPlayerInfoToAll();
       }, 5000);
+      // 4. Update winner
+      this._scoreCard.scoreWinner(this._players[winner].name);
+      let scores = this._scoreCard.getScores();
+      this.sendScoresToAll(scores);
     }
   }
 
-  private calcWinner() {
+  private calcWinner(): number {
     let winner = 0;
     for (let i = 0; i < this._players.length; i++) {
       const player = this._players[i];
@@ -128,6 +144,8 @@ class Room {
 
   public deal(): void {
     this._deck.resetDeck();
+    this._scoreCard = new ScoreCard(this._players.map(p => p.name));
+    this._scoreCard.startRound();
 
     this._players.forEach(player => {
       const hand = this._deck.drawRandom(Math.floor(52 / this._players.length));
@@ -136,6 +154,10 @@ class Room {
     });
 
     this.sendPlayerInfoToAll();
+  }
+
+  public setJudgement(playerName: string, prediction: number) {
+    this._scoreCard.setJudgement(playerName, prediction);
   }
 
   private printAllPlayers(): void {

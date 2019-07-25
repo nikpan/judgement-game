@@ -3,7 +3,7 @@ import './App.css';
 import Hand from './components/hand'
 import HiddenHand from './components/hiddenHand';
 import { ICard, Rank, Suit } from './components/card';
-import { Text, TextField, PrimaryButton as Button, Stack } from 'office-ui-fabric-react';
+import { Text, TextField, PrimaryButton as Button, Stack, ITextField } from 'office-ui-fabric-react';
 import SpecialCard, { SpecialCardType } from './components/specialCard';
 
 export interface AppState {
@@ -23,7 +23,9 @@ enum MessageType {
   Hand = 'Hand',
   AllPlayers = 'AllPlayers',
   PlayCard = 'PlayCard',
-  Error = 'Error'
+  Error = 'Error',
+  AllScores = 'AllScores',
+  SetJudgement = 'SetJudgement'
 }
 
 interface PlayerInfo {
@@ -42,9 +44,12 @@ interface ServerMessage {
   currentSuit?: Suit | null;
   trumpSuit?: Suit | null;
   currentPlayerName?: string | null;
+  scores?: any;
+  prediction?: number;
 }
 
 class App extends React.Component<{},AppState> {
+  private _judgementText: React.RefObject<ITextField> = React.createRef<ITextField>();
   constructor(props:any) {
     super(props);
     this.state = {
@@ -118,6 +123,23 @@ class App extends React.Component<{},AppState> {
     console.log(suit + rank);
   }
 
+  onSetPrediction = () => {
+    if(this._judgementText.current == null) {
+      return;
+    }
+    if(this.state.webSocket == null) {
+      return;
+    }
+    
+    let prediction = this._judgementText.current.value;
+    prediction = prediction ? prediction : "";
+    this.state.webSocket.send(JSON.stringify({
+      action: MessageType.SetJudgement,
+      prediction: parseInt(prediction)
+    }))
+    console.log(this._judgementText.current.value);
+  }
+
   renderOtherPlayers = () => {
     if(this.state.otherPlayers) {
       let otherPlayers = new Array();
@@ -141,6 +163,10 @@ class App extends React.Component<{},AppState> {
             <Button onClick={this.onSetNameClick}>Submit</Button>
           </Stack>
           <Button onClick={this.onDealClick}>Deal!</Button>
+          <Stack horizontal gap={10}>
+            <TextField componentRef={this._judgementText} placeholder={'Your Prediction'}/>
+            <Button onClick={this.onSetPrediction}>Set Prediction</Button>
+          </Stack>
           <Stack horizontal verticalAlign='center'>
             <Text>Trump Suit</Text>
             <SpecialCard type={this.mapSuitToSpecialCardType(this.state.trumpSuit)} />
@@ -198,6 +224,9 @@ class App extends React.Component<{},AppState> {
     }
     if(msgData.action === MessageType.Error && msgData.code){
       alert(`Error: ${msgData.code}`);
+    }
+    if(msgData.action === MessageType.AllScores && msgData.scores) {
+      console.debug(msgData.scores);
     }
   }
 }
