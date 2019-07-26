@@ -96,7 +96,7 @@ class App extends React.Component<{},AppState> {
       var msgData: ServerMessage = JSON.parse(msg.data);
       this.handleServerMessage(msgData);
       console.log('Message from server:');
-      console.debug(msg.data);
+      console.debug(msgData);
     };
   }
 
