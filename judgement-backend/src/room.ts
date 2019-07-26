@@ -11,6 +11,9 @@ class Room {
   private _scoreCard: ScoreCard | null;
   public currentSuit: Suit | null;
   public trumpSuit: Suit | null;
+  private _roundNumber: number;
+  private _maxRounds: number;
+  private _handsPlayedInCurrentRound: number;
 
   constructor() {
     this._players = [];
@@ -19,6 +22,9 @@ class Room {
     this.currentSuit = null;
     this.trumpSuit = Suit.Spades;
     this._scoreCard = null;
+    this._roundNumber = 0;
+    this._maxRounds = 0;
+    this._handsPlayedInCurrentRound = 0;
   }
 
   public isPlayerTurn(playerId: number) {
@@ -76,6 +82,10 @@ class Room {
     return playerInfos;
   }
 
+  private maxHandsInCurrentRound() {
+    return this._maxRounds - this._roundNumber + 1;
+  }
+
   public cardPlayed(player: Player): any {
     if(this.firstCard()) this.setCurrentSuit(player);
     this._currentPlayerId = this.calcNextTurnPlayer();
@@ -100,9 +110,14 @@ class Room {
       }, 5000);
       // 4. Update winner
       this._scoreCard.scoreWinner(this._players[winner].name);
-      let scores = this._scoreCard.getScores();
-      if(this._players[0].hand.length == 0) this._scoreCard.endRound();
-      this.sendScoresToAll(scores);
+      this._handsPlayedInCurrentRound += 1;
+      if(this._handsPlayedInCurrentRound == this.maxHandsInCurrentRound()) {
+        this._scoreCard.endRound();
+        if(this._roundNumber != this._maxRounds){ 
+          this.startRound();
+        }
+      }
+      this.sendScoresToAll(this._scoreCard.getScores());
     }
   }
 
@@ -145,18 +160,24 @@ class Room {
   }
 
   public deal(): void {
+    this._maxRounds = 2;
+    this._scoreCard = new ScoreCard(this._players.map(p => p.name));
+    this.startRound();
+  }
+
+  private startRound(): void {
+    this._handsPlayedInCurrentRound = 0;
+    this._roundNumber += 1;
+    this.dealInner(this.maxHandsInCurrentRound());
+  }
+
+  public dealInner(numberOfCards: number): void {
+    this._scoreCard.startRound(numberOfCards);
+    
     this._deck.resetDeck();
-    if(this._scoreCard == null) {
-      this._scoreCard = new ScoreCard(this._players.map(p => p.name));
-    }
-    else {
-      // this._scoreCard.endRound();
-    }
-    this._scoreCard.startRound();
 
     this._players.forEach(player => {
-      //const hand = this._deck.drawRandom(Math.floor(52 / this._players.length));
-      const hand = this._deck.drawRandom(4);
+      const hand = this._deck.drawRandom(numberOfCards);
       player.hand = hand;
       player.sendHand();
     });

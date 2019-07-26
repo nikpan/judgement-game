@@ -15,7 +15,7 @@ interface IScoreCard {
   scoreWinner(playerName: string): any;
   calcTotals(): any;
   getScores(): JudgementScore[];
-  startRound(): any;
+  startRound(maxHandsInRound: number): any;
   endRound(): any;
 }
 
@@ -29,7 +29,7 @@ class ScoreCard implements IScoreCard {
     this._scores = [];
     this._currentRoundIndex = -1;
     this._dealerIndex = 0;
-    this._maxHandsInRound = 52 / players.length;
+    this._maxHandsInRound = 0;
     players.forEach(p => {
       this._scores.push(
         {
@@ -41,10 +41,11 @@ class ScoreCard implements IScoreCard {
     });
   }
 
-  startRound(): any {
+  startRound(maxHandsInRound: number): any {
     this._scores.forEach(p => {
       p.scores.push({hands: 0, judgement: 0, isFinished: false});
     })
+    this._maxHandsInRound = maxHandsInRound;
     this._currentRoundIndex = this._scores[0].scores.length-1;
   }
 
@@ -79,7 +80,6 @@ class ScoreCard implements IScoreCard {
 
   endRound(): any {
     this._dealerIndex = (this._dealerIndex+1) % this._scores.length;
-    this._maxHandsInRound -= 1;
     this._handsDone = 0;
     this._scores.forEach(pSc => {
       pSc.scores[this._currentRoundIndex].isFinished = true;
@@ -112,7 +112,7 @@ class ScoreCard implements IScoreCard {
     this._scores.forEach(pl => {
       let total = 0;
       pl.scores.forEach(score => {
-        total += score.hands == score.judgement ? score.hands*10 : 0;
+        total += score.hands == score.judgement ? 10+score.hands : 0;
       });
       pl.total = total;
     });

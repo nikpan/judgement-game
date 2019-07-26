@@ -21,7 +21,7 @@ export default class ScoreCard extends React.Component<ScoreCardProps> {
         color: 'red'
       }
       return (
-        score.hands == score.judgement ? <span style={green}>{score.hands*10}</span> : <span style={red}>0</span>
+        score.hands == score.judgement ? <span style={green}>{score.hands+10}</span> : <span style={red}>0</span>
       )
     }
   }
