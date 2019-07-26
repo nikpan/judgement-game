@@ -54,7 +54,7 @@ export default class ScoreCard extends React.Component<ScoreCardProps> {
       for (let i = 0; i < length; i++) {
         items.push({});
         scores.forEach(sc=> {
-          items[i][sc.playerName] = this.renderScore(sc.scores[i], i!=length-1);
+          items[i][sc.playerName] = this.renderScore(sc.scores[i], sc.scores[i].isFinished);
         })
       }
       items.push({});

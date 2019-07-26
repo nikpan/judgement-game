@@ -7,6 +7,7 @@ export interface JudgementScore {
 interface Score {
   judgement: number;
   hands: number;
+  isFinished: boolean;
 }
 
 interface IScoreCard {
@@ -42,7 +43,7 @@ class ScoreCard implements IScoreCard {
 
   startRound(): any {
     this._scores.forEach(p => {
-      p.scores.push({hands: 0, judgement: 0});
+      p.scores.push({hands: 0, judgement: 0, isFinished: false});
     })
     this._currentRoundIndex = this._scores[0].scores.length-1;
   }
@@ -80,6 +81,9 @@ class ScoreCard implements IScoreCard {
     this._dealerIndex = (this._dealerIndex+1) % this._scores.length;
     this._maxHandsInRound -= 1;
     this._handsDone = 0;
+    this._scores.forEach(pSc => {
+      pSc.scores[this._currentRoundIndex].isFinished = true;
+    });
     this.calcTotals();
   }
 

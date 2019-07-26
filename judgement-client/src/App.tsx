@@ -28,6 +28,7 @@ export interface JudgementScore {
 export interface Score {
   judgement: number;
   hands: number;
+  isFinished: boolean;
 }
 
 enum MessageType {
