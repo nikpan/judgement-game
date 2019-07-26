@@ -167,7 +167,25 @@ class App extends React.Component<{},AppState> {
     return null;
   }
 
+  suitToUnicode = (suit: Suit) => {
+    switch (suit) {
+      case Suit.Clubs:
+        return '♣';
+      case Suit.Hearts:
+        return '♥';
+      case Suit.Diamonds:
+        return '♦';
+      case Suit.Spades:
+        return '♠';
+      default:
+        return '♠';
+    }
+  }
+
   render = () => {
+    let infoStyles = {
+      fontSize: 20
+    };
     return (
       <div>
         <h1>
@@ -184,12 +202,12 @@ class App extends React.Component<{},AppState> {
             <TextField componentRef={this._judgementText} placeholder={'Your Prediction'}/>
             <Button onClick={this.onSetPrediction}>Set Prediction</Button>
           </Stack>
-          <Stack horizontal verticalAlign='center'>
-            <Text>Trump Suit</Text>
-            <SpecialCard type={this.mapSuitToSpecialCardType(this.state.trumpSuit)} />
-            <Text>Current Suit</Text>            
-            <SpecialCard type={this.mapSuitToSpecialCardType(this.state.currentSuit)} />
-            <Text>Who's turn? <b>{this.state.currentPlayerName ? this.state.currentPlayerName : "None"}</b></Text>
+          <Stack gap={10} verticalAlign='center'>
+            <Text style={infoStyles}>Trump Suit {this.suitToUnicode(this.state.trumpSuit)}</Text>
+            {/* <SpecialCard type={this.mapSuitToSpecialCardType(this.state.trumpSuit)} /> */}
+            <Text style={infoStyles}>Current Suit {this.suitToUnicode(this.state.currentSuit)}</Text>            
+            {/* <SpecialCard type={this.mapSuitToSpecialCardType(this.state.currentSuit)} /> */}
+            <Text style={infoStyles}>Who's turn? <b>{this.state.currentPlayerName ? this.state.currentPlayerName : "None"}</b></Text>
           </Stack>
         </Stack>
         <div>
@@ -205,20 +223,20 @@ class App extends React.Component<{},AppState> {
     );
   }
 
-  private mapSuitToSpecialCardType(suit: Suit | null): SpecialCardType {
-    switch (suit) {
-      case Suit.Clubs:
-        return SpecialCardType.ClubsSuit
-      case Suit.Hearts:
-        return SpecialCardType.HeartsSuit
-      case Suit.Diamonds:
-        return SpecialCardType.DiamondsSuit
-      case Suit.Spades:
-        return SpecialCardType.SpadesSuit
-      default:
-        return SpecialCardType.BlueBack;
-    }
-  }
+  // private mapSuitToSpecialCardType(suit: Suit | null): SpecialCardType {
+  //   switch (suit) {
+  //     case Suit.Clubs:
+  //       return SpecialCardType.ClubsSuit
+  //     case Suit.Hearts:
+  //       return SpecialCardType.HeartsSuit
+  //     case Suit.Diamonds:
+  //       return SpecialCardType.DiamondsSuit
+  //     case Suit.Spades:
+  //       return SpecialCardType.SpadesSuit
+  //     default:
+  //       return SpecialCardType.BlueBack;
+  //   }
+  // }
 
   private handleServerMessage(msgData: ServerMessage) {
     if (msgData.action === MessageType.Hand && msgData.cards) {

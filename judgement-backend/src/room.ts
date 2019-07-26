@@ -47,7 +47,7 @@ class Room {
     return currPlayer.name;
   }
 
-  private sendScoresToAll(scores: JudgementScore[]): void {
+  private sendScoresToAll(): void {
     let allPlayerScores: PlayerScoreMessage = {
       action: MessageType.AllScores,
       scores: this._scoreCard.getScores()
@@ -117,7 +117,7 @@ class Room {
           setTimeout(() => this.startRound(), 5000);
         }
       }
-      this.sendScoresToAll(this._scoreCard.getScores());
+      this.sendScoresToAll();
     }
   }
 
@@ -203,6 +203,7 @@ class Room {
 
   public setJudgement(playerName: string, prediction: number) {
     this._scoreCard.setJudgement(playerName, prediction);
+    this.sendScoresToAll();
   }
 
   private printAllPlayers(): void {
