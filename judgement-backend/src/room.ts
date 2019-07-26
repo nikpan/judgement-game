@@ -114,7 +114,7 @@ class Room {
       if(this._handsPlayedInCurrentRound == this.maxHandsInCurrentRound()) {
         this._scoreCard.endRound();
         if(this._roundNumber != this._maxRounds){ 
-          this.startRound();
+          setTimeout(() => this.startRound(), 5000);
         }
       }
       this.sendScoresToAll(this._scoreCard.getScores());
