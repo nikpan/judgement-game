@@ -168,7 +168,23 @@ class Room {
   private startRound(): void {
     this._handsPlayedInCurrentRound = 0;
     this._roundNumber += 1;
+    this.trumpSuit = this.updateTrumpSuit()
     this.dealInner(this.maxHandsInCurrentRound());
+  }
+
+  private updateTrumpSuit(): Suit {
+    switch (this._roundNumber % 4) {
+      case 0:
+        return Suit.Spades;
+      case 1:
+        return Suit.Diamonds;
+      case 2:
+        return Suit.Hearts;
+      case 3:
+        return Suit.Clubs;
+      default:
+        return Suit.Spades;
+    }
   }
 
   public dealInner(numberOfCards: number): void {
