@@ -8,7 +8,7 @@ class Room {
   private _players: Player[];
   private _deck: StandardDeck;
   private _currentPlayerId: number;
-  private _scoreCard: ScoreCard;
+  private _scoreCard: ScoreCard | null;
   public currentSuit: Suit | null;
   public trumpSuit: Suit | null;
 
@@ -18,6 +18,7 @@ class Room {
     this._currentPlayerId = 0;
     this.currentSuit = null;
     this.trumpSuit = Suit.Spades;
+    this._scoreCard = null;
   }
 
   public isPlayerTurn(playerId: number) {
@@ -100,6 +101,7 @@ class Room {
       // 4. Update winner
       this._scoreCard.scoreWinner(this._players[winner].name);
       let scores = this._scoreCard.getScores();
+      if(this._players[0].hand.length == 0) this._scoreCard.endRound();
       this.sendScoresToAll(scores);
     }
   }
@@ -144,11 +146,17 @@ class Room {
 
   public deal(): void {
     this._deck.resetDeck();
-    this._scoreCard = new ScoreCard(this._players.map(p => p.name));
+    if(this._scoreCard == null) {
+      this._scoreCard = new ScoreCard(this._players.map(p => p.name));
+    }
+    else {
+      // this._scoreCard.endRound();
+    }
     this._scoreCard.startRound();
 
     this._players.forEach(player => {
-      const hand = this._deck.drawRandom(Math.floor(52 / this._players.length));
+      //const hand = this._deck.drawRandom(Math.floor(52 / this._players.length));
+      const hand = this._deck.drawRandom(4);
       player.hand = hand;
       player.sendHand();
     });

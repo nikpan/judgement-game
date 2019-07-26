@@ -5,6 +5,7 @@ import HiddenHand from './components/hiddenHand';
 import { ICard, Rank, Suit } from './components/card';
 import { Text, TextField, PrimaryButton as Button, Stack, ITextField } from 'office-ui-fabric-react';
 import SpecialCard, { SpecialCardType } from './components/specialCard';
+import ScoreCard from './components/scorecard';
 
 export interface AppState {
   webSocket: WebSocket | null;
@@ -15,6 +16,18 @@ export interface AppState {
   currentSuit: Suit;
   trumpSuit: Suit;
   currentPlayerName: string | null;
+  scores: JudgementScore[] | null;
+}
+
+export interface JudgementScore {
+  playerName: string;
+  scores: Score[];
+  total: number;
+}
+
+export interface Score {
+  judgement: number;
+  hands: number;
 }
 
 enum MessageType {
@@ -61,6 +74,7 @@ class App extends React.Component<{},AppState> {
       currentSuit: Suit.Spades,
       trumpSuit: Suit.Spades,
       currentPlayerName: null,
+      scores: null
     };
   }
 
@@ -157,6 +171,7 @@ class App extends React.Component<{},AppState> {
         <h1>
           Judgement Game
         </h1>
+        <ScoreCard scores={this.state.scores}></ScoreCard>
         <Stack gap={10} padding={10}>
           <Stack horizontal gap={10}>
             <TextField value={this.state.name} onChange={this.handleChange} placeholder='Your Name'/>
@@ -227,6 +242,9 @@ class App extends React.Component<{},AppState> {
     }
     if(msgData.action === MessageType.AllScores && msgData.scores) {
       console.debug(msgData.scores);
+      this.setState({
+        scores: msgData.scores
+      });
     }
   }
 }

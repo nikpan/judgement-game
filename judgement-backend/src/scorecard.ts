@@ -1,5 +1,3 @@
-import { AnyARecord } from "dns";
-
 export interface JudgementScore {
   playerName: string;
   scores: Score[];
