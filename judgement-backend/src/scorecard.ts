@@ -84,7 +84,6 @@ class ScoreCard implements IScoreCard {
     this._scores.forEach(pSc => {
       pSc.scores[this._currentRoundIndex].isFinished = true;
     });
-    this.calcTotals();
   }
 
   scoreWinner(playerName: string) {
@@ -112,7 +111,8 @@ class ScoreCard implements IScoreCard {
     this._scores.forEach(pl => {
       let total = 0;
       pl.scores.forEach(score => {
-        total += score.hands == score.judgement ? 10+score.hands : 0;
+        if(score.isFinished)
+          total += score.hands == score.judgement ? 10+score.hands : 0;
       });
       pl.total = total;
     });
