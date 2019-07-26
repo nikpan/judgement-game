@@ -24,7 +24,7 @@ export default class HiddenHand extends React.Component<HiddenHandProps> {
     const cardCount = this.props.cardCount;
     let cards = [];
     for (let i = 0; i < cardCount; i++) {
-      cards.push(<SpecialCard type={SpecialCardType.BlueBack}/>)
+      cards.push(<SpecialCard key={i} type={SpecialCardType.BlueBack}/>)
     }
     return (
       <div>

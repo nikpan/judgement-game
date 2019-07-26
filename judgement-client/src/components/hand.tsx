@@ -31,13 +31,14 @@ export default class Hand extends React.Component<HandProps> {
         <h2>{this.props.name}'s Hand</h2>
         <div className='player'>
           <div className='playerHand'>
-            {cards.map((card => 
+            {cards.map((card, i) => 
               <Card
+                key={i}
                 suit={card.suit} 
                 rank={card.rank} 
                 cardSelected={this.cardSelected}
               />
-              ))}
+              )}
           </div>
           <div className='playedCard'>
             {this.selectedCard()}

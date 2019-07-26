@@ -95,7 +95,8 @@ class App extends React.Component<{},AppState> {
     ws.onmessage = (msg) => {
       var msgData: ServerMessage = JSON.parse(msg.data);
       this.handleServerMessage(msgData);
-      console.debug('Message from server: ' + msg.data);
+      console.log('Message from server:');
+      console.debug(msg.data);
     };
   }
 
@@ -157,8 +158,8 @@ class App extends React.Component<{},AppState> {
   renderOtherPlayers = () => {
     if(this.state.otherPlayers) {
       let otherPlayers = new Array();
-      this.state.otherPlayers.forEach(player => {
-        otherPlayers.push(<HiddenHand selectedCard={player.selectedCard} name={player.name} cardCount={player.cardCount} />)
+      this.state.otherPlayers.forEach((player,i) => {
+        otherPlayers.push(<HiddenHand key={i.toString()} selectedCard={player.selectedCard} name={player.name} cardCount={player.cardCount} />)
       })
       return otherPlayers;
     }
