@@ -25,10 +25,12 @@ class ScoreCard implements IScoreCard {
   private _maxHandsInRound: number;
   private _dealerIndex: number;
   private _handsDone: number;
+  private _currentPlayerIndex: number;
   constructor(players: string[]) {
     this._scores = [];
     this._currentRoundIndex = -1;
     this._dealerIndex = 0;
+    this._currentPlayerIndex = 0;
     this._maxHandsInRound = 0;
     players.forEach(p => {
       this._scores.push(
@@ -46,6 +48,7 @@ class ScoreCard implements IScoreCard {
       p.scores.push({hands: 0, judgement: 0, isFinished: false});
     })
     this._maxHandsInRound = maxHandsInRound;
+    this._currentPlayerIndex = (this._dealerIndex+1) % this._scores.length;
     this._currentRoundIndex = this._scores[0].scores.length-1;
   }
 
@@ -53,33 +56,41 @@ class ScoreCard implements IScoreCard {
     let playerScoreIndex = this._scores.findIndex(sc => sc.playerName === playerName);
     if(playerScoreIndex == -1) {
       console.log("ScoreCardError::Can't set judgement for unknown player " + playerName);
-      return;
+      throw new Error('UnknownPlayer');
+    }
+    if(playerScoreIndex !== this._currentPlayerIndex) {
+      console.log(`ScorecardError::Can't set judgement because not ${playerName} turn`);
+      throw new Error('NotYourTurnToJudgement');
     }
 
     let playerScore = this._scores[playerScoreIndex];
     if(playerScore.scores[this._currentRoundIndex]) {
       let latestScore = playerScore.scores[this._currentRoundIndex];
-      if(playerScoreIndex === this._dealerIndex && this.getRemainingHandsInRound() === prediction) {
+      if(playerScoreIndex === this._dealerIndex && this.getRemainingHandsInRound(playerName) === prediction) {
         console.log("ScorecardError::Can't set judgement because predication cannot match total hands");
-        return;
+        throw new Error("Can't match total hands");
       }
       latestScore.judgement = prediction;
+      this._currentPlayerIndex = (this._currentPlayerIndex+1) % this._scores.length;
     }
     else {
       console.log("ScorecardError::Can't set judgement because score array is empty");
+      throw new Error('ScoreArrayEmpty');
     }
   }
 
-  private getRemainingHandsInRound() {
+  private getRemainingHandsInRound(playerName: string) {
     let remainingHands = this._maxHandsInRound;
     this._scores.forEach(pSc => {
-      remainingHands -= pSc.scores[this._currentRoundIndex].judgement;
+      if(playerName != pSc.playerName)
+        remainingHands -= pSc.scores[this._currentRoundIndex].judgement;
     });
     return remainingHands;
   }
 
   endRound(): any {
     this._dealerIndex = (this._dealerIndex+1) % this._scores.length;
+    this._currentPlayerIndex = (this._dealerIndex+1) % this._scores.length;
     this._handsDone = 0;
     this._scores.forEach(pSc => {
       pSc.scores[this._currentRoundIndex].isFinished = true;

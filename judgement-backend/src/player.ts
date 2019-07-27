@@ -54,7 +54,12 @@ class Player implements IPlayer {
   }
 
   private handleSetJudgement(message: SetJudgementMessage) {
-    this._room.setJudgement(this.name, message.prediction);
+    try {
+      this._room.setJudgement(this.name, message.prediction);
+    }
+    catch (e) {
+      this.sendErrorMessage(e.message);
+    }
   }
 
   private handlePlayCardMessage(message: PlayCardMessage) {
