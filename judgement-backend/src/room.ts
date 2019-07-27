@@ -161,6 +161,7 @@ class Room {
 
   public deal(): void {
     this._maxRounds = 4;
+    //this._maxRounds = Math.floor(52 / this._players.length);
     this._scoreCard = new ScoreCard(this._players.map(p => p.name));
     this.startRound();
   }

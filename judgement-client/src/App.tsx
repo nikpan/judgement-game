@@ -1,16 +1,15 @@
 import React from 'react';
 import './App.css';
-import Hand from './components/hand'
-import HiddenHand from './components/hiddenHand';
 import { ICard, Rank, Suit } from './components/card';
-import { Text, TextField, PrimaryButton as Button, Stack, ITextField } from 'office-ui-fabric-react';
-import SpecialCard, { SpecialCardType } from './components/specialCard';
+import { TextField, PrimaryButton as Button, Stack, ITextField } from 'office-ui-fabric-react';
 import ScoreCard from './components/scorecard';
+import InfoTable from './components/infoTable';
+import Table from './components/table';
 
 export interface AppState {
   webSocket: WebSocket | null;
   name: string;
-  myCards: ICard[];
+  cards: ICard[];
   otherPlayers: PlayerInfo[];
   selectedCard: ICard | null;
   currentSuit: Suit;
@@ -42,7 +41,7 @@ enum MessageType {
   SetJudgement = 'SetJudgement'
 }
 
-interface PlayerInfo {
+export interface PlayerInfo {
   name: string;
   cardCount: number;
   selectedCard: ICard | null;
@@ -69,7 +68,7 @@ class App extends React.Component<{},AppState> {
     this.state = {
       webSocket: null,
       name: '',
-      myCards: [],
+      cards: [],
       otherPlayers: [],
       selectedCard: null,
       currentSuit: Suit.Spades,
@@ -152,44 +151,15 @@ class App extends React.Component<{},AppState> {
     this.state.webSocket.send(JSON.stringify({
       action: MessageType.SetJudgement,
       prediction: parseInt(prediction)
-    }))
+    }));
     console.log(this._judgementText.current.value);
   }
 
-  renderOtherPlayers = () => {
-    if(this.state.otherPlayers) {
-      let otherPlayers = new Array();
-      this.state.otherPlayers.forEach((player,i) => {
-        otherPlayers.push(<HiddenHand key={i.toString()} selectedCard={player.selectedCard} name={player.name} cardCount={player.cardCount} />)
-      })
-      return otherPlayers;
-    }
-    return null;
-  }
-
-  suitToUnicode = (suit: Suit) => {
-    switch (suit) {
-      case Suit.Clubs:
-        return <span style={{color: 'black'}}>♣</span>;
-      case Suit.Hearts:
-        return <span style={{color: 'red'}}>♥</span>;
-      case Suit.Diamonds:
-        return <span style={{color: 'red'}}>♦</span>;
-      case Suit.Spades:
-        return <span style={{color: 'black'}}>♠</span>;
-      default:
-        return '♠';
-    }
-  }
-
   render = () => {
-    let infoStyles = {
-      fontSize: 20
-    };
     return (
       <div>
         <h1>
-          Judgement Game
+          Judgement Game {this.state.name ? `- ${this.state.name}` : ''}
         </h1>
         <ScoreCard scores={this.state.scores}></ScoreCard>
         <Stack gap={10} padding={10}>
@@ -202,46 +172,17 @@ class App extends React.Component<{},AppState> {
             <TextField componentRef={this._judgementText} placeholder={'Your Prediction'}/>
             <Button onClick={this.onSetPrediction}>Set Prediction</Button>
           </Stack>
-          <Stack gap={10} verticalAlign='center'>
-            <Text style={infoStyles}>Trump Suit {this.suitToUnicode(this.state.trumpSuit)}</Text>
-            {/* <SpecialCard type={this.mapSuitToSpecialCardType(this.state.trumpSuit)} /> */}
-            <Text style={infoStyles}>Current Suit {this.suitToUnicode(this.state.currentSuit)}</Text>            
-            {/* <SpecialCard type={this.mapSuitToSpecialCardType(this.state.currentSuit)} /> */}
-            <Text style={infoStyles}>Who's turn? <b>{this.state.currentPlayerName ? this.state.currentPlayerName : "None"}</b></Text>
-          </Stack>
+          <InfoTable {...this.state} />
         </Stack>
-        <div>
-          <Hand 
-            name={this.state.name}
-            cards={this.state.myCards}
-            selectedCard={this.state.selectedCard} 
-            cardSelected={this.onCardClick}
-          />
-          {this.renderOtherPlayers()}
-        </div>
+        <Table {...this.state} onCardClick={this.onCardClick} />
       </div>
     );
   }
 
-  // private mapSuitToSpecialCardType(suit: Suit | null): SpecialCardType {
-  //   switch (suit) {
-  //     case Suit.Clubs:
-  //       return SpecialCardType.ClubsSuit
-  //     case Suit.Hearts:
-  //       return SpecialCardType.HeartsSuit
-  //     case Suit.Diamonds:
-  //       return SpecialCardType.DiamondsSuit
-  //     case Suit.Spades:
-  //       return SpecialCardType.SpadesSuit
-  //     default:
-  //       return SpecialCardType.BlueBack;
-  //   }
-  // }
-
   private handleServerMessage(msgData: ServerMessage) {
     if (msgData.action === MessageType.Hand && msgData.cards) {
       var cardsFromServer = msgData.cards;
-      this.setState({ myCards: cardsFromServer });
+      this.setState({ cards: cardsFromServer });
     }
     if (msgData.action === MessageType.AllPlayers && msgData.players) {
       let otherPlayerInfos = msgData.players;
