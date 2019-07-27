@@ -170,13 +170,13 @@ class App extends React.Component<{},AppState> {
   suitToUnicode = (suit: Suit) => {
     switch (suit) {
       case Suit.Clubs:
-        return '♣';
+        return <span style={{color: 'black'}}>♣</span>;
       case Suit.Hearts:
-        return '♥';
+        return <span style={{color: 'red'}}>♥</span>;
       case Suit.Diamonds:
-        return '♦';
+        return <span style={{color: 'red'}}>♦</span>;
       case Suit.Spades:
-        return '♠';
+        return <span style={{color: 'black'}}>♠</span>;
       default:
         return '♠';
     }
