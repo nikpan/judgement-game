@@ -13,7 +13,8 @@ export const enum MessageType {
   AllPlayers = 'AllPlayers',
   PlayCard = 'PlayCard',
   Error = 'Error',
-  AllScores = 'AllScores'
+  AllScores = 'AllScores',
+  SetJudgement = 'SetJudgement'
 }
 
 export interface IMessage {

@@ -39,16 +39,16 @@ class Player implements IPlayer {
   }
 
   private handleMessage(message: any) {
-    if (message.action === 'Join') {
+    if (message.action === MessageType.Join) {
       this.handleJoinMessage(message);
     }
-    if (message.action === 'Deal') {
+    if (message.action === MessageType.Deal) {
       this._room.deal();
     }
-    if (message.action === 'PlayCard') {
+    if (message.action === MessageType.PlayCard) {
       this.handlePlayCardMessage(message);
     }
-    if (message.action === 'SetJudgement') {
+    if (message.action === MessageType.SetJudgement) {
       this.handleSetJudgement(message);
     }
   }
