@@ -83,6 +83,7 @@ class App extends React.Component<{},AppState> {
 
   openConnection = () => {
     const ws = new WebSocket('ws://localhost:3001');
+    // const ws = new WebSocket('wss://judgementgame-backend.azurewebsites.net:3001');
     this.setState({webSocket: ws});
     ws.onopen = () => {
       console.debug('Connection established!');
@@ -130,7 +131,7 @@ class App extends React.Component<{},AppState> {
       this.state.webSocket.send(JSON.stringify({
         action: MessageType.PlayCard,
         card: {
-          suit: suit, 
+          suit: suit,
           rank: rank
         }
       }))
@@ -145,7 +146,7 @@ class App extends React.Component<{},AppState> {
     if(this.state.webSocket == null) {
       return;
     }
-    
+
     let prediction = this._judgementText.current.value;
     prediction = prediction ? prediction : "";
     this.state.webSocket.send(JSON.stringify({
@@ -190,9 +191,9 @@ class App extends React.Component<{},AppState> {
         name: string;
       }) => player.name === this.state.name);
       let myInfo = otherPlayerInfos.splice(toRemove, 1)[0];
-      this.setState({ 
-        otherPlayers: otherPlayerInfos, 
-        selectedCard: myInfo.selectedCard, 
+      this.setState({
+        otherPlayers: otherPlayerInfos,
+        selectedCard: myInfo.selectedCard,
         trumpSuit: msgData.trumpSuit!,
         currentSuit: msgData.currentSuit!,
         currentPlayerName: msgData.currentPlayerName!

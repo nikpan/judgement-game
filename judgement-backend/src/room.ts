@@ -14,7 +14,7 @@ class Room {
   private _roundNumber: number;
   private _maxRounds: number;
   private _handsPlayedInCurrentRound: number;
-
+  
   constructor() {
     this._players = [];
     this._deck = new StandardDeck();
@@ -25,6 +25,10 @@ class Room {
     this._roundNumber = 0;
     this._maxRounds = 0;
     this._handsPlayedInCurrentRound = 0;
+  }
+  
+  public get scoreCard(): ScoreCard | null {
+    return this._scoreCard;
   }
 
   public isPlayerTurn(playerId: number) {
