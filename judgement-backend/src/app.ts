@@ -2,7 +2,7 @@ import http from 'http';
 import WebSocket from 'ws';
 import express from 'express';
 import Room from './room';
-import Player from './Player';
+import Player from './player';
 
 const app = express();
 const port = normalizePort(process.env.PORT || '3001');

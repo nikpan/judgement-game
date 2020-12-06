@@ -1,8 +1,8 @@
-import Player from "./Player";
+import Player from "./player";
 import StandardDeck from "./deck";
 import { MessageType, PlayerInfo, PlayerInfoMessage, PlayerScoreMessage } from "./message";
-import { ICard, Winner, Suit } from "./card";
-import ScoreCard, { JudgementScore } from "./scorecard";
+import { Winner, Suit } from "./card";
+import ScoreCard from "./scorecard";
 
 class Room {
   private _players: Player[];
