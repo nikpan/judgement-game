@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/5a2e6a0f-9da2-4ae0-83d1-6f18cb7b70b9/resourceGroups/judgement-game/providers/Microsoft.Web/sites/judgementgame-backend",
+    "appService.deploySubpath": "."
+}
