@@ -22,15 +22,16 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 app.get('/', (_req, res) => {
-  res.send('Hello World')
+  res.send('Hello World! Welcome to Judgement Game Backend!')
 });
 
 app.get('/status', (_req, res) => {
   res.send(room.scoreCard);
 });
 
-app.get('/reset-room', (_req, _res) => {
+app.get('/reset-room', (_req, res) => {
   room = new Room();
+  res.send('Room reset done!');
 });
 
 function normalizePort(val: string) {
