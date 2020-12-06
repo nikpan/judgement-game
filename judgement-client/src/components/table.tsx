@@ -1,7 +1,7 @@
 import React from "react";
 import HiddenHand from "./hiddenHand";
 import Hand from "./hand";
-import { PlayerInfo } from "../App";
+import { PlayerInfo } from "../controllers/message";
 import { ICard, Rank, Suit } from "./card";
 import './table.css';
 

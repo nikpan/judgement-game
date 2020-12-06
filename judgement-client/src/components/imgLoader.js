@@ -61,6 +61,7 @@ import SpadesSuit from '../resources/img/honor_spades.png';
 import DiamondsSuit from '../resources/img/honor_diamonds.png';
 
 export default function getImageSrc(imgId) {
+  // eslint-disable-next-line
   switch (imgId) {
     case 'AC': return CA;
     case '2C': return C2;

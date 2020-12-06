@@ -5,6 +5,7 @@ import { TextField, PrimaryButton as Button, Stack, ITextField } from 'office-ui
 import ScoreCard from './components/scorecard';
 import InfoTable from './components/infoTable';
 import Table from './components/table';
+import { ErrorMessage, Message, MessageType, PlayerHandMessage, PlayerInfo, PlayerInfoMessage, PlayerScoreMessage } from './controllers/message';
 
 export interface AppState {
   webSocket: WebSocket | null;
@@ -30,40 +31,9 @@ export interface Score {
   isFinished: boolean;
 }
 
-enum MessageType {
-  Deal = 'Deal',
-  Join = 'Join',
-  Hand = 'Hand',
-  AllPlayers = 'AllPlayers',
-  PlayCard = 'PlayCard',
-  Error = 'Error',
-  AllScores = 'AllScores',
-  SetJudgement = 'SetJudgement'
-}
-
-export interface PlayerInfo {
-  name: string;
-  cardCount: number;
-  selectedCard: ICard | null;
-}
-
-interface ServerMessage {
-  action: MessageType;
-  cards?: ICard[];
-  players?: PlayerInfo[];
-  card?: ICard;
-  name?: string;
-  code?: string;
-  currentSuit?: Suit | null;
-  trumpSuit?: Suit | null;
-  currentPlayerName?: string | null;
-  scores?: any;
-  prediction?: number;
-}
-
-class App extends React.Component<{},AppState> {
+class App extends React.Component<{}, AppState> {
   private _judgementText: React.RefObject<ITextField> = React.createRef<ITextField>();
-  constructor(props:any) {
+  constructor(props: any) {
     super(props);
     this.state = {
       webSocket: null,
@@ -84,20 +54,19 @@ class App extends React.Component<{},AppState> {
   openConnection = () => {
     const ws = new WebSocket('ws://localhost:3001');
     // const ws = new WebSocket('wss://judgementgame-backend.azurewebsites.net:3001');
-    this.setState({webSocket: ws});
+    this.setState({ webSocket: ws });
     ws.onopen = () => {
       console.debug('Connection established!');
-      var data = {
+      this.sendServerMessage({
         action: MessageType.Join,
         name: this.state.name
-      };
-      ws.send(JSON.stringify(data));
+      });
     };
     ws.onmessage = (msg) => {
-      var msgData: ServerMessage = JSON.parse(msg.data);
-      this.handleServerMessage(msgData);
+      var message = JSON.parse(msg.data);
+      this.handleServerMessage(message as Message);
       console.log('Message from server:');
-      console.debug(msgData);
+      console.debug(message);
     };
   }
 
@@ -117,42 +86,35 @@ class App extends React.Component<{},AppState> {
   }
 
   onDealClick = () => {
-    var data = {
+    this.sendServerMessage({
       action: MessageType.Deal
-    };
-    if (this.state.webSocket != null) {
-      this.state.webSocket.send(JSON.stringify(data));
-    }
+    });
   }
 
   onCardClick = (suit: Suit, rank: Rank) => {
-    if(this.state.selectedCard != null) return;
-    if(this.state.webSocket != null) {
-      this.state.webSocket.send(JSON.stringify({
-        action: MessageType.PlayCard,
-        card: {
-          suit: suit,
-          rank: rank
-        }
-      }))
-    }
+    if (this.state.selectedCard != null) return;
+    this.sendServerMessage({
+      action: MessageType.PlayCard,
+      card: {
+        suit: suit,
+        rank: rank
+      }
+    });
     console.log(suit + rank);
   }
 
   onSetPrediction = () => {
-    if(this._judgementText.current == null) {
-      return;
-    }
-    if(this.state.webSocket == null) {
+    if (this._judgementText.current == null) {
       return;
     }
 
     let prediction = this._judgementText.current.value;
     prediction = prediction ? prediction : "";
-    this.state.webSocket.send(JSON.stringify({
+    this.sendServerMessage({
       action: MessageType.SetJudgement,
       prediction: parseInt(prediction)
-    }));
+    });
+
     console.log(this._judgementText.current.value);
   }
 
@@ -165,12 +127,12 @@ class App extends React.Component<{},AppState> {
         <ScoreCard scores={this.state.scores}></ScoreCard>
         <Stack gap={10} padding={10}>
           <Stack horizontal gap={10}>
-            <TextField value={this.state.name} onChange={this.handleChange} placeholder='Your Name'/>
+            <TextField value={this.state.name} onChange={this.handleChange} placeholder='Your Name' />
             <Button onClick={this.onSetNameClick}>Submit</Button>
           </Stack>
           <Button onClick={this.onDealClick}>Deal!</Button>
           <Stack horizontal gap={10}>
-            <TextField componentRef={this._judgementText} placeholder={'Your Prediction'}/>
+            <TextField componentRef={this._judgementText} placeholder={'Your Prediction'} />
             <Button onClick={this.onSetPrediction}>Set Prediction</Button>
           </Stack>
           <InfoTable {...this.state} />
@@ -180,34 +142,63 @@ class App extends React.Component<{},AppState> {
     );
   }
 
-  private handleServerMessage(msgData: ServerMessage) {
-    if (msgData.action === MessageType.Hand && msgData.cards) {
-      var cardsFromServer = msgData.cards;
-      this.setState({ cards: cardsFromServer });
+  private sendServerMessage(message: any) {
+    if (this.state.webSocket == null) {
+      alert(`Error: Can't send message because websocket is null`);
+      return;
     }
-    if (msgData.action === MessageType.AllPlayers && msgData.players) {
-      let otherPlayerInfos = msgData.players;
-      let toRemove = otherPlayerInfos.findIndex((player: {
-        name: string;
-      }) => player.name === this.state.name);
-      let myInfo = otherPlayerInfos.splice(toRemove, 1)[0];
-      this.setState({
-        otherPlayers: otherPlayerInfos,
-        selectedCard: myInfo.selectedCard,
-        trumpSuit: msgData.trumpSuit!,
-        currentSuit: msgData.currentSuit!,
-        currentPlayerName: msgData.currentPlayerName!
-       });
+
+    this.state.webSocket.send(JSON.stringify(message));
+  }
+
+  private handleServerMessage(msgData: Message) {
+    if (msgData.action === MessageType.Hand) {
+      msgData = msgData as PlayerHandMessage;
+      this.handlePlayerHandMessage(msgData);
     }
-    if(msgData.action === MessageType.Error && msgData.code){
-      alert(`Error: ${msgData.code}`);
+    else if (msgData.action === MessageType.AllPlayers) {
+      msgData = msgData as PlayerInfoMessage;
+      this.handlePlayerInfoMessage(msgData);
     }
-    if(msgData.action === MessageType.AllScores && msgData.scores) {
-      console.debug(msgData.scores);
-      this.setState({
-        scores: msgData.scores
-      });
+    else if (msgData.action === MessageType.Error) {
+      msgData = msgData as ErrorMessage;
+      this.handleErrorMessage(msgData);
     }
+    else if (msgData.action === MessageType.AllScores) {
+      msgData = msgData as PlayerScoreMessage;
+      this.handleAllScoresMessage(msgData);
+    }
+  }
+
+  private handleAllScoresMessage(message: PlayerScoreMessage) {
+    console.debug(message.scores);
+    this.setState({
+      scores: message.scores
+    });
+  }
+
+  private handleErrorMessage(message: ErrorMessage) {
+    alert(`Error: ${message.code}`);
+  }
+
+  private handlePlayerInfoMessage(message: PlayerInfoMessage) {
+    let otherPlayerInfos = message.players;
+    let toRemove = otherPlayerInfos.findIndex((player: {
+      name: string;
+    }) => player.name === this.state.name);
+    let myInfo = otherPlayerInfos.splice(toRemove, 1)[0];
+    this.setState({
+      otherPlayers: otherPlayerInfos,
+      selectedCard: myInfo.selectedCard,
+      trumpSuit: message.trumpSuit!,
+      currentSuit: message.currentSuit!,
+      currentPlayerName: message.currentPlayerName!
+    });
+  }
+
+  private handlePlayerHandMessage(message: PlayerHandMessage) {
+    var cardsFromServer = message.cards;
+    this.setState({ cards: cardsFromServer });
   }
 }
 
