@@ -15,23 +15,23 @@ export interface Hand {
   cards: ICard[];
 }
 
-export function Winner (firstCard:ICard, secondCard:ICard, trump:Suit, defaultSuit:Suit):number {
-  if(firstCard.rank === secondCard.rank && firstCard.suit === secondCard.suit) return 0;
-  if(firstCard.suit !== secondCard.suit) {
-    if(firstCard.suit === trump) return 1;
-    if(secondCard.suit === trump) return -1;
-    if(firstCard.suit === defaultSuit) return 1;
-    if(secondCard.suit === defaultSuit) return -1;
+export function Winner(firstCard: ICard, secondCard: ICard, trump: Suit, defaultSuit: Suit): number {
+  if (firstCard.rank === secondCard.rank && firstCard.suit === secondCard.suit) return 0;
+  if (firstCard.suit !== secondCard.suit) {
+    if (firstCard.suit === trump) return 1;
+    if (secondCard.suit === trump) return -1;
+    if (firstCard.suit === defaultSuit) return 1;
+    if (secondCard.suit === defaultSuit) return -1;
     return 1;
   }
-  if(rankToValue(firstCard.rank) > rankToValue(secondCard.rank)) return 1;
+  if (rankToValue(firstCard.rank) > rankToValue(secondCard.rank)) return 1;
   return -1;
 }
 
-function rankToValue(rank:Rank):number {
-  if(rank === 'A') return 14;
-  if(rank === 'J') return 11;
-  if(rank === 'Q') return 12;
-  if(rank === 'K') return 13;
+function rankToValue(rank: Rank): number {
+  if (rank === 'A') return 14;
+  if (rank === 'J') return 11;
+  if (rank === 'Q') return 12;
+  if (rank === 'K') return 13;
   return parseInt(rank);
 }

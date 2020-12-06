@@ -52,4 +52,4 @@ export interface PlayerScoreMessage extends IMessage {
   scores: any;
 }
 
-export type Message = PlayCardMessage | JoinMessage | PlayerHandMessage | PlayerInfoMessage |  ErrorMessage | SetJudgementMessage | PlayerScoreMessage;
+export type Message = PlayCardMessage | JoinMessage | PlayerHandMessage | PlayerInfoMessage | ErrorMessage | SetJudgementMessage | PlayerScoreMessage;

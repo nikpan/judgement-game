@@ -45,33 +45,33 @@ class ScoreCard implements IScoreCard {
 
   startRound(maxHandsInRound: number): any {
     this._scores.forEach(p => {
-      p.scores.push({hands: 0, judgement: 0, isFinished: false});
+      p.scores.push({ hands: 0, judgement: 0, isFinished: false });
     })
     this._maxHandsInRound = maxHandsInRound;
-    this._currentPlayerIndex = (this._dealerIndex+1) % this._scores.length;
-    this._currentRoundIndex = this._scores[0].scores.length-1;
+    this._currentPlayerIndex = (this._dealerIndex + 1) % this._scores.length;
+    this._currentRoundIndex = this._scores[0].scores.length - 1;
   }
 
   setJudgement(playerName: string, prediction: number) {
     let playerScoreIndex = this._scores.findIndex(sc => sc.playerName === playerName);
-    if(playerScoreIndex == -1) {
+    if (playerScoreIndex == -1) {
       console.log("ScoreCardError::Can't set judgement for unknown player " + playerName);
       throw new Error('UnknownPlayer');
     }
-    if(playerScoreIndex !== this._currentPlayerIndex) {
+    if (playerScoreIndex !== this._currentPlayerIndex) {
       console.log(`ScorecardError::Can't set judgement because not ${playerName} turn`);
       throw new Error('NotYourTurnToJudgement');
     }
 
     let playerScore = this._scores[playerScoreIndex];
-    if(playerScore.scores[this._currentRoundIndex]) {
+    if (playerScore.scores[this._currentRoundIndex]) {
       let latestScore = playerScore.scores[this._currentRoundIndex];
-      if(playerScoreIndex === this._dealerIndex && this.getRemainingHandsInRound(playerName) === prediction) {
+      if (playerScoreIndex === this._dealerIndex && this.getRemainingHandsInRound(playerName) === prediction) {
         console.log("ScorecardError::Can't set judgement because predication cannot match total hands");
         throw new Error("Can't match total hands");
       }
       latestScore.judgement = prediction;
-      this._currentPlayerIndex = (this._currentPlayerIndex+1) % this._scores.length;
+      this._currentPlayerIndex = (this._currentPlayerIndex + 1) % this._scores.length;
     }
     else {
       console.log("ScorecardError::Can't set judgement because score array is empty");
@@ -82,15 +82,15 @@ class ScoreCard implements IScoreCard {
   private getRemainingHandsInRound(playerName: string) {
     let remainingHands = this._maxHandsInRound;
     this._scores.forEach(pSc => {
-      if(playerName != pSc.playerName)
+      if (playerName != pSc.playerName)
         remainingHands -= pSc.scores[this._currentRoundIndex].judgement;
     });
     return remainingHands;
   }
 
   endRound(): any {
-    this._dealerIndex = (this._dealerIndex+1) % this._scores.length;
-    this._currentPlayerIndex = (this._dealerIndex+1) % this._scores.length;
+    this._dealerIndex = (this._dealerIndex + 1) % this._scores.length;
+    this._currentPlayerIndex = (this._dealerIndex + 1) % this._scores.length;
     this._handsDone = 0;
     this._scores.forEach(pSc => {
       pSc.scores[this._currentRoundIndex].isFinished = true;
@@ -99,17 +99,17 @@ class ScoreCard implements IScoreCard {
 
   scoreWinner(playerName: string) {
     let playerScoreIndex = this._scores.findIndex(sc => sc.playerName === playerName);
-    if(playerScoreIndex == -1) {
+    if (playerScoreIndex == -1) {
       console.log("ScorecardError::Can't score winner for unknown player " + playerName);
       return;
     }
-    
+
     let playerScore = this._scores[playerScoreIndex];
-    if(playerScore.scores[this._currentRoundIndex]) {
+    if (playerScore.scores[this._currentRoundIndex]) {
       let latestScore = playerScore.scores[this._currentRoundIndex];
       latestScore.hands = latestScore.hands + 1;
       this._handsDone += 1;
-      if(this._handsDone === this._maxHandsInRound) {
+      if (this._handsDone === this._maxHandsInRound) {
         this.endRound();
       }
     }
@@ -117,13 +117,13 @@ class ScoreCard implements IScoreCard {
       console.log("ScorecardError::Can't score winner because score array is empty");
     }
   }
-  
+
   calcTotals() {
     this._scores.forEach(pl => {
       let total = 0;
       pl.scores.forEach(score => {
-        if(score.isFinished)
-          total += score.hands == score.judgement ? 10+score.hands : 0;
+        if (score.isFinished)
+          total += score.hands == score.judgement ? 10 + score.hands : 0;
       });
       pl.total = total;
     });
@@ -131,7 +131,7 @@ class ScoreCard implements IScoreCard {
   getScores(): JudgementScore[] {
     this.calcTotals();
     return this._scores;
-  }  
+  }
 }
 
 export default ScoreCard;

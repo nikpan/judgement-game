@@ -118,7 +118,7 @@ class Player implements IPlayer {
     })
   }
 
-  public sendMessage(message:Message) {
+  public sendMessage(message: Message) {
     if (this.socket.OPEN) {
       this.socket.send(JSON.stringify(message));
     }

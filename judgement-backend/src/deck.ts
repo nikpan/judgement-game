@@ -70,7 +70,7 @@ class StandardDeck {
   }
 
   drawRandom(count: number): ICard[] {
-    if(count == 1) return [this._deck.drawRandom(count)];
+    if (count == 1) return [this._deck.drawRandom(count)];
     else return this._deck.drawRandom(count);
   }
 

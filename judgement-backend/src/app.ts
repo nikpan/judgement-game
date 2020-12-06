@@ -25,13 +25,13 @@ app.get('/', (_req, res) => {
   res.send('Hello World')
 });
 
-app.get('/status', (_req, res) =>{
+app.get('/status', (_req, res) => {
   res.send(room.scoreCard);
 });
 
-app.get('/reset-room', (_req, _res) =>{
+app.get('/reset-room', (_req, _res) => {
   room = new Room();
-})
+});
 
 function normalizePort(val: string) {
   var port = parseInt(val, 10);
@@ -49,5 +49,5 @@ function onError(error: Error): void {
 }
 
 function onListening(): void {
-  console.log('Listening...')
+  console.log('Listening...');
 }

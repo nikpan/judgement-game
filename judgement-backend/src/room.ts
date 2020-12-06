@@ -14,7 +14,7 @@ class Room {
   private _roundNumber: number;
   private _maxRounds: number;
   private _handsPlayedInCurrentRound: number;
-  
+
   constructor() {
     this._players = [];
     this._deck = new StandardDeck();
@@ -26,13 +26,13 @@ class Room {
     this._maxRounds = 0;
     this._handsPlayedInCurrentRound = 0;
   }
-  
+
   public get scoreCard(): ScoreCard | null {
     return this._scoreCard;
   }
 
   public isPlayerTurn(playerId: number) {
-    if(this._currentPlayerId === 0) {
+    if (this._currentPlayerId === 0) {
       this._currentPlayerId = playerId;
     }
     return playerId === this._currentPlayerId
@@ -40,13 +40,13 @@ class Room {
 
   private calcNextTurnPlayer(): number {
     const currPlayerIndex = this._players.findIndex(player => player.id === this._currentPlayerId);
-    const nextPlayer = this._players[(currPlayerIndex + 1)%this._players.length];
+    const nextPlayer = this._players[(currPlayerIndex + 1) % this._players.length];
     return nextPlayer.id;
   }
 
   private getCurrentPlayerName(): string {
     const currPlayerIndex = this._players.findIndex(p => p.id === this._currentPlayerId);
-    if(currPlayerIndex === -1) return "";
+    if (currPlayerIndex === -1) return "";
     const currPlayer = this._players[currPlayerIndex];
     return currPlayer.name;
   }
@@ -73,7 +73,7 @@ class Room {
       clientWs.sendMessage(playerInfoMessage)
     });
   }
-  
+
   private gatherAllPlayerInfo(): PlayerInfo[] {
     let playerInfos = []
     this._players.forEach(player => {
@@ -91,12 +91,11 @@ class Room {
   }
 
   public cardPlayed(player: Player): any {
-    if(this.firstCard()) this.setCurrentSuit(player);
+    if (this.firstCard()) this.setCurrentSuit(player);
     this._currentPlayerId = this.calcNextTurnPlayer();
     this.sendPlayerInfoToAll();
     // if all players have played compute and declare winner
-    if(this.allPlayersHavePlayedCard())
-    {
+    if (this.allPlayersHavePlayedCard()) {
       // Everyone has played.
       // 1. Compute winner
       let winner = this.calcWinner();
@@ -115,9 +114,9 @@ class Room {
       // 4. Update winner
       this._scoreCard.scoreWinner(this._players[winner].name);
       this._handsPlayedInCurrentRound += 1;
-      if(this._handsPlayedInCurrentRound == this.maxHandsInCurrentRound()) {
+      if (this._handsPlayedInCurrentRound == this.maxHandsInCurrentRound()) {
         this._scoreCard.endRound();
-        if(this._roundNumber != this._maxRounds){ 
+        if (this._roundNumber != this._maxRounds) {
           setTimeout(() => this.startRound(), 5000);
         }
       }
@@ -144,7 +143,7 @@ class Room {
     return this.currentSuit === null;
   }
 
-  private allPlayersHavePlayedCard(): boolean{
+  private allPlayersHavePlayedCard(): boolean {
     let result = true;
     this._players.forEach(p => {
       result = result && p.selectedCard != null;
@@ -194,7 +193,7 @@ class Room {
 
   public dealInner(numberOfCards: number): void {
     this._scoreCard.startRound(numberOfCards);
-    
+
     this._deck.resetDeck();
 
     this._players.forEach(player => {
