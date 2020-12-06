@@ -2,10 +2,18 @@ import React from 'react';
 import './App.css';
 import { ICard, Rank, Suit } from './components/card';
 import { TextField, PrimaryButton as Button, Stack, ITextField } from 'office-ui-fabric-react';
-import ScoreCard from './components/scorecard';
+import ScoreCard, { PlayerScore } from './components/scorecard';
 import InfoTable from './components/infoTable';
 import Table from './components/table';
-import { ErrorMessage, Message, MessageType, PlayerHandMessage, PlayerInfo, PlayerInfoMessage, PlayerScoreMessage } from './controllers/message';
+import {
+  Message,
+  MessageType,
+  ErrorMessage,
+  PlayerHandMessage,
+  PlayerInfo, 
+  PlayerInfoMessage, 
+  PlayerScoreMessage
+} from './controllers/message';
 
 export interface AppState {
   webSocket: WebSocket | null;
@@ -16,19 +24,7 @@ export interface AppState {
   currentSuit: Suit;
   trumpSuit: Suit;
   currentPlayerName: string | null;
-  scores: JudgementScore[] | null;
-}
-
-export interface JudgementScore {
-  playerName: string;
-  scores: Score[];
-  total: number;
-}
-
-export interface Score {
-  judgement: number;
-  hands: number;
-  isFinished: boolean;
+  scores: PlayerScore[] | null;
 }
 
 class App extends React.Component<{}, AppState> {
@@ -76,7 +72,7 @@ class App extends React.Component<{}, AppState> {
     }
   }
 
-  handleChange = (event: any) => {
+  onNameTextChange = (event: any) => {
     this.setState({ name: event.target.value });
   }
 
@@ -127,7 +123,7 @@ class App extends React.Component<{}, AppState> {
         <ScoreCard scores={this.state.scores}></ScoreCard>
         <Stack gap={10} padding={10}>
           <Stack horizontal gap={10}>
-            <TextField value={this.state.name} onChange={this.handleChange} placeholder='Your Name' />
+            <TextField value={this.state.name} onChange={this.onNameTextChange} placeholder='Your Name' />
             <Button onClick={this.onSetNameClick}>Submit</Button>
           </Stack>
           <Button onClick={this.onDealClick}>Deal!</Button>

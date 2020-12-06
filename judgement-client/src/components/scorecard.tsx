@@ -1,9 +1,20 @@
-import React, { CSSProperties } from "react";
+import React from "react";
 import { DetailsList, DetailsListLayoutMode, IColumn } from "office-ui-fabric-react";
-import { JudgementScore, Score } from "../App";
+
+export interface PlayerScore {
+  playerName: string;
+  scores: Score[];
+  total: number;
+}
+
+export interface Score {
+  judgement: number;
+  hands: number;
+  isFinished: boolean;
+}
 
 export interface ScoreCardProps {
-  scores: JudgementScore[] | null;
+  scores: PlayerScore[] | null;
 }
 
 export default class ScoreCard extends React.Component<ScoreCardProps> {
