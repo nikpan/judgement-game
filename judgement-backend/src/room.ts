@@ -1,8 +1,9 @@
 import Player from "./player";
 import StandardDeck from "./deck";
 import { MessageType, PlayerInfo, PlayerInfoMessage, PlayerScoreMessage } from "./message";
-import { Winner, Suit } from "./card";
+import { Winner, Suit, ICard } from "./card";
 import ScoreCard from "./scorecard";
+import PlayerTurnManager from "./playerTurnManager";
 
 class Room {
   private _players: Player[];
@@ -14,6 +15,7 @@ class Room {
   private _roundNumber: number;
   private _maxRounds: number;
   private _handsPlayedInCurrentRound: number;
+  private _playerTurnManager: PlayerTurnManager;
 
   constructor() {
     this._players = [];
@@ -25,13 +27,14 @@ class Room {
     this._roundNumber = 0;
     this._maxRounds = 0;
     this._handsPlayedInCurrentRound = 0;
+    this._playerTurnManager = new PlayerTurnManager();
   }
 
   public get scoreCard(): ScoreCard | null {
     return this._scoreCard;
   }
 
-  public isPlayerTurn(playerId: number) {
+  private isPlayerTurnById(playerId: number) {
     if (this._currentPlayerId === 0) {
       this._currentPlayerId = playerId;
     }
@@ -90,8 +93,20 @@ class Room {
     return this._maxRounds - this._roundNumber + 1;
   }
 
-  public cardPlayed(player: Player): any {
-    if (this.firstCard()) this.setCurrentSuit(player);
+  public playCard(playedCard: ICard, playerId: number): any {
+    if (!this.isPlayerTurnById(playerId)) {
+     throw new Error('Not Your Turn!');
+    }
+
+    if (this.firstCard()) {
+      this.setCurrentSuit(playedCard.suit);
+    }
+
+    let playerIndex = this._players.findIndex(player => player.id === playerId);
+    this._players[playerIndex].selectedCard = playedCard;
+  }
+
+  public processHand() {
     this._currentPlayerId = this.calcNextTurnPlayer();
     this.sendPlayerInfoToAll();
     // if all players have played compute and declare winner
@@ -135,8 +150,8 @@ class Room {
     return winner;
   }
 
-  private setCurrentSuit(player: Player) {
-    this.currentSuit = player.selectedCard.suit;
+  private setCurrentSuit(suit: Suit) {
+    this.currentSuit = suit;
   }
 
   private firstCard() {
@@ -162,9 +177,12 @@ class Room {
     this.sendPlayerInfoToAll();
   }
 
-  public deal(): void {
+  public deal(dealer: number): void {
     this._maxRounds = 4;
-    //this._maxRounds = Math.floor(52 / this._players.length);
+    // this._maxRounds = Math.floor(52 / this._players.length);
+    this._playerTurnManager.init(this._players, dealer);
+    //this._currentPlayerId = dealer;
+    //this._currentPlayerId = this.calcNextTurnPlayer();
     this._scoreCard = new ScoreCard(this._players.map(p => p.name));
     this.startRound();
   }
@@ -174,6 +192,7 @@ class Room {
     this._roundNumber += 1;
     this.trumpSuit = this.updateTrumpSuit()
     this.dealInner(this.maxHandsInCurrentRound());
+    //this.sendPlayerInfoToAll();
   }
 
   private updateTrumpSuit(): Suit {
@@ -191,7 +210,7 @@ class Room {
     }
   }
 
-  public dealInner(numberOfCards: number): void {
+  private dealInner(numberOfCards: number): void {
     this._scoreCard.startRound(numberOfCards);
 
     this._deck.resetDeck();

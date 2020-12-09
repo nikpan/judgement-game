@@ -43,7 +43,7 @@ class Player implements IPlayer {
       this.handleJoinMessage(message);
     }
     if (message.action === MessageType.Deal) {
-      this._room.deal();
+      this._room.deal(this.id);
     }
     if (message.action === MessageType.PlayCard) {
       this.handlePlayCardMessage(message);
@@ -64,11 +64,6 @@ class Player implements IPlayer {
 
   private handlePlayCardMessage(message: PlayCardMessage) {
     const playedCard = message.card;
-    // Check if its your turn
-    if (!this._room.isPlayerTurn(this.id)) {
-      this.sendErrorMessage('NotYourTurn');
-      return;
-    }
     // Check if card suit is valid
     if (!this.validCardSuit(playedCard)) {
       this.sendErrorMessage('InvalidCard');
@@ -79,9 +74,14 @@ class Player implements IPlayer {
       this.sendErrorMessage('CardNotInHand');
       return;
     }
-    this.selectedCard = playedCard;
-    this._room.cardPlayed(this);
-    this.sendHand();
+    try {
+      this._room.playCard(playedCard, this.id);
+      this._room.processHand();
+      this.sendHand();      
+    } catch (error) {
+      this.sendErrorMessage(`Couldn't Play Card: ${error.message}`);
+    }
+    
   }
 
   private handleJoinMessage(message: JoinMessage) {
