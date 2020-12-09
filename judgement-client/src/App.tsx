@@ -12,7 +12,8 @@ import {
   PlayerHandMessage,
   PlayerInfo, 
   PlayerInfoMessage, 
-  PlayerScoreMessage
+  PlayerScoreMessage,
+  GameState
 } from './controllers/message';
 
 export interface AppState {
@@ -24,6 +25,7 @@ export interface AppState {
   currentSuit: Suit;
   trumpSuit: Suit;
   currentPlayerName: string | null;
+  currentGameState: GameState;
   scores: PlayerScore[] | null;
 }
 
@@ -40,6 +42,7 @@ class App extends React.Component<{}, AppState> {
       currentSuit: Suit.Spades,
       trumpSuit: Suit.Spades,
       currentPlayerName: null,
+      currentGameState: GameState.WaitingForPlayersToJoin,
       scores: null
     };
   }
@@ -48,8 +51,8 @@ class App extends React.Component<{}, AppState> {
   }
 
   openConnection = () => {
-    // const ws = new WebSocket('ws://localhost:3001');
-    const ws = new WebSocket('wss://judgementgame-backend.azurewebsites.net');
+    const ws = new WebSocket('ws://localhost:3001');
+    // const ws = new WebSocket('wss://judgementgame-backend.azurewebsites.net');
     this.setState({ webSocket: ws });
     ws.onopen = () => {
       console.debug('Connection established!');
@@ -188,7 +191,8 @@ class App extends React.Component<{}, AppState> {
       selectedCard: myInfo.selectedCard,
       trumpSuit: message.trumpSuit!,
       currentSuit: message.currentSuit!,
-      currentPlayerName: message.currentPlayerName!
+      currentPlayerName: message.currentPlayerName!,
+      currentGameState: message.gameState
     });
   }
 

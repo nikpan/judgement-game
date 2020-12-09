@@ -1,6 +1,6 @@
 import Player from "./player";
 import StandardDeck from "./deck";
-import { MessageType, PlayerInfo, PlayerInfoMessage, PlayerScoreMessage } from "./message";
+import { GameState, MessageType, PlayerInfo, PlayerInfoMessage, PlayerScoreMessage } from "./message";
 import { Winner, Suit, ICard } from "./card";
 import ScoreCard from "./scorecard";
 import PlayerTurnManager from "./playerTurnManager";
@@ -16,6 +16,8 @@ class Room {
   private _maxRounds: number;
   private _handsPlayedInCurrentRound: number;
   private _playerTurnManager: PlayerTurnManager;
+  private _gameState: GameState;
+  private _waitingForSetJudgement: number;
 
   constructor() {
     this._players = [];
@@ -28,6 +30,7 @@ class Room {
     this._maxRounds = 0;
     this._handsPlayedInCurrentRound = 0;
     this._playerTurnManager = new PlayerTurnManager();
+    this._gameState = GameState.WaitingForPlayersToJoin;
   }
 
   public get scoreCard(): ScoreCard | null {
@@ -70,7 +73,8 @@ class Room {
       players: this.gatherAllPlayerInfo(),
       currentSuit: this.currentSuit,
       trumpSuit: this.trumpSuit,
-      currentPlayerName: this.getCurrentPlayerName()
+      currentPlayerName: this.getCurrentPlayerName(),
+      gameState: this._gameState
     }
     this._players.forEach(clientWs => {
       clientWs.sendMessage(playerInfoMessage)
@@ -112,6 +116,7 @@ class Room {
     // if all players have played compute and declare winner
     if (this.allPlayersHavePlayedCard()) {
       // Everyone has played.
+      this._gameState = GameState.CalculatingWinner;
       // 1. Compute winner
       let winner = this.calcWinner();
       // 2. Update next trick starter and suit
@@ -178,6 +183,10 @@ class Room {
   }
 
   public deal(dealer: number): void {
+    if(this._gameState !== GameState.WaitingForPlayersToJoin) {
+      this.throwWrongGameStateError();
+    }
+
     this._maxRounds = 4;
     // this._maxRounds = Math.floor(52 / this._players.length);
     this._playerTurnManager.init(this._players, dealer);
@@ -188,11 +197,14 @@ class Room {
   }
 
   private startRound(): void {
+    this._gameState = GameState.DealingCards;
     this._handsPlayedInCurrentRound = 0;
     this._roundNumber += 1;
     this.trumpSuit = this.updateTrumpSuit()
     this.dealInner(this.maxHandsInCurrentRound());
-    //this.sendPlayerInfoToAll();
+    this._waitingForSetJudgement = this._players.length;
+    this._gameState = GameState.WaitingForPlayerToSetJudgement;
+    this.sendPlayerInfoToAll();
   }
 
   private updateTrumpSuit(): Suit {
@@ -220,13 +232,26 @@ class Room {
       player.hand = hand;
       player.sendHand();
     });
-
-    this.sendPlayerInfoToAll();
   }
 
   public setJudgement(playerName: string, prediction: number) {
+    if(this._gameState !== GameState.WaitingForPlayerToSetJudgement) {
+      this.throwWrongGameStateError();
+    }
+    if(this._waitingForSetJudgement === 0) {
+      throw new Error('All Players have set judgement!');
+    }
     this._scoreCard.setJudgement(playerName, prediction);
+    this._waitingForSetJudgement = this._waitingForSetJudgement - 1;
+    if(this._waitingForSetJudgement === 0) {
+      this._gameState = GameState.WaitingForPlayerToPlayCard;
+    }
     this.sendScoresToAll();
+    this.sendPlayerInfoToAll();
+  }
+
+  private throwWrongGameStateError() {
+    throw new Error(`Wrong game set. GameState: ${this._gameState}`);
   }
 
   private printAllPlayers(): void {

@@ -6,6 +6,14 @@ export interface PlayerInfo {
   selectedCard: ICard;
 }
 
+export const enum GameState {
+  WaitingForPlayersToJoin = 'WaitingForPlayersToJoin',
+  DealingCards = 'DealingCards',
+  WaitingForPlayerToSetJudgement = 'WaitingForPlayerToSetJudgement',
+  WaitingForPlayerToPlayCard = 'WaitingForPlayerToPlayCard',
+  CalculatingWinner = 'CalculatingWinner'
+}
+
 export const enum MessageType {
   Join = 'Join',
   Deal = 'Deal',
@@ -30,6 +38,7 @@ export interface PlayerInfoMessage extends IMessage {
   currentSuit: Suit | null;
   trumpSuit: Suit | null;
   currentPlayerName: string | null;
+  gameState: GameState;
 }
 
 export interface PlayerHandMessage extends IMessage {

@@ -5,6 +5,15 @@ export interface PlayerInfo {
     cardCount: number;
     selectedCard: ICard | null;
 }
+
+export enum GameState {
+    WaitingForPlayersToJoin = 'WaitingForPlayersToJoin',
+    DealingCards = 'DealingCards',
+    WaitingForPlayerToSetJudgement = 'WaitingForPlayerToSetJudgement',
+    WaitingForPlayerToPlayCard = 'WaitingForPlayerToPlayCard',
+    CalculatingWinner = 'CalculatingWinner'
+}
+
 export enum MessageType {
     Deal = 'Deal',
     Join = 'Join',
@@ -29,6 +38,7 @@ export interface PlayerInfoMessage extends IMessage {
     currentSuit: Suit | null;
     trumpSuit: Suit | null;
     currentPlayerName: string | null;
+    gameState: GameState;
 }
 
 export interface PlayerHandMessage extends IMessage {

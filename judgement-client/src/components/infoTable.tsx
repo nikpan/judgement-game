@@ -1,11 +1,13 @@
 import React from "react";
 import { Text, Stack } from "office-ui-fabric-react";
 import { Suit } from "./card";
+import { GameState } from "../controllers/message";
 
 export interface InfoTableProps {
   trumpSuit: Suit;
   currentSuit: Suit;
   currentPlayerName: string | null;
+  currentGameState: GameState;
 }
 
 export default class InfoTable extends React.Component<InfoTableProps> {
@@ -19,6 +21,7 @@ export default class InfoTable extends React.Component<InfoTableProps> {
         {/* <SpecialCard type={this.mapSuitToSpecialCardType(this.state.trumpSuit)} /> */}
         <Text style={infoStyles}>Current Suit {this.suitToUnicode(this.props.currentSuit)}</Text>            
         {/* <SpecialCard type={this.mapSuitToSpecialCardType(this.state.currentSuit)} /> */}
+        <Text style={infoStyles}>Game State? <b>{this.props.currentGameState ? this.props.currentGameState : "None"}</b></Text>
         <Text style={infoStyles}>Who's turn? <b>{this.props.currentPlayerName ? this.props.currentPlayerName : "None"}</b></Text>
       </Stack>
     )
