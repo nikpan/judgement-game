@@ -30,10 +30,23 @@ export default class ScoreCard extends React.Component<ScoreCardProps> {
       };
       let red = {
         color: 'red'
+      };
+      let strikeThrough = {
+        textDecoration: 'line-through'
+      };
+      if(score.hands == score.judgement) {
+        return (
+          <span style={green}>{score.hands+10}</span>
+        )
       }
-      return (
-        score.hands == score.judgement ? <span style={green}>{score.hands+10}</span> : <span style={red}>0</span>
-      )
+      else {
+        return (
+          <>
+            <span style={red}> 0 </span>
+            <span style={strikeThrough}>{score.hands}/{score.judgement}</span>
+          </>
+        )
+      }
     }
   }
 
@@ -57,7 +70,7 @@ export default class ScoreCard extends React.Component<ScoreCardProps> {
           minWidth: 100,
           maxWidth: 200,
           isResizable: true
-        })
+        });
         i+=1;
       });
       
