@@ -27,24 +27,24 @@ export class PlayPhaseManager {
   private _handsPlayed: number;
   private _gameState: GameStateV2;
   private _onPlayPhaseDoneCallback: () => void;
-  constructor(players: IPlayer[], gameState: GameStateV2) {
+  constructor(players: IPlayer[], gameState: GameStateV2, scoreCard: ScoreCardV2, onPlayPhaseDoneCallback: () => void) {
     this._players = players;
     this._gameState = gameState;
-    this._handManager = new HandManager(this._players, this._gameState);
+    this._scoreCard = scoreCard;
+    this._onPlayPhaseDoneCallback = onPlayPhaseDoneCallback;
+    this._handManager = new HandManager(this._players, this._gameState, (winnerId) => this.onHandDone(winnerId));
   }
 
   public getCurrentPlayerId() {
     return this._handManager.getCurrentPlayerId();
   }
 
-  public startPlayPhase(startPlayerId: number, trumpSuit: Suit, scoreCard: ScoreCardV2, totalHandsToPlay: number, onPlayPhaseDoneCallback: () => void) {
+  public startPlayPhase(startPlayerId: number, trumpSuit: Suit, totalHandsToPlay: number) {
     this._startPlayerId = startPlayerId;
     this._trumpSuit = trumpSuit;
-    this._scoreCard = scoreCard;
     this._totalHandsToPlay = totalHandsToPlay;
     this._handsPlayed = 0;
-    this._onPlayPhaseDoneCallback = onPlayPhaseDoneCallback;
-    this._handManager.startHand(this._startPlayerId, this._trumpSuit, (winnerId) => this.onHandDone(winnerId));
+    this._handManager.startHand(this._startPlayerId, this._trumpSuit);
   }
 
   public playCard(playerId: number, playedCard: ICard) {
@@ -59,7 +59,7 @@ export class PlayPhaseManager {
       this._onPlayPhaseDoneCallback();
     }
     else {
-      this._handManager.startHand(winnerId, this._trumpSuit, (winId) => this.onHandDone(winId));
+      this._handManager.startHand(winnerId, this._trumpSuit);
     }
   }
 

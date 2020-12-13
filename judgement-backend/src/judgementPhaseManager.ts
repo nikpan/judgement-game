@@ -32,17 +32,17 @@ export class JudgementPhaseManager {
     private _totalPredictionHands: number
     private _scoreCard: ScoreCardV2;
     private _state: JudgementPhase = JudgementPhase.NotStarted;
-    constructor(players: IPlayer[]) {
+    constructor(players: IPlayer[], scoreCard: ScoreCardV2, onJudgementPhaseDone: () => void) {
         this._players = players;
+        this._scoreCard = scoreCard;
+        this._onJudgementPhaseDoneCallback = onJudgementPhaseDone;
     }
 
-    public startJudgementPhase(startPlayerId: number, totalHands: number, scoreCard: ScoreCardV2, onJudgementPhaseDone: () => void) {
+    public startJudgementPhase(startPlayerId: number, totalHands: number, ) {
         this._startPlayerId = startPlayerId;
         this._currentPlayerId = startPlayerId;
         this._totalHandsToPlay = totalHands;
         this._totalPredictionHands = 0;
-        this._scoreCard = scoreCard;
-        this._onJudgementPhaseDoneCallback = onJudgementPhaseDone;
         this._state = JudgementPhase.Started;
     }
 

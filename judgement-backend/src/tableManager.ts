@@ -34,19 +34,19 @@ export class TableManager {
     private _dealerId: number;
     private _gameState: GameStateV2;
 
-    constructor(players: IPlayer[], gameState: GameStateV2) {
+    constructor(players: IPlayer[], gameState: GameStateV2, scoreCard: ScoreCardV2) {
         this._players = players;
         this._gameState = gameState;
-        this._roundManager = new RoundManager(this._players, this._gameState);
+        this._scoreCard = scoreCard;
+        this._roundManager = new RoundManager(this._players, this._gameState, this._scoreCard, () => this.onRoundDone());
     }
 
-    public startGame(dealerId: number, scoreCard: ScoreCardV2) {
+    public startGame(dealerId: number) {
         // this._totalRounds = 52 % this._players.length;
         this._totalRounds = 4;
         this._roundsDone = 0;
         this._dealerId = dealerId;
-        this._scoreCard = scoreCard;
-        this._roundManager.startRound(this._dealerId, this._scoreCard, this.maxHandsInCurrentRound(), this.getCurrentTrumpSuit(), () => this.onRoundDone());
+        this._roundManager.startRound(this._dealerId, this.maxHandsInCurrentRound(), this.getCurrentTrumpSuit());
     }
 
     private onRoundDone(): void {
@@ -54,7 +54,7 @@ export class TableManager {
         this._dealerId = this.nextTurnPlayerId(this._dealerId);
         if (this._roundsDone < this._totalRounds) {
             setTimeout(() => {
-                this._roundManager.startRound(this._dealerId, this._scoreCard, this.maxHandsInCurrentRound(), this.getCurrentTrumpSuit(), () => this.onRoundDone());
+                this._roundManager.startRound(this._dealerId, this.maxHandsInCurrentRound(), this.getCurrentTrumpSuit());
             }, 5000);
         }
         console.log('All Rounds Done!');

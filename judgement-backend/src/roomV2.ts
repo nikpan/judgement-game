@@ -23,7 +23,7 @@ export class RoomV2 {
             trumpSuit: null,
             state: GameState.WaitingForPlayersToJoin
         }
-        this._tableManager = new TableManager(this._gameState);
+        this._tableManager = new TableManager(this._players, this._gameState, this._scoreCard);
     }
 
     public get scoreCard() {
@@ -69,7 +69,7 @@ export class RoomV2 {
 
     public deal(dealerId: number) {
         this._scoreCard = new ScoreCardV2(this._players);
-        this._tableManager.startGame(this._players, dealerId, this._scoreCard);
+        this._tableManager.startGame(dealerId);
     }
 
     public playCard(playerId: number, playedCard: ICard) {

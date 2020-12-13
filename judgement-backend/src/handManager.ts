@@ -34,18 +34,18 @@ export class HandManager {
     private _trumpSuit: Suit;
     private _gameState: GameStateV2;
     private _handDoneCallback: (winnerId: number) => void;
-    constructor(players: IPlayer[], gameState: GameStateV2) {
+    constructor(players: IPlayer[], gameState: GameStateV2, onHandDone: (winnerId: number) => void) {
         this._players = players;
         this._gameState = gameState;
+        this._handDoneCallback = onHandDone;
     }
 
-    public startHand(startPlayerId: number, trumpSuit: Suit, onHandDone: (winnerId: number) => void) {
+    public startHand(startPlayerId: number, trumpSuit: Suit) {
         this._startPlayerId = startPlayerId;
         this._currentPlayerId = startPlayerId;
         this._currentSuit = null;
         this._trumpSuit = trumpSuit;
         this._state = HandState.Started;
-        this._handDoneCallback = onHandDone;
     }
 
     private canPlayCard(playerId: number): boolean {
