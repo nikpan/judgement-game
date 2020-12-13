@@ -9,6 +9,9 @@ export interface IPlayer {
   socket: WebSocket;
   name: string;
   selectedCard: ICard | null;
+  hand: ICard[];
+  sendHand: () => void;
+  sendMessage: (message: Message) => void;
 }
 
 class Player implements IPlayer {
