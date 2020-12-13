@@ -51,16 +51,16 @@ export class RoundManager {
     private _state: RoundState;
     private _gameState: GameStateV2;
     private _onRoundDoneCallback: () => void;
-    constructor(gameState: GameStateV2) {
+    constructor(players: IPlayer[], gameState: GameStateV2) {
+        this._players = players;
         this._gameState = gameState;
-        this._judgementPhaseManager = new JudgementPhaseManager();
-        this._playPhaseManager = new PlayPhaseManager(this._gameState);
+        this._judgementPhaseManager = new JudgementPhaseManager(this._players);
+        this._playPhaseManager = new PlayPhaseManager(this._players, this._gameState);
         this._deck = new StandardDeck();
         this._state = RoundState.NotStarted;
     }
 
-    public startRound(players: IPlayer[], dealerId: number, scoreCard: ScoreCardV2, totalHandsToPlay: number, trumpSuit: Suit, onRoundDoneCallback: () => void) {
-        this._players = players;
+    public startRound(dealerId: number, scoreCard: ScoreCardV2, totalHandsToPlay: number, trumpSuit: Suit, onRoundDoneCallback: () => void) {
         this._dealerId = dealerId;
         this._scoreCard = scoreCard;
         this._totalHandsToPlay = totalHandsToPlay;
@@ -71,7 +71,7 @@ export class RoundManager {
         let nextPlayerId = this.nextTurnPlayerId(this._dealerId);
         this.dealCardsToPlayers(totalHandsToPlay);
         this._state = RoundState.JudgementPhase;
-        this._judgementPhaseManager.startJudgementPhase(this._players, nextPlayerId, this._totalHandsToPlay, scoreCard, () => this.onJudgementPhaseDone());
+        this._judgementPhaseManager.startJudgementPhase(nextPlayerId, this._totalHandsToPlay, scoreCard, () => this.onJudgementPhaseDone());
         this._scoreCard.startRound();
     }
 
@@ -87,7 +87,7 @@ export class RoundManager {
         let nextPlayerId = this.nextTurnPlayerId(this._dealerId);
         this._state = RoundState.PlayPhase;
         this._gameState.state = GameState.WaitingForPlayerToPlayCard;
-        this._playPhaseManager.startPlayPhase(this._players, nextPlayerId, this._trumpSuit, this._scoreCard, this._totalHandsToPlay, () => this.onPlayPhaseDone());
+        this._playPhaseManager.startPlayPhase(nextPlayerId, this._trumpSuit, this._scoreCard, this._totalHandsToPlay, () => this.onPlayPhaseDone());
     }
 
     private onPlayPhaseDone(): void {
