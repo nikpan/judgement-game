@@ -3,7 +3,6 @@ import StandardDeck from "./deck";
 import { GameState, MessageType, PlayerInfo, PlayerInfoMessage, PlayerScoreMessage } from "./message";
 import { Winner, Suit, ICard } from "./card";
 import ScoreCard from "./scorecard";
-import PlayerTurnManager from "./playerTurnManager";
 
 class Room {
   private _players: Player[];
@@ -15,7 +14,6 @@ class Room {
   private _roundNumber: number;
   private _maxRounds: number;
   private _handsPlayedInCurrentRound: number;
-  private _playerTurnManager: PlayerTurnManager;
   private _gameState: GameState;
   private _waitingForSetJudgement: number;
 
@@ -29,7 +27,6 @@ class Room {
     this._roundNumber = 0;
     this._maxRounds = 0;
     this._handsPlayedInCurrentRound = 0;
-    this._playerTurnManager = new PlayerTurnManager();
     this._gameState = GameState.WaitingForPlayersToJoin;
   }
 
@@ -118,7 +115,7 @@ class Room {
       // Everyone has played.
       this._gameState = GameState.CalculatingWinner;
       // 1. Compute winner
-      let winner = this.calcWinner();
+      let winner = this.calcWinnerIndex();
       // 2. Update next trick starter and suit
       this._currentPlayerId = this._players[winner].id;
       this.currentSuit = null;
@@ -144,7 +141,7 @@ class Room {
     }
   }
 
-  private calcWinner(): number {
+  private calcWinnerIndex(): number {
     let winner = 0;
     for (let i = 0; i < this._players.length; i++) {
       const player = this._players[i];
@@ -189,9 +186,6 @@ class Room {
 
     this._maxRounds = 4;
     // this._maxRounds = Math.floor(52 / this._players.length);
-    this._playerTurnManager.init(this._players, dealer);
-    //this._currentPlayerId = dealer;
-    //this._currentPlayerId = this.calcNextTurnPlayer();
     this._scoreCard = new ScoreCard(this._players.map(p => p.name));
     this.startRound();
   }
@@ -200,7 +194,7 @@ class Room {
     this._gameState = GameState.DealingCards;
     this._handsPlayedInCurrentRound = 0;
     this._roundNumber += 1;
-    this.trumpSuit = this.updateTrumpSuit()
+    this.trumpSuit = this.updateTrumpSuit();
     this.dealInner(this.maxHandsInCurrentRound());
     this._waitingForSetJudgement = this._players.length;
     this._gameState = GameState.WaitingForPlayerToSetJudgement;
