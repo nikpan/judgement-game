@@ -51,8 +51,8 @@ class App extends React.Component<{}, AppState> {
   }
 
   openConnection = () => {
-    const ws = new WebSocket('ws://localhost:3001');
-    // const ws = new WebSocket('wss://judgementgame-backend.azurewebsites.net');
+    // const ws = new WebSocket('ws://localhost:3001');
+    const ws = new WebSocket('wss://judgementgame-backend.azurewebsites.net');
     this.setState({ webSocket: ws });
     ws.onopen = () => {
       console.debug('Connection established!');
