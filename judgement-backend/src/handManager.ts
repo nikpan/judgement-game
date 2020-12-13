@@ -62,6 +62,9 @@ export class HandManager {
         if (!this.canPlayCard(playerId)) {
             throw new Error('Player took play card action out of turn!');
         }
+        if(!this.validCardSuit(playedCard, playerId)) {
+            throw new Error(`Incorrect suit card. Choose card from current suit - ${this._currentSuit}`);
+        }
 
         // Perform action
         if (this.firstCard()) {
@@ -106,6 +109,13 @@ export class HandManager {
         }
         return playerId === this._currentPlayerId;
     }
+
+    private validCardSuit(playedCard: ICard, playerId: number): boolean {
+        if (this._currentSuit === null) return true;
+        if (playedCard.suit === this._currentSuit) return true;
+        if (this.getPlayerById(playerId).hand.some(card => card.suit === this._currentSuit)) return false;
+        return true;
+      }
 
     private nextTurnPlayerIndex(playerId: number): number {
         const playerIndex = this.playerIndexById(playerId);

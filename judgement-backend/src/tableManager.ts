@@ -61,7 +61,7 @@ export class TableManager {
     }
 
     private maxHandsInCurrentRound() {
-        return this._totalRounds - this._roundsDone + 1;
+        return this._totalRounds - this._roundsDone;
     }
 
     private getCurrentTrumpSuit(): Suit {

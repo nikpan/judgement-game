@@ -10,7 +10,10 @@ export interface JudgementScoreV2 {
 
 export class ScoreCardV2 {
     private _scores: JudgementScoreV2[];
-    constructor(players: IPlayer[]) {
+    constructor() {        
+    }
+
+    public init(players: IPlayer[]) {
         this._scores = [];
         players.forEach(p => {
             this._scores.push(

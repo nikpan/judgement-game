@@ -38,7 +38,7 @@ export class JudgementPhaseManager {
         this._onJudgementPhaseDoneCallback = onJudgementPhaseDone;
     }
 
-    public startJudgementPhase(startPlayerId: number, totalHands: number, ) {
+    public startJudgementPhase(startPlayerId: number, totalHands: number) {
         this._startPlayerId = startPlayerId;
         this._currentPlayerId = startPlayerId;
         this._totalHandsToPlay = totalHands;

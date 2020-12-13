@@ -22,7 +22,8 @@ export class RoomV2 {
             currentSuit: null,
             trumpSuit: null,
             state: GameState.WaitingForPlayersToJoin
-        }
+        };
+        this._scoreCard = new ScoreCardV2();
         this._tableManager = new TableManager(this._players, this._gameState, this._scoreCard);
     }
 
@@ -68,7 +69,7 @@ export class RoomV2 {
     }
 
     public deal(dealerId: number) {
-        this._scoreCard = new ScoreCardV2(this._players);
+        this._scoreCard.init(this._players);
         this._tableManager.startGame(dealerId);
     }
 

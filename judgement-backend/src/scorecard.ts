@@ -1,16 +1,18 @@
+/** All scores for one player */
 export interface JudgementScore {
   playerName: string;
   scores: Score[];
   total: number;
 }
 
-interface Score {
+/** One round score for one player */
+export interface Score {
   judgement: number;
   hands: number;
   isFinished: boolean;
 }
 
-interface IScoreCard {
+export interface IScoreCard {
   setJudgement(playerName: string, prediction: number): any;
   scoreWinner(playerName: string): any;
   calcTotals(): any;
