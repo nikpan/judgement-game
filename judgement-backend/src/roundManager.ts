@@ -67,6 +67,7 @@ export class RoundManager {
         this._totalHandsToPlay = totalHandsToPlay;
         this._trumpSuit = trumpSuit;
         this._gameState.trumpSuit = trumpSuit;
+        this._gameState.currentSuit = null;
         this._gameState.state = GameState.WaitingForPlayerToSetJudgement;
         let nextPlayerId = this.nextTurnPlayerId(this._dealerId);
         this.dealCardsToPlayers(totalHandsToPlay);

@@ -5,7 +5,7 @@ import { GameState } from "../controllers/message";
 
 export interface InfoTableProps {
   trumpSuit: Suit;
-  currentSuit: Suit;
+  currentSuit: Suit | null;
   currentPlayerName: string | null;
   currentGameState: GameState;
 }
@@ -27,7 +27,7 @@ export default class InfoTable extends React.Component<InfoTableProps> {
     )
   }
 
-  suitToUnicode = (suit: Suit) => {
+  suitToUnicode = (suit: Suit | null) => {
     switch (suit) {
       case Suit.Clubs:
         return <span style={{color: 'black'}}>♣</span>;
@@ -38,7 +38,7 @@ export default class InfoTable extends React.Component<InfoTableProps> {
       case Suit.Spades:
         return <span style={{color: 'black'}}>♠</span>;
       default:
-        return '♠';
+        return <span style={{fontWeight: "bold"}}>Not Set</span>;
     }
   }
 

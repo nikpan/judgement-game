@@ -53,6 +53,7 @@ export class PlayPhaseManager {
 
   private onHandDone(winnerId: number) {
     this._scoreCard.scoreWinner(winnerId);
+    this._gameState.currentSuit = null;
     this._handsPlayed = this._handsPlayed + 1;
     this.clearSelectedCard();
     if (this._handsPlayed === this._totalHandsToPlay) {

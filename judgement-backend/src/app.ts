@@ -1,8 +1,8 @@
 import http from 'http';
 import WebSocket from 'ws';
 import express from 'express';
-import Room from './room';
-import Player from './player';
+import { RoomV2 } from './roomV2';
+import { PlayerV2 } from './playerV2';
 
 const app = express();
 const port = normalizePort(process.env.PORT || '3001');
@@ -11,10 +11,12 @@ app.set('port', port);
 const server: http.Server = http.createServer(app);
 const wss: WebSocket.Server = new WebSocket.Server({ server });
 
-let room = new Room();
+// let room = new Room();
+let room = new RoomV2();
 wss.on('connection', function connection(ws) {
   console.log('A new connection!');
-  let player = new Player(ws, room);
+  // let player = new Player(ws, room);
+  let player = new PlayerV2(ws, room);
 });
 
 server.listen(port);
@@ -30,7 +32,7 @@ app.get('/status', (_req, res) => {
 });
 
 app.get('/reset-room', (_req, res) => {
-  room = new Room();
+  room = new RoomV2();
   res.send('Room reset done!');
 });
 

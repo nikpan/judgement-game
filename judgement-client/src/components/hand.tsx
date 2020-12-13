@@ -49,9 +49,6 @@ export default class Hand extends React.Component<HandProps> {
   }
 
   private sortCards(cards: ICard[]) {
-    console.log('cards');
-    console.log(cards);
-
     if (!cards || cards.length == 0 || cards.length == 1) return cards;
     cards.sort((a,b) => {
       if (a.suit > b.suit) {

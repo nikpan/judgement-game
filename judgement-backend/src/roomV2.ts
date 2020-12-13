@@ -71,6 +71,7 @@ export class RoomV2 {
     public deal(dealerId: number) {
         this._scoreCard.init(this._players);
         this._tableManager.startGame(dealerId);
+        this.sendPlayerInfoToAll();
     }
 
     public playCard(playerId: number, playedCard: ICard) {
@@ -80,6 +81,7 @@ export class RoomV2 {
 
     public setJudgement(playerId: number, prediction: number) {
         this._tableManager.setJudgement(playerId, prediction);
+        this.sendPlayerInfoToAll();
     }
 
     public removePlayer(playerId: number) {

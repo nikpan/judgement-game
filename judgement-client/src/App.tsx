@@ -22,7 +22,7 @@ export interface AppState {
   cards: ICard[];
   otherPlayers: PlayerInfo[];
   selectedCard: ICard | null;
-  currentSuit: Suit;
+  currentSuit: Suit | null;
   trumpSuit: Suit;
   currentPlayerName: string | null;
   currentGameState: GameState;
@@ -39,7 +39,7 @@ class App extends React.Component<{}, AppState> {
       cards: [],
       otherPlayers: [],
       selectedCard: null,
-      currentSuit: Suit.Spades,
+      currentSuit: null,
       trumpSuit: Suit.Spades,
       currentPlayerName: null,
       currentGameState: GameState.WaitingForPlayersToJoin,
@@ -99,7 +99,6 @@ class App extends React.Component<{}, AppState> {
         rank: rank
       }
     });
-    console.log(suit + rank);
   }
 
   onSetPrediction = () => {
@@ -114,7 +113,6 @@ class App extends React.Component<{}, AppState> {
       prediction: parseInt(prediction)
     });
 
-    console.log(this._judgementText.current.value);
   }
 
   render = () => {
@@ -170,7 +168,6 @@ class App extends React.Component<{}, AppState> {
   }
 
   private handleAllScoresMessage(message: PlayerScoreMessage) {
-    console.debug(message.scores);
     this.setState({
       scores: message.scores
     });

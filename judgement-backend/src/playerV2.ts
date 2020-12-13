@@ -52,6 +52,7 @@ export class PlayerV2 implements IPlayer {
             this._room.setJudgement(this.id, message.prediction);
         }
         catch (e) {
+            console.debug(e);
             this.sendErrorMessage(e.message);
         }
     }

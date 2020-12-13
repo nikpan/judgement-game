@@ -1,4 +1,5 @@
 import { ICard, Suit } from "./card";
+import { MessageType, PlayerInfoMessage, PlayerScoreMessage } from "./message";
 import { IPlayer } from "./player";
 import { GameStateV2 } from "./roomV2";
 import { RoundManager } from "./roundManager";
@@ -55,6 +56,7 @@ export class TableManager {
         if (this._roundsDone < this._totalRounds) {
             setTimeout(() => {
                 this._roundManager.startRound(this._dealerId, this.maxHandsInCurrentRound(), this.getCurrentTrumpSuit());
+                this.sendPlayerInfoToAll();
             }, 5000);
         }
         console.log('All Rounds Done!');
@@ -77,6 +79,60 @@ export class TableManager {
             default:
                 return Suit.Spades;
         }
+    }
+
+    public sendPlayerInfoToAll() {
+        let playerInfoMessage: PlayerInfoMessage = {
+            action: MessageType.AllPlayers,
+            players: this.gatherAllPlayerInfo(),
+            currentSuit: this._gameState.currentSuit,
+            trumpSuit: this._gameState.trumpSuit,
+            currentPlayerName: this.getCurrentPlayerName(),
+            gameState: this._gameState.state
+        }
+        this._players.forEach(clientWs => {
+            clientWs.sendMessage(playerInfoMessage)
+        });
+
+        this.sendScoresToAll();
+    }
+
+    private getCurrentPlayerName(): string {
+        const currentPlayerId = this.getCurrentPlayerId();
+        return this.playerNameByPlayerId(currentPlayerId);
+    }
+
+    private playerNameByPlayerId(playerId: number) {
+        const playerIndex = this._players.findIndex(p => p.id === playerId);
+        if (playerIndex === -1) return "";
+        const player = this._players[playerIndex];
+        return player.name;
+    }
+
+    private gatherAllPlayerInfo() {
+        let playerInfos = []
+        this._players.forEach(player => {
+            playerInfos.push({
+                name: player.name,
+                cardCount: player.hand.length,
+                selectedCard: player.selectedCard
+            });
+        });
+        return playerInfos;
+    }
+
+    private sendScoresToAll(): void {
+        let playerScores = this._scoreCard.getScores();
+        playerScores.forEach(score => {
+            score.playerName = this.playerNameByPlayerId(score.playerId)
+        });
+        let allPlayerScores: PlayerScoreMessage = {
+            action: MessageType.AllScores,
+            scores: playerScores
+        }
+        this._players.forEach(clientWs => {
+            clientWs.sendMessage(allPlayerScores);
+        });
     }
 
     private nextTurnPlayerId(playerId: number): number {

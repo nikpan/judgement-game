@@ -85,8 +85,6 @@ export default class ScoreCard extends React.Component<ScoreCardProps> {
       scores.forEach(sc => {
         items[length][sc.playerName] = this.renderTotal(sc.total);
       })
-      console.debug(items);
-      console.debug(columns);
     }
 
     return (
