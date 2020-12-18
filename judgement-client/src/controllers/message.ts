@@ -22,7 +22,8 @@ export enum MessageType {
     PlayCard = 'PlayCard',
     Error = 'Error',
     AllScores = 'AllScores',
-    SetJudgement = 'SetJudgement'
+    SetJudgement = 'SetJudgement',
+    JoinComplete = 'JoinComplete'
 }
 
 export interface IMessage {
@@ -61,4 +62,8 @@ export interface PlayerScoreMessage extends IMessage {
     scores: any;
 }
 
-export type Message = PlayCardMessage | JoinMessage | PlayerHandMessage | PlayerInfoMessage | ErrorMessage | SetJudgementMessage | PlayerScoreMessage;
+export interface JoinCompleteMessage extends IMessage {
+    isJoined: boolean;
+}
+
+export type Message = PlayCardMessage | JoinMessage | PlayerHandMessage | PlayerInfoMessage | ErrorMessage | SetJudgementMessage | PlayerScoreMessage | JoinCompleteMessage;

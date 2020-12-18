@@ -13,11 +13,13 @@ import {
   PlayerInfo, 
   PlayerInfoMessage, 
   PlayerScoreMessage,
-  GameState
+  GameState,
+  JoinCompleteMessage
 } from './controllers/message';
 
 export interface AppState {
   webSocket: WebSocket | null;
+  isJoined: boolean;
   name: string;
   cards: ICard[];
   otherPlayers: PlayerInfo[];
@@ -35,6 +37,7 @@ class App extends React.Component<{}, AppState> {
     super(props);
     this.state = {
       webSocket: null,
+      isJoined: false,
       name: '',
       cards: [],
       otherPlayers: [],
@@ -51,8 +54,8 @@ class App extends React.Component<{}, AppState> {
   }
 
   openConnection = () => {
-    // const ws = new WebSocket('ws://localhost:3001');
-    const ws = new WebSocket('wss://judgementgame-backend.azurewebsites.net');
+    const ws = new WebSocket('ws://localhost:3001');
+    // const ws = new WebSocket('wss://judgementgame-backend.azurewebsites.net');
     this.setState({ webSocket: ws });
     ws.onopen = () => {
       console.debug('Connection established!');
@@ -116,6 +119,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   render = () => {
+    const lockPrediction = this.state.currentGameState !== GameState.WaitingForPlayerToSetJudgement;
     return (
       <div>
         <h1>
@@ -123,18 +127,22 @@ class App extends React.Component<{}, AppState> {
         </h1>
         <ScoreCard scores={this.state.scores}></ScoreCard>
         <Stack gap={10} padding={10}>
-          <Stack horizontal gap={10}>
+          <Stack horizontal gap={10} style={{display:this.state.isJoined ? 'none' : ''}}>
             <TextField value={this.state.name} onChange={this.onNameTextChange} placeholder='Your Name' />
             <Button onClick={this.onSetNameClick}>Submit</Button>
+            <Button onClick={this.onDealClick}>Deal!</Button>
           </Stack>
-          <Button onClick={this.onDealClick}>Deal!</Button>
-          <Stack horizontal gap={10}>
-            <TextField componentRef={this._judgementText} placeholder={'Your Prediction'} />
-            <Button onClick={this.onSetPrediction}>Set Prediction</Button>
+          <Stack horizontal gap={10} style={{display:!this.state.isJoined ? 'none' : ''}}>
+            <TextField contentEditable={!lockPrediction} componentRef={this._judgementText} placeholder={'Your Prediction'} />
+            <Button disabled={lockPrediction} onClick={this.onSetPrediction}>Set Prediction</Button>
           </Stack>
-          <InfoTable {...this.state} />
+          <div style={{display:!this.state.isJoined ? 'none' : ''}}>
+            <InfoTable {...this.state} />
+          </div>
         </Stack>
-        <Table {...this.state} onCardClick={this.onCardClick} />
+        <div style={{display:!this.state.isJoined ? 'none' : ''}}>
+          <Table {...this.state} onCardClick={this.onCardClick} />
+        </div>
       </div>
     );
   }
@@ -149,7 +157,11 @@ class App extends React.Component<{}, AppState> {
   }
 
   private handleServerMessage(msgData: Message) {
-    if (msgData.action === MessageType.Hand) {
+    if(msgData.action === MessageType.JoinComplete) {
+      msgData = msgData as JoinCompleteMessage;
+      this.handleJoinCompleteMessage(msgData);
+    }
+    else if (msgData.action === MessageType.Hand) {
       msgData = msgData as PlayerHandMessage;
       this.handlePlayerHandMessage(msgData);
     }
@@ -165,6 +177,12 @@ class App extends React.Component<{}, AppState> {
       msgData = msgData as PlayerScoreMessage;
       this.handleAllScoresMessage(msgData);
     }
+  }
+  
+  private handleJoinCompleteMessage(_msgData: JoinCompleteMessage) {
+    this.setState({
+      isJoined: true
+    });
   }
 
   private handleAllScoresMessage(message: PlayerScoreMessage) {

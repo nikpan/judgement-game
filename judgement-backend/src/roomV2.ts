@@ -1,5 +1,5 @@
 import { Suit, ICard } from "./card";
-import { GameState, MessageType, PlayerInfoMessage, PlayerScoreMessage } from "./message";
+import { GameState, JoinCompleteMessage, MessageType, PlayerInfoMessage, PlayerScoreMessage } from "./message";
 import { IPlayer } from "./player";
 import { ScoreCardV2 } from "./scorecardV2";
 import { TableManager } from "./tableManager";
@@ -31,6 +31,16 @@ export class RoomV2 {
 
     public get scoreCard() {
         return this._scoreCard;
+    }
+
+    private sendIsJoinedToAll() {
+        let isJoinedMessage: JoinCompleteMessage = {
+            action: MessageType.JoinComplete,
+            isJoined: true
+        };
+        this._players.forEach(clientWs => {
+            clientWs.sendMessage(isJoinedMessage)
+        });
     }
 
     public sendPlayerInfoToAll() {
@@ -74,6 +84,7 @@ export class RoomV2 {
         this._scoreCard.init(this._players);
         this._tableManager.startGame(dealerId);
         this.sendPlayerInfoToAll();
+        this.sendIsJoinedToAll();
     }
 
     public playCard(playerId: number, playedCard: ICard) {
