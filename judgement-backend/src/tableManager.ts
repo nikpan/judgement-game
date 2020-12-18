@@ -129,7 +129,7 @@ export class TableManager {
         let allPlayerScores: PlayerScoreMessage = {
             action: MessageType.AllScores,
             scores: playerScores
-        }
+        };
         this._players.forEach(clientWs => {
             clientWs.sendMessage(allPlayerScores);
         });

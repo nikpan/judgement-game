@@ -15,6 +15,8 @@ export class RoomV2 {
     private _tableManager: TableManager;
     private _scoreCard: ScoreCardV2;
     private _gameState: GameStateV2;
+    private _updateTimer: NodeJS.Timeout;
+    private _timerStartTimestamp: number;
 
     constructor() {
         this._players = [];
@@ -48,7 +50,7 @@ export class RoomV2 {
     }
 
     private gatherAllPlayerInfo() {
-        let playerInfos = []
+        let playerInfos = [];
         this._players.forEach(player => {
             playerInfos.push({
                 name: player.name,
@@ -76,7 +78,6 @@ export class RoomV2 {
 
     public playCard(playerId: number, playedCard: ICard) {
         this._tableManager.playCard(playerId, playedCard);
-        this.sendPlayerInfoToAll();
     }
 
     public setJudgement(playerId: number, prediction: number) {
@@ -109,9 +110,30 @@ export class RoomV2 {
         let allPlayerScores: PlayerScoreMessage = {
             action: MessageType.AllScores,
             scores: playerScores
-        }
+        };
         this._players.forEach(clientWs => {
             clientWs.sendMessage(allPlayerScores);
         });
+    }
+
+    public playerStateUpdated() {
+        const currentTimeStamp = Date.now();
+        console.log(`starting timer 3. timer: ${this._updateTimer}, startTimeStamp: ${this._timerStartTimestamp}, currentTimeStamp: ${currentTimeStamp}`);
+        if( this._updateTimer && currentTimeStamp - this._timerStartTimestamp < 100) {
+            clearTimeout(this._updateTimer);
+            console.log(`starting timer 4. timer: ${this._updateTimer}, startTimeStamp: ${this._timerStartTimestamp}, currentTimeStamp: ${currentTimeStamp}`);
+        } 
+        this.startTimer();
+    }
+    
+    private startTimer() {
+        console.log('starting timer 1');
+        this._timerStartTimestamp = Date.now();
+        this._updateTimer = setTimeout(() => {
+            console.log('starting timer 2');
+            this.sendPlayerInfoToAll();
+            this._timerStartTimestamp = 0;
+            this._updateTimer = null;
+        }, 100);
     }
 }

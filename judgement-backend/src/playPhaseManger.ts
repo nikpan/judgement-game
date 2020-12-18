@@ -55,13 +55,15 @@ export class PlayPhaseManager {
     this._scoreCard.scoreWinner(winnerId);
     this._gameState.currentSuit = null;
     this._handsPlayed = this._handsPlayed + 1;
-    this.clearSelectedCard();
-    if (this._handsPlayed === this._totalHandsToPlay) {
-      this._onPlayPhaseDoneCallback();
-    }
-    else {
-      this._handManager.startHand(winnerId, this._trumpSuit);
-    }
+    setTimeout(() => {
+      this.clearSelectedCard();
+      if (this._handsPlayed === this._totalHandsToPlay) {
+        this._onPlayPhaseDoneCallback();
+      }
+      else {
+        this._handManager.startHand(winnerId, this._trumpSuit);
+      }
+    }, 5000);
   }
 
   private clearSelectedCard() {

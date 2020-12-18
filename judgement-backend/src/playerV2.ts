@@ -10,8 +10,17 @@ export class PlayerV2 implements IPlayer {
     private _room: RoomV2;
     public name: string;
     public hand: ICard[];
-    public selectedCard: ICard | null;
+    private _selectedCard: ICard | null;
     public id: number;
+
+    public get selectedCard(): ICard | null {
+        return this._selectedCard;
+    }
+
+    public set selectedCard(card: ICard | null) {
+        this._selectedCard = card;
+        this._room.playerStateUpdated();
+    }
 
     constructor(socket: WebSocket, room: RoomV2) {
         this.socket = socket;
@@ -91,6 +100,7 @@ export class PlayerV2 implements IPlayer {
             throw new Error(`Can't remove card from hand when it doesn't exist in hand`);
         }
         this.hand.splice(cardIndex, 1);
+        this._room.playerStateUpdated();
     }
 
     public sendHand() {
@@ -104,7 +114,7 @@ export class PlayerV2 implements IPlayer {
         this.sendMessage({
             action: MessageType.Error,
             code: errorCode
-        })
+        });
     }
 
     public sendMessage(message: Message) {
