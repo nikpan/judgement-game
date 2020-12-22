@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import { ICard, Rank, Suit } from './components/card';
-import { TextField, PrimaryButton as Button, Stack, ITextField } from 'office-ui-fabric-react';
+import { TextField, PrimaryButton as Button, Stack, ITextField, Label } from 'office-ui-fabric-react';
 import ScoreCard, { PlayerScore } from './components/scorecard';
 import InfoTable from './components/infoTable';
 import Table from './components/table';
@@ -11,15 +11,15 @@ import {
   ErrorMessage,
   PlayerHandMessage,
   PlayerInfo, 
-  PlayerInfoMessage, 
   PlayerScoreMessage,
-  GameState,
-  JoinCompleteMessage
+  ClientGameState,
+  PlayerListMessage,
+  PlayerInfoMessageV2,
+  GameStateInfoMessage
 } from './controllers/message';
 
 export interface AppState {
   webSocket: WebSocket | null;
-  isJoined: boolean;
   name: string;
   cards: ICard[];
   otherPlayers: PlayerInfo[];
@@ -27,17 +27,22 @@ export interface AppState {
   currentSuit: Suit | null;
   trumpSuit: Suit;
   currentPlayerName: string | null;
-  currentGameState: GameState;
+  currentGameState: ClientGameState;
   scores: PlayerScore[] | null;
+  roomCode: string;
+  playerList: string[];
 }
 
 class App extends React.Component<{}, AppState> {
+  private static readonly _wsConnectionUrl: string = 'ws://localhost:3001';
+  // private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
   private _judgementText: React.RefObject<ITextField> = React.createRef<ITextField>();
+  private _roomCodeText: React.RefObject<ITextField> = React.createRef<ITextField>();
+  listOfPlayers: string[] = ['Tom', 'Dick', 'Harry'];
   constructor(props: any) {
     super(props);
     this.state = {
       webSocket: null,
-      isJoined: false,
       name: '',
       cards: [],
       otherPlayers: [],
@@ -45,33 +50,17 @@ class App extends React.Component<{}, AppState> {
       currentSuit: null,
       trumpSuit: Suit.Spades,
       currentPlayerName: null,
-      currentGameState: GameState.WaitingForPlayersToJoin,
-      scores: null
+      currentGameState: ClientGameState.ChoosingName,
+      scores: null,
+      roomCode: '',
+      playerList: []
     };
   }
 
   componentDidMount() {
   }
 
-  openConnection = () => {
-    const ws = new WebSocket('ws://localhost:3001');
-    // const ws = new WebSocket('wss://judgementgame-backend.azurewebsites.net');
-    this.setState({ webSocket: ws });
-    ws.onopen = () => {
-      console.debug('Connection established!');
-      this.sendServerMessage({
-        action: MessageType.Join,
-        name: this.state.name
-      });
-    };
-    ws.onmessage = (msg) => {
-      var message = JSON.parse(msg.data);
-      this.handleServerMessage(message as Message);
-      console.log('Message from server:');
-      console.debug(message);
-    };
-  }
-
+  /** Home Page */
   closeConnection = () => {
     if (this.state.webSocket != null) {
       this.state.webSocket.close();
@@ -82,17 +71,70 @@ class App extends React.Component<{}, AppState> {
     this.setState({ name: event.target.value });
   }
 
-  onSetNameClick = () => {
+  onCreateRoomClick = () => {
+    if(this.state.name === '' || this.state.name === null) {
+      this.showErrorPopup(`Can't join room! Name empty`);
+    }
+    
     this.closeConnection();
-    this.openConnection();
-  }
-
-  onDealClick = () => {
-    this.sendServerMessage({
-      action: MessageType.Deal
+    const createRoomMessage = {
+      action: MessageType.CreateRoom,
+      name: this.state.name
+    };
+    this.openConnectionAndSendMessage(createRoomMessage);
+    this.setState({
+      currentGameState: ClientGameState.Joining
     });
   }
 
+  onJoinRoomClick = () => {
+    if(this._roomCodeText.current === null || this._roomCodeText.current.value === null) {
+      this.showErrorPopup(`Can't join room! Room code empty`);
+      return;
+    }
+    if(this.state.name === '' || this.state.name === null) {
+      this.showErrorPopup(`Can't join room! Name empty`);
+    }
+
+    this.closeConnection();
+    const joinMessage = {
+      action: MessageType.JoinRoom,
+      name: this.state.name,
+      roomCode: this._roomCodeText.current.value
+    };
+    this.openConnectionAndSendMessage(joinMessage);
+    this.setState({
+      currentGameState: ClientGameState.Joining
+    });
+  }
+
+  openConnectionAndSendMessage = (message: Message) => {
+    const ws = new WebSocket(App._wsConnectionUrl);
+    this.setState({ webSocket: ws });
+    ws.onopen = () => {
+      console.debug('Connection established!');
+      this.sendServerMessage(message);
+    };
+    ws.onmessage = (msg) => {
+      var message = JSON.parse(msg.data);
+      this.handleServerMessage(message as Message);
+      console.log('Message from server:');
+      console.debug(message);
+    };
+    //TODO: add a connection timeout
+  }
+
+  /** Waiting Page */
+  onStartGameClick = () => {
+    this.sendServerMessage({
+      action: MessageType.StartGame
+    });
+    this.setState({
+      currentGameState: ClientGameState.Starting
+    });
+  };
+  
+  /** Playing Page*/
   onCardClick = (suit: Suit, rank: Rank) => {
     if (this.state.selectedCard != null) return;
     this.sendServerMessage({
@@ -119,55 +161,106 @@ class App extends React.Component<{}, AppState> {
   }
 
   render = () => {
-    const lockPrediction = this.state.currentGameState !== GameState.WaitingForPlayerToSetJudgement;
+    const currentState = this.state.currentGameState;
+    const showHomePage = currentState === ClientGameState.ChoosingName || currentState === ClientGameState.Joining;
+    const showWaitingPage = currentState === ClientGameState.WaitingToStartGame || currentState === ClientGameState.Starting;
+    const showPlayPage = currentState === ClientGameState.PredictionPhase || currentState === ClientGameState.PlayPhase || currentState === ClientGameState.CalculatingWinner;
+    const predictionEditable = currentState === ClientGameState.PredictionPhase;
+
     return (
       <div>
         <h1>
           Judgement Game {this.state.name ? `- ${this.state.name}` : ''}
         </h1>
-        <ScoreCard scores={this.state.scores}></ScoreCard>
-        <Stack gap={10} padding={10}>
-          <Stack horizontal gap={10} style={{display:this.state.isJoined ? 'none' : ''}}>
-            <TextField value={this.state.name} onChange={this.onNameTextChange} placeholder='Your Name' />
-            <Button onClick={this.onSetNameClick}>Submit</Button>
-            <Button onClick={this.onDealClick}>Deal!</Button>
-          </Stack>
-          <Stack horizontal gap={10} style={{display:!this.state.isJoined ? 'none' : ''}}>
-            <TextField contentEditable={!lockPrediction} componentRef={this._judgementText} placeholder={'Your Prediction'} />
-            <Button disabled={lockPrediction} onClick={this.onSetPrediction}>Set Prediction</Button>
-          </Stack>
-          <div style={{display:!this.state.isJoined ? 'none' : ''}}>
-            <InfoTable {...this.state} />
-          </div>
-        </Stack>
-        <div style={{display:!this.state.isJoined ? 'none' : ''}}>
-          <Table {...this.state} onCardClick={this.onCardClick} />
-        </div>
+        {/* Home Page */}
+        {showHomePage ? this.renderHomePage() : <></>}
+        {/* Waiting Page */}
+        {showWaitingPage ? this.renderWaitingPage() : <></>}
+        {/* Playing Page */}
+        {showPlayPage ? this.renderPlayPage(predictionEditable) : <></>}
       </div>
     );
   }
 
+  private renderPlayPage(predictionEditable: boolean) {
+    return <Stack gap={10} padding={10} >
+      <Stack horizontal gap={10}>
+        <TextField contentEditable={predictionEditable} componentRef={this._judgementText} placeholder={'Your Prediction'} />
+        <Button disabled={!predictionEditable} onClick={this.onSetPrediction}>Set Prediction</Button>
+      </Stack>
+      <ScoreCard scores={this.state.scores}></ScoreCard>
+      <InfoTable {...this.state} />
+      <Table {...this.state} onCardClick={this.onCardClick} />
+    </Stack>;
+  }
+
+  private renderWaitingPage() {
+    return <Stack gap={10} padding={10} maxWidth={300}>
+      <Stack horizontal gap={10}>
+        <Label>Room Code: {this.state.roomCode}</Label>
+      </Stack>
+      <Stack horizontal gap={10}>
+        <Label>Players: {this.state.playerList.toString()}</Label>
+      </Stack>
+      <Stack horizontal gap={10}>
+        <Button onClick={this.onStartGameClick}>Start Game</Button>
+      </Stack>
+    </Stack>;
+  }
+
+  private renderHomePage() {
+    return <Stack gap={10} padding={10} maxWidth={300}>
+      <Stack.Item align='stretch'>
+        <Stack horizontal grow gap={10}>
+          <Label>Name</Label>
+          <TextField value={this.state.name} onChange={this.onNameTextChange} placeholder='Your Name' />
+        </Stack>
+      </Stack.Item>
+      <Stack.Item align='stretch'>
+        <Stack>
+          <Button onClick={this.onCreateRoomClick}>Create Room</Button>
+        </Stack>
+      </Stack.Item>
+      <Stack.Item align='stretch'>
+        <Stack horizontal gap={10}>
+          <TextField componentRef={this._roomCodeText} placeholder='Room Code' />
+          <Button onClick={this.onJoinRoomClick}>Join Room</Button>
+        </Stack>
+      </Stack.Item>
+    </Stack>;
+  }
+
+  /** Common functions */
   private sendServerMessage(message: any) {
     if (this.state.webSocket == null) {
-      alert(`Error: Can't send message because websocket is null`);
+      this.showErrorPopup(`Error: Can't send message because websocket is null`);
       return;
     }
-
+    console.log('Sending Message');
+    console.debug(message);
     this.state.webSocket.send(JSON.stringify(message));
   }
 
+  private showErrorPopup(errorMessage: string) {
+    alert(errorMessage);
+  }
+
   private handleServerMessage(msgData: Message) {
-    if(msgData.action === MessageType.JoinComplete) {
-      msgData = msgData as JoinCompleteMessage;
-      this.handleJoinCompleteMessage(msgData);
+    if (msgData.action === MessageType.PlayerList) {
+      msgData = msgData as PlayerListMessage;
+      this.handlePlayerListMessage(msgData);
     }
     else if (msgData.action === MessageType.Hand) {
       msgData = msgData as PlayerHandMessage;
       this.handlePlayerHandMessage(msgData);
     }
-    else if (msgData.action === MessageType.AllPlayers) {
-      msgData = msgData as PlayerInfoMessage;
-      this.handlePlayerInfoMessage(msgData);
+    else if (msgData.action === MessageType.PlayerInfo) {
+      msgData = msgData as PlayerInfoMessageV2;
+      this.handlePlayerInfoMessageV2(msgData);
+    }
+    else if (msgData.action === MessageType.GameStateInfo) {
+      msgData = msgData as GameStateInfoMessage;
+      this.handleGameStateInfoMessage(msgData);
     }
     else if (msgData.action === MessageType.Error) {
       msgData = msgData as ErrorMessage;
@@ -177,14 +270,13 @@ class App extends React.Component<{}, AppState> {
       msgData = msgData as PlayerScoreMessage;
       this.handleAllScoresMessage(msgData);
     }
+    else {
+      console.log('Unidentified Message');
+      console.debug(msgData);
+    }
+
   }
   
-  private handleJoinCompleteMessage(_msgData: JoinCompleteMessage) {
-    this.setState({
-      isJoined: true
-    });
-  }
-
   private handleAllScoresMessage(message: PlayerScoreMessage) {
     this.setState({
       scores: message.scores
@@ -192,10 +284,19 @@ class App extends React.Component<{}, AppState> {
   }
 
   private handleErrorMessage(message: ErrorMessage) {
-    alert(`Error: ${message.code}`);
+    this.showErrorPopup(`Error: ${message.code}`);
   }
 
-  private handlePlayerInfoMessage(message: PlayerInfoMessage) {
+  private handlePlayerListMessage(message: PlayerListMessage) {
+    console.debug(message.playerList);
+    this.setState({
+      roomCode: message.roomCode,
+      playerList: message.playerList,
+      currentGameState: ClientGameState.WaitingToStartGame
+    });
+  }
+
+  private handlePlayerInfoMessageV2(message: PlayerInfoMessageV2) {
     let otherPlayerInfos = message.players;
     let toRemove = otherPlayerInfos.findIndex((player: {
       name: string;
@@ -204,6 +305,11 @@ class App extends React.Component<{}, AppState> {
     this.setState({
       otherPlayers: otherPlayerInfos,
       selectedCard: myInfo.selectedCard,
+    });
+  }
+
+  private handleGameStateInfoMessage(message: GameStateInfoMessage) {
+    this.setState({
       trumpSuit: message.trumpSuit!,
       currentSuit: message.currentSuit!,
       currentPlayerName: message.currentPlayerName!,

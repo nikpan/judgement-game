@@ -1,13 +1,13 @@
 import React from "react";
 import { Text, Stack } from "office-ui-fabric-react";
 import { Suit } from "./card";
-import { GameState } from "../controllers/message";
+import { ClientGameState } from "../controllers/message";
 
 export interface InfoTableProps {
   trumpSuit: Suit;
   currentSuit: Suit | null;
   currentPlayerName: string | null;
-  currentGameState: GameState;
+  currentGameState: ClientGameState;
 }
 
 export default class InfoTable extends React.Component<InfoTableProps> {

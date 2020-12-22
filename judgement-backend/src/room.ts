@@ -1,259 +1,185 @@
-import Player from "./player";
-import StandardDeck from "./deck";
-import { GameState, MessageType, PlayerInfo, PlayerInfoMessage, PlayerScoreMessage } from "./message";
-import { Winner, Suit, ICard } from "./card";
-import ScoreCard from "./scorecard";
+import { Suit, ICard } from "./card";
+import { ClientGameState, GameStateMessage, JoinCompleteMessage, MessageType, PlayerInfoMessageV2, PlayerListMessage, PlayerScoreMessage } from "./message";
+import { IPlayer } from "./player";
+import { ScoreCardV2 } from "./scorecardV2";
+import { TableManager } from "./tableManager";
 
-class Room {
-  private _players: Player[];
-  private _deck: StandardDeck;
-  private _currentPlayerId: number;
-  private _scoreCard: ScoreCard | null;
-  public currentSuit: Suit | null;
-  public trumpSuit: Suit | null;
-  private _roundNumber: number;
-  private _maxRounds: number;
-  private _handsPlayedInCurrentRound: number;
-  private _gameState: GameState;
-  private _waitingForSetJudgement: number;
-
-  constructor() {
-    this._players = [];
-    this._deck = new StandardDeck();
-    this._currentPlayerId = 0;
-    this.currentSuit = null;
-    this.trumpSuit = Suit.Spades;
-    this._scoreCard = null;
-    this._roundNumber = 0;
-    this._maxRounds = 0;
-    this._handsPlayedInCurrentRound = 0;
-    this._gameState = GameState.WaitingForPlayersToJoin;
-  }
-
-  public get scoreCard(): ScoreCard | null {
-    return this._scoreCard;
-  }
-
-  private isPlayerTurnById(playerId: number) {
-    if (this._currentPlayerId === 0) {
-      this._currentPlayerId = playerId;
-    }
-    return playerId === this._currentPlayerId
-  }
-
-  private calcNextTurnPlayer(): number {
-    const currPlayerIndex = this._players.findIndex(player => player.id === this._currentPlayerId);
-    const nextPlayer = this._players[(currPlayerIndex + 1) % this._players.length];
-    return nextPlayer.id;
-  }
-
-  private getCurrentPlayerName(): string {
-    const currPlayerIndex = this._players.findIndex(p => p.id === this._currentPlayerId);
-    if (currPlayerIndex === -1) return "";
-    const currPlayer = this._players[currPlayerIndex];
-    return currPlayer.name;
-  }
-
-  private sendScoresToAll(): void {
-    let allPlayerScores: PlayerScoreMessage = {
-      action: MessageType.AllScores,
-      scores: this._scoreCard.getScores()
-    }
-    this._players.forEach(clientWs => {
-      clientWs.sendMessage(allPlayerScores);
-    });
-  }
-
-  public sendPlayerInfoToAll(): void {
-    let playerInfoMessage: PlayerInfoMessage = {
-      action: MessageType.AllPlayers,
-      players: this.gatherAllPlayerInfo(),
-      currentSuit: this.currentSuit,
-      trumpSuit: this.trumpSuit,
-      currentPlayerName: this.getCurrentPlayerName(),
-      gameState: this._gameState
-    }
-    this._players.forEach(clientWs => {
-      clientWs.sendMessage(playerInfoMessage)
-    });
-  }
-
-  private gatherAllPlayerInfo(): PlayerInfo[] {
-    let playerInfos = []
-    this._players.forEach(player => {
-      playerInfos.push({
-        name: player.name,
-        cardCount: player.hand.length,
-        selectedCard: player.selectedCard
-      });
-    });
-    return playerInfos;
-  }
-
-  private maxHandsInCurrentRound() {
-    return this._maxRounds - this._roundNumber + 1;
-  }
-
-  public playCard(playedCard: ICard, playerId: number): any {
-    if (!this.isPlayerTurnById(playerId)) {
-     throw new Error('Not Your Turn!');
-    }
-
-    if (this.firstCard()) {
-      this.setCurrentSuit(playedCard.suit);
-    }
-
-    let playerIndex = this._players.findIndex(player => player.id === playerId);
-    this._players[playerIndex].selectedCard = playedCard;
-  }
-
-  public processHand() {
-    this._currentPlayerId = this.calcNextTurnPlayer();
-    this.sendPlayerInfoToAll();
-    // if all players have played compute and declare winner
-    if (this.allPlayersHavePlayedCard()) {
-      // Everyone has played.
-      this._gameState = GameState.CalculatingWinner;
-      // 1. Compute winner
-      let winner = this.calcWinnerIndex();
-      // 2. Update next trick starter and suit
-      this._currentPlayerId = this._players[winner].id;
-      this.currentSuit = null;
-
-      console.log(this._players[winner].name + ' is the winner');
-      // 3. Clear out the selected card of all players
-      setTimeout(() => {
-        this._players.forEach(player => {
-          player.selectedCard = null;
-        });
-        this.sendPlayerInfoToAll();
-      }, 5000);
-      // 4. Update winner
-      this._scoreCard.scoreWinner(this._players[winner].name);
-      this._handsPlayedInCurrentRound += 1;
-      if (this._handsPlayedInCurrentRound == this.maxHandsInCurrentRound()) {
-        this._scoreCard.endRound();
-        if (this._roundNumber != this._maxRounds) {
-          setTimeout(() => this.startRound(), 5000);
-        }
-      }
-      this.sendScoresToAll();
-    }
-  }
-
-  private calcWinnerIndex(): number {
-    let winner = 0;
-    for (let i = 0; i < this._players.length; i++) {
-      const player = this._players[i];
-      if (Winner(this._players[winner].selectedCard, player.selectedCard, this.trumpSuit, this.currentSuit) === -1) {
-        winner = i;
-      }
-    }
-    return winner;
-  }
-
-  private setCurrentSuit(suit: Suit) {
-    this.currentSuit = suit;
-  }
-
-  private firstCard() {
-    return this.currentSuit === null;
-  }
-
-  private allPlayersHavePlayedCard(): boolean {
-    let result = true;
-    this._players.forEach(p => {
-      result = result && p.selectedCard != null;
-    });
-    return result;
-  }
-
-  public removePlayer(player: Player): void {
-    var toRemove = this._players.findIndex(p => p.socket === player.socket);
-    this._players.splice(toRemove, 1);
-    this.sendPlayerInfoToAll();
-  }
-
-  public addPlayer(player: Player): void {
-    this._players.push(player);
-    this.sendPlayerInfoToAll();
-  }
-
-  public deal(dealer: number): void {
-    if(this._gameState !== GameState.WaitingForPlayersToJoin) {
-      this.throwWrongGameStateError();
-    }
-
-    this._maxRounds = 4;
-    // this._maxRounds = Math.floor(52 / this._players.length);
-    this._scoreCard = new ScoreCard(this._players.map(p => p.name));
-    this.startRound();
-  }
-
-  private startRound(): void {
-    this._gameState = GameState.DealingCards;
-    this._handsPlayedInCurrentRound = 0;
-    this._roundNumber += 1;
-    this.trumpSuit = this.updateTrumpSuit();
-    this.dealInner(this.maxHandsInCurrentRound());
-    this._waitingForSetJudgement = this._players.length;
-    this._gameState = GameState.WaitingForPlayerToSetJudgement;
-    this.sendPlayerInfoToAll();
-  }
-
-  private updateTrumpSuit(): Suit {
-    switch (this._roundNumber % 4) {
-      case 0:
-        return Suit.Spades;
-      case 1:
-        return Suit.Diamonds;
-      case 2:
-        return Suit.Hearts;
-      case 3:
-        return Suit.Clubs;
-      default:
-        return Suit.Spades;
-    }
-  }
-
-  private dealInner(numberOfCards: number): void {
-    this._scoreCard.startRound(numberOfCards);
-
-    this._deck.resetDeck();
-
-    this._players.forEach(player => {
-      const hand = this._deck.drawRandom(numberOfCards);
-      player.hand = hand;
-      player.sendHand();
-    });
-  }
-
-  public setJudgement(playerName: string, prediction: number) {
-    if(this._gameState !== GameState.WaitingForPlayerToSetJudgement) {
-      this.throwWrongGameStateError();
-    }
-    if(this._waitingForSetJudgement === 0) {
-      throw new Error('All Players have set judgement!');
-    }
-    this._scoreCard.setJudgement(playerName, prediction);
-    this._waitingForSetJudgement = this._waitingForSetJudgement - 1;
-    if(this._waitingForSetJudgement === 0) {
-      this._gameState = GameState.WaitingForPlayerToPlayCard;
-    }
-    this.sendScoresToAll();
-    this.sendPlayerInfoToAll();
-  }
-
-  private throwWrongGameStateError() {
-    throw new Error(`Wrong game set. GameState: ${this._gameState}`);
-  }
-
-  private printAllPlayers(): void {
-    console.log("Current list of clients :");
-    this._players.forEach(player => {
-      console.log(player.name);
-    });
-  }
+export interface GameState {
+    currentSuit: Suit;
+    trumpSuit: Suit;
+    clientState: ClientGameState;
 }
 
-export default Room;
+export class Room {
+    private _roomCode: string;
+    private _players: IPlayer[];
+    private _tableManager: TableManager;
+    private _scoreCard: ScoreCardV2;
+    private _gameState: GameState;
+    private _updateTimer: NodeJS.Timeout;
+    private _timerStartTimestamp: number;
+    private _playerListTimer: NodeJS.Timeout;
+
+    constructor(roomCode: string) {
+        this._roomCode = roomCode;
+        this._players = [];
+        this._gameState = {
+            currentSuit: null,
+            trumpSuit: null,
+            clientState: ClientGameState.WaitingToStartGame
+        };
+        this._scoreCard = new ScoreCardV2();
+        this._tableManager = new TableManager(this._players, this._gameState, this._scoreCard);
+        this._playerListTimer = setInterval(() => {
+            console.log('playerListTimerFired');
+            this.sendPlayerListMessage();
+        }, 1000);
+    }
+
+    private sendPlayerListMessage() {
+        let playerList = [];
+        this._players.forEach(player => playerList.push(player.name));
+        const playerListMessage: PlayerListMessage = {
+            action: MessageType.PlayerList,
+            roomCode: this._roomCode,
+            playerList: playerList
+        };
+        this._players.forEach(player => {
+            player.sendMessage(playerListMessage);
+        });
+    }
+
+    public get scoreCard() {
+        return this._scoreCard;
+    }
+
+    public sendPlayerInfoV2ToAll() {
+        let playerInfoMessage: PlayerInfoMessageV2 = {
+            action: MessageType.PlayerInfo,
+            players: this.gatherAllPlayerInfo(),
+        }
+        this._players.forEach(clientWs => {
+            clientWs.sendMessage(playerInfoMessage)
+        });
+    }
+
+    public sendGameStateInfoToAll() {
+        let gameStateInfoMessage: GameStateMessage = {
+            action: MessageType.GameStateInfo,
+            currentSuit: this._gameState.currentSuit,
+            trumpSuit: this._gameState.trumpSuit,
+            currentPlayerName: this.getCurrentPlayerName(),
+            gameState: this._gameState.clientState
+        }
+        this._players.forEach(clientWs => {
+            clientWs.sendMessage(gameStateInfoMessage);
+        })
+    }
+
+    private gatherAllPlayerInfo() {
+        let playerInfos = [];
+        this._players.forEach(player => {
+            playerInfos.push({
+                name: player.name,
+                cardCount: player.hand.length,
+                selectedCard: player.selectedCard
+            });
+        });
+        return playerInfos;
+    }
+
+    private getCurrentPlayerId(): number {
+        return this._tableManager.getCurrentPlayerId();
+    }
+
+    private getCurrentPlayerName(): string {
+        const currentPlayerId = this.getCurrentPlayerId();
+        return this.playerNameByPlayerId(currentPlayerId);
+    }
+
+    public startGame(dealerId: number) {
+        clearInterval(this._playerListTimer);
+        this._scoreCard.init(this._players);
+        this._tableManager.startGame(dealerId);
+        this.sendAllInfo();
+    }
+
+    private sendAllInfo() {
+        this.sendGameStateInfoToAll();
+        this.sendScoresToAll();
+        this.sendPlayerInfoV2ToAll();
+    }
+
+    public playCard(playerId: number, playedCard: ICard) {
+        this._tableManager.playCard(playerId, playedCard);
+    }
+
+    public setJudgement(playerId: number, prediction: number) {
+        this._tableManager.setJudgement(playerId, prediction);
+        this.sendAllInfo();
+        this.sendScoresToAll();
+    }
+
+    public removePlayer(playerId: number) {
+        var toRemove = this._players.findIndex(p => p.id === playerId);
+        this._players.splice(toRemove, 1);
+    }
+
+    public join(player: IPlayer) {
+        this._players.push(player);
+    }
+
+    private playerNameByPlayerId(playerId: number) {
+        const playerIndex = this._players.findIndex(p => p.id === playerId);
+        if (playerIndex === -1) return "";
+        const player = this._players[playerIndex];
+        return player.name;
+    }
+
+    private sendScoresToAll(): void {
+        let playerScores = this._scoreCard.getScores();
+        playerScores.forEach(score => {
+            score.playerName = this.playerNameByPlayerId(score.playerId)
+        });
+        let allPlayerScores: PlayerScoreMessage = {
+            action: MessageType.AllScores,
+            scores: playerScores
+        };
+        this._players.forEach(clientWs => {
+            clientWs.sendMessage(allPlayerScores);
+        });
+    }
+
+    public playerStateUpdated() {
+        const currentTimeStamp = Date.now();
+        console.log(`starting timer 3. timer: ${this._updateTimer}, startTimeStamp: ${this._timerStartTimestamp}, currentTimeStamp: ${currentTimeStamp}`);
+        if( this._updateTimer && currentTimeStamp - this._timerStartTimestamp < 100) {
+            clearTimeout(this._updateTimer);
+            console.log(`starting timer 4. timer: ${this._updateTimer}, startTimeStamp: ${this._timerStartTimestamp}, currentTimeStamp: ${currentTimeStamp}`);
+        } 
+        this.startTimer();
+    }
+    
+    private startTimer() {
+        console.log('starting timer 1');
+        this._timerStartTimestamp = Date.now();
+        this._updateTimer = setTimeout(() => {
+            console.log('starting timer 2');
+            this.sendAllInfo();
+            this._timerStartTimestamp = 0;
+            this._updateTimer = null;
+        }, 100);
+    }
+
+    public dispose() {
+        this._players.forEach(player => {
+            player.dispose();
+        });
+        delete this._players;
+        delete this._scoreCard;
+        delete this._tableManager;
+        delete this._gameState;
+        delete this._timerStartTimestamp;
+        delete this._updateTimer;
+      }
+}

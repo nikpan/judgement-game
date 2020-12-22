@@ -1,10 +1,10 @@
 import { ICard, Suit } from "./card";
 import StandardDeck from "./deck";
 import { JudgementPhaseManager } from "./judgementPhaseManager";
-import { GameState } from "./message";
+import { ClientGameState } from "./message";
 import { IPlayer } from "./player";
 import { PlayPhaseManager } from "./playPhaseManger";
-import { GameStateV2 } from "./roomV2";
+import { GameState } from "./room";
 import { ScoreCardV2 } from "./scorecardV2";
 
 enum RoundState {
@@ -49,9 +49,9 @@ export class RoundManager {
     private _totalHandsToPlay: number;
     private _deck: StandardDeck;
     private _state: RoundState;
-    private _gameState: GameStateV2;
+    private _gameState: GameState;
     private _onRoundDoneCallback: () => void;
-    constructor(players: IPlayer[], gameState: GameStateV2, scoreCard: ScoreCardV2, onRoundDoneCallback: () => void) {
+    constructor(players: IPlayer[], gameState: GameState, scoreCard: ScoreCardV2, onRoundDoneCallback: () => void) {
         this._players = players;
         this._gameState = gameState;
         this._scoreCard = scoreCard;
@@ -68,7 +68,7 @@ export class RoundManager {
         this._trumpSuit = trumpSuit;
         this._gameState.trumpSuit = trumpSuit;
         this._gameState.currentSuit = null;
-        this._gameState.state = GameState.WaitingForPlayerToSetJudgement;
+        this._gameState.clientState = ClientGameState.PredictionPhase;
         let nextPlayerId = this.nextTurnPlayerId(this._dealerId);
         this.dealCardsToPlayers(totalHandsToPlay);
         this._state = RoundState.JudgementPhase;
@@ -87,7 +87,7 @@ export class RoundManager {
     private onJudgementPhaseDone() {
         let nextPlayerId = this.nextTurnPlayerId(this._dealerId);
         this._state = RoundState.PlayPhase;
-        this._gameState.state = GameState.WaitingForPlayerToPlayCard;
+        this._gameState.clientState = ClientGameState.PlayPhase;
         this._playPhaseManager.startPlayPhase(nextPlayerId, this._trumpSuit, this._totalHandsToPlay);
     }
 

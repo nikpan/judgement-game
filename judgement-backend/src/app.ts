@@ -1,22 +1,21 @@
 import http from 'http';
 import WebSocket from 'ws';
 import express from 'express';
-import { RoomV2 } from './roomV2';
-import { PlayerV2 } from './playerV2';
+import { PendingPlayer } from './pendingPlayer';
 
 const app = express();
 const port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
+app.use(express.json());
 
 const server: http.Server = http.createServer(app);
 const wss: WebSocket.Server = new WebSocket.Server({ server });
 
-// let room = new Room();
-let room = new RoomV2();
+let pendingPlayerList = [];
 wss.on('connection', function connection(ws) {
   console.log('A new connection!');
-  // let player = new Player(ws, room);
-  let player = new PlayerV2(ws, room);
+  let pendingPlayer = new PendingPlayer(ws);
+  pendingPlayerList.push(pendingPlayer);
 });
 
 server.listen(port);
@@ -28,12 +27,17 @@ app.get('/', (_req, res) => {
 });
 
 app.get('/status', (_req, res) => {
-  res.send(room.scoreCard);
+  res.send(pendingPlayerList.toString());
 });
 
 app.get('/reset-room', (_req, res) => {
-  room = new RoomV2();
   res.send('Room reset done!');
+});
+
+app.post('/join-room', (req, res) => {
+  console.debug(req.body);
+  console.log(req.body);
+  res.send('Join Room Request Received');
 });
 
 function normalizePort(val: string) {

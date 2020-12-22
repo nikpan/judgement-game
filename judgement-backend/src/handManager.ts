@@ -1,6 +1,6 @@
 import { ICard, Suit, Winner } from "./card";
 import { IPlayer } from "./player";
-import { GameStateV2 } from "./roomV2";
+import { GameState } from "./room";
 
 const enum HandState {
     NotStarted,
@@ -32,9 +32,9 @@ export class HandManager {
     private _state: HandState = HandState.NotStarted;
     private _currentSuit: Suit;
     private _trumpSuit: Suit;
-    private _gameState: GameStateV2;
+    private _gameState: GameState;
     private _handDoneCallback: (winnerId: number) => void;
-    constructor(players: IPlayer[], gameState: GameStateV2, onHandDone: (winnerId: number) => void) {
+    constructor(players: IPlayer[], gameState: GameState, onHandDone: (winnerId: number) => void) {
         this._players = players;
         this._gameState = gameState;
         this._handDoneCallback = onHandDone;

@@ -6,24 +6,29 @@ export interface PlayerInfo {
     selectedCard: ICard | null;
 }
 
-export enum GameState {
-    WaitingForPlayersToJoin = 'WaitingForPlayersToJoin',
-    DealingCards = 'DealingCards',
-    WaitingForPlayerToSetJudgement = 'WaitingForPlayerToSetJudgement',
-    WaitingForPlayerToPlayCard = 'WaitingForPlayerToPlayCard',
+export enum ClientGameState {
+    ChoosingName = 'ChoosingName',
+    Joining = 'Joining',
+    WaitingToStartGame = 'WaitingToStartGame',
+    Starting = 'Starting',
+    PredictionPhase = 'PredictionPhase',
+    PlayPhase = 'PlayPhase',
     CalculatingWinner = 'CalculatingWinner'
 }
 
 export enum MessageType {
-    Deal = 'Deal',
-    Join = 'Join',
-    Hand = 'Hand',
-    AllPlayers = 'AllPlayers',
-    PlayCard = 'PlayCard',
-    Error = 'Error',
-    AllScores = 'AllScores',
-    SetJudgement = 'SetJudgement',
-    JoinComplete = 'JoinComplete'
+  Join = 'Join',
+  Hand = 'Hand',
+  PlayCard = 'PlayCard',
+  Error = 'Error',
+  AllScores = 'AllScores',
+  SetJudgement = 'SetJudgement',
+  JoinRoom = 'JoinRoom',
+  CreateRoom = 'CreateRoom',
+  StartGame = 'StartGame',
+  PlayerList = 'PlayerList',
+  PlayerInfo = 'PlayerInfo',
+  GameStateInfo = 'GameStateInfo'
 }
 
 export interface IMessage {
@@ -34,12 +39,15 @@ export interface ErrorMessage extends IMessage {
     code: string;
 }
 
-export interface PlayerInfoMessage extends IMessage {
+export interface PlayerInfoMessageV2 extends IMessage {
     players: PlayerInfo[];
+}
+
+export interface GameStateInfoMessage extends IMessage {
     currentSuit: Suit | null;
     trumpSuit: Suit | null;
     currentPlayerName: string | null;
-    gameState: GameState;
+    gameState: ClientGameState;
 }
 
 export interface PlayerHandMessage extends IMessage {
@@ -66,4 +74,29 @@ export interface JoinCompleteMessage extends IMessage {
     isJoined: boolean;
 }
 
-export type Message = PlayCardMessage | JoinMessage | PlayerHandMessage | PlayerInfoMessage | ErrorMessage | SetJudgementMessage | PlayerScoreMessage | JoinCompleteMessage;
+export interface JoinRoomMessage extends IMessage {
+    name: string;
+    roomCode: string;
+}
+
+export interface CreateRoomMessage extends IMessage {
+    name: string;
+}
+
+export interface PlayerListMessage extends IMessage {
+    roomCode: string;
+    playerList: string[];
+}
+
+export type Message = PlayCardMessage 
+                    | JoinMessage 
+                    | PlayerHandMessage 
+                    | ErrorMessage 
+                    | SetJudgementMessage 
+                    | PlayerScoreMessage 
+                    | JoinCompleteMessage
+                    | JoinRoomMessage
+                    | CreateRoomMessage
+                    | PlayerListMessage
+                    | PlayerInfoMessageV2
+                    | GameStateInfoMessage;

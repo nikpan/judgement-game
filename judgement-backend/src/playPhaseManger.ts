@@ -2,7 +2,7 @@ import { ICard, Suit } from "./card";
 import { IPlayer } from "./player";
 import { HandManager } from "./handManager";
 import { ScoreCardV2 } from "./scorecardV2";
-import { GameStateV2 } from "./roomV2";
+import { GameState } from "./room";
 
 /**
  * PlayPhaseManager - Ensures one round of playing phase is played correctly 
@@ -25,9 +25,9 @@ export class PlayPhaseManager {
   private _scoreCard: ScoreCardV2;
   private _totalHandsToPlay: number;
   private _handsPlayed: number;
-  private _gameState: GameStateV2;
+  private _gameState: GameState;
   private _onPlayPhaseDoneCallback: () => void;
-  constructor(players: IPlayer[], gameState: GameStateV2, scoreCard: ScoreCardV2, onPlayPhaseDoneCallback: () => void) {
+  constructor(players: IPlayer[], gameState: GameState, scoreCard: ScoreCardV2, onPlayPhaseDoneCallback: () => void) {
     this._players = players;
     this._gameState = gameState;
     this._scoreCard = scoreCard;
