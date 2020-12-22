@@ -30,13 +30,9 @@ export class Room {
         };
         this._scoreCard = new ScoreCardV2();
         this._tableManager = new TableManager(this._players, this._gameState, this._scoreCard);
-        this._playerListTimer = setInterval(() => {
-            console.log('playerListTimerFired');
-            this.sendPlayerListMessage();
-        }, 1000);
     }
 
-    private sendPlayerListMessage() {
+    private sendPlayerListMessageToAll() {
         let playerList = [];
         this._players.forEach(player => playerList.push(player.name));
         const playerListMessage: PlayerListMessage = {
@@ -127,6 +123,7 @@ export class Room {
 
     public join(player: IPlayer) {
         this._players.push(player);
+        this.sendPlayerListMessageToAll();
     }
 
     private playerNameByPlayerId(playerId: number) {
