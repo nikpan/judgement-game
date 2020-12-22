@@ -2,11 +2,11 @@ import http from 'http';
 import WebSocket from 'ws';
 import express from 'express';
 import { PendingPlayer } from './pendingPlayer';
+import { RoomManager } from './roomManager';
 
 const app = express();
 const port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
-app.use(express.json());
 
 const server: http.Server = http.createServer(app);
 const wss: WebSocket.Server = new WebSocket.Server({ server });
@@ -26,18 +26,12 @@ app.get('/', (_req, res) => {
   res.send('Hello World! Welcome to Judgement Game Backend!')
 });
 
-app.get('/status', (_req, res) => {
+app.get('/pending-list', (_req, res) => {
   res.send(pendingPlayerList.toString());
 });
 
-app.get('/reset-room', (_req, res) => {
-  res.send('Room reset done!');
-});
-
-app.post('/join-room', (req, res) => {
-  console.debug(req.body);
-  console.log(req.body);
-  res.send('Join Room Request Received');
+app.get('/rooms', (_req, res) => {
+  res.send(RoomManager.getAllRoomInfo());
 });
 
 function normalizePort(val: string) {
