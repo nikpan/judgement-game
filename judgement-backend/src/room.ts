@@ -33,16 +33,20 @@ export class Room {
     }
 
     private sendPlayerListMessageToAll() {
-        let playerList = [];
-        this._players.forEach(player => playerList.push(player.name));
         const playerListMessage: PlayerListMessage = {
             action: MessageType.PlayerList,
             roomCode: this._roomCode,
-            playerList: playerList
+            playerList: this.getPlayerNameList()
         };
         this._players.forEach(player => {
             player.sendMessage(playerListMessage);
         });
+    }
+
+    public getPlayerNameList() {
+        let playerList = [];
+        this._players.forEach(player => playerList.push(player.name));
+        return playerList;
     }
 
     public get scoreCard() {
@@ -65,6 +69,7 @@ export class Room {
             currentSuit: this._gameState.currentSuit,
             trumpSuit: this._gameState.trumpSuit,
             currentPlayerName: this.getCurrentPlayerName(),
+            firstTurnPlayerName: this.getFirstTurnPlayerName(),
             gameState: this._gameState.clientState
         }
         this._players.forEach(clientWs => {
@@ -91,6 +96,15 @@ export class Room {
     private getCurrentPlayerName(): string {
         const currentPlayerId = this.getCurrentPlayerId();
         return this.playerNameByPlayerId(currentPlayerId);
+    }
+
+    private getFirstTurnPlayerId(): number {
+        return this._tableManager.getFirstTurnPlayerId();
+    }
+
+    private getFirstTurnPlayerName(): string {
+        const firstTurnPlayerId = this.getFirstTurnPlayerId();
+        return this.playerNameByPlayerId(firstTurnPlayerId);
     }
 
     public startGame(dealerId: number) {

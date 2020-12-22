@@ -26,6 +26,10 @@ export class TableManager {
         return this._roundManager.getCurrentPlayerId();
     }
 
+    public getFirstTurnPlayerId(): number {
+        return this.nextTurnPlayerId(this._dealerId);
+    }
+
     private _players: IPlayer[];
     private _roundManager: RoundManager;
     private _totalRounds: number;
