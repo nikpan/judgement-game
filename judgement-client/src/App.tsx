@@ -38,7 +38,6 @@ class App extends React.Component<{}, AppState> {
   // private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
   private _judgementText: React.RefObject<ITextField> = React.createRef<ITextField>();
   private _roomCodeText: React.RefObject<ITextField> = React.createRef<ITextField>();
-  listOfPlayers: string[] = ['Tom', 'Dick', 'Harry'];
   constructor(props: any) {
     super(props);
     this.state = {
@@ -74,6 +73,7 @@ class App extends React.Component<{}, AppState> {
   onCreateRoomClick = () => {
     if(this.state.name === '' || this.state.name === null) {
       this.showErrorPopup(`Can't join room! Name empty`);
+      return;
     }
     
     this.closeConnection();
@@ -88,12 +88,13 @@ class App extends React.Component<{}, AppState> {
   }
 
   onJoinRoomClick = () => {
-    if(this._roomCodeText.current === null || this._roomCodeText.current.value === null) {
+    if(this._roomCodeText.current === null || this._roomCodeText.current.value === '') {
       this.showErrorPopup(`Can't join room! Room code empty`);
       return;
     }
     if(this.state.name === '' || this.state.name === null) {
       this.showErrorPopup(`Can't join room! Name empty`);
+      return;
     }
 
     this.closeConnection();
@@ -121,11 +122,19 @@ class App extends React.Component<{}, AppState> {
       console.log('Message from server:');
       console.debug(message);
     };
+    ws.onerror = (msg) => {
+      console.log(msg);
+      this.showErrorPopup(`Can't connect to game server`);
+    }
     //TODO: add a connection timeout
   }
 
   /** Waiting Page */
   onStartGameClick = () => {
+    if(this.state.playerList && this.state.playerList.length < 2) {
+      this.showErrorPopup(`Can't start game with just one player!`);
+      return;
+    }
     this.sendServerMessage({
       action: MessageType.StartGame
     });
