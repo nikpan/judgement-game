@@ -7,6 +7,7 @@ export interface InfoTableProps {
   trumpSuit: Suit;
   currentSuit: Suit | null;
   currentPlayerName: string | null;
+  firstTurnPlayerName: string | null;
   currentGameState: ClientGameState;
 }
 
@@ -16,13 +17,12 @@ export default class InfoTable extends React.Component<InfoTableProps> {
       fontSize: 20
     };
     return (
-      <Stack gap={10} verticalAlign='center'>
+      <Stack horizontal gap={10}>
         <Text style={infoStyles}>Trump Suit {this.suitToUnicode(this.props.trumpSuit)}</Text>
-        {/* <SpecialCard type={this.mapSuitToSpecialCardType(this.state.trumpSuit)} /> */}
         <Text style={infoStyles}>Current Suit {this.suitToUnicode(this.props.currentSuit)}</Text>            
-        {/* <SpecialCard type={this.mapSuitToSpecialCardType(this.state.currentSuit)} /> */}
         <Text style={infoStyles}>Game State? <b>{this.props.currentGameState ? this.props.currentGameState : "None"}</b></Text>
         <Text style={infoStyles}>Who's turn? <b>{this.props.currentPlayerName ? this.props.currentPlayerName : "None"}</b></Text>
+        <Text style={infoStyles}>First turn? <b>{this.props.firstTurnPlayerName ? this.props.firstTurnPlayerName : "None"}</b></Text>
       </Stack>
     )
   }
@@ -41,19 +41,4 @@ export default class InfoTable extends React.Component<InfoTableProps> {
         return <span style={{fontWeight: "bold"}}>Not Set</span>;
     }
   }
-
-  // private mapSuitToSpecialCardType(suit: Suit | null): SpecialCardType {
-  //   switch (suit) {
-  //     case Suit.Clubs:
-  //       return SpecialCardType.ClubsSuit
-  //     case Suit.Hearts:
-  //       return SpecialCardType.HeartsSuit
-  //     case Suit.Diamonds:
-  //       return SpecialCardType.DiamondsSuit
-  //     case Suit.Spades:
-  //       return SpecialCardType.SpadesSuit
-  //     default:
-  //       return SpecialCardType.BlueBack;
-  //   }
-  // }
 }

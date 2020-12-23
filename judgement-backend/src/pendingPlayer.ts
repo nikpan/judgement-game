@@ -1,6 +1,7 @@
 import WebSocket from 'ws';
 import { MessageType, Message, CreateRoomMessage, JoinRoomMessage } from "./message";
 import { Player } from './player';
+import { RoomState } from './room';
 import { RoomManager } from './roomManager';
 
 export class PendingPlayer {
@@ -44,10 +45,18 @@ export class PendingPlayer {
   private handleJoinRoomMessage(message: JoinRoomMessage) {
     try {
       let room = RoomManager.getRoom(message.roomCode);
-      let player = new Player(this.socket, room);
-      player.name = message.name;
-      room.join(player);
-      this._joined = true;
+      if(room.roomState === RoomState.Open) {
+        let player = new Player(this.socket, room);
+        player.name = message.name;
+        room.join(player);
+        this._joined = true;
+      }
+      else if(room.roomState === RoomState.Locked) {
+        this.sendErrorMessage('Failed to Join! Game already started');
+      }
+      else if(room.roomState === RoomState.TempOpen) {
+        room.rejoin(message.name, this.socket);
+      }
     } catch (error) {
       console.log(error);
       this.sendErrorMessage('Failed to Join Room');

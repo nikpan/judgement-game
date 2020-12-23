@@ -24,9 +24,11 @@ export interface AppState {
   cards: ICard[];
   otherPlayers: PlayerInfo[];
   selectedCard: ICard | null;
+  prediction: number | null;
   currentSuit: Suit | null;
   trumpSuit: Suit;
   currentPlayerName: string | null;
+  firstTurnPlayerName: string | null;
   currentGameState: ClientGameState;
   scores: PlayerScore[] | null;
   roomCode: string;
@@ -38,6 +40,8 @@ class App extends React.Component<{}, AppState> {
   // private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
   private _judgementText: React.RefObject<ITextField> = React.createRef<ITextField>();
   private _roomCodeText: React.RefObject<ITextField> = React.createRef<ITextField>();
+  private _retryAttempts: number = 0;
+  private _maxRetryAttempts: number = 5;
   constructor(props: any) {
     super(props);
     this.state = {
@@ -46,9 +50,11 @@ class App extends React.Component<{}, AppState> {
       cards: [],
       otherPlayers: [],
       selectedCard: null,
+      prediction: null,
       currentSuit: null,
       trumpSuit: Suit.Spades,
       currentPlayerName: null,
+      firstTurnPlayerName: null,
       currentGameState: ClientGameState.ChoosingName,
       scores: null,
       roomCode: '',
@@ -68,6 +74,12 @@ class App extends React.Component<{}, AppState> {
 
   onNameTextChange = (event: any) => {
     this.setState({ name: event.target.value });
+  }
+
+  onPredictionTextChange = (event: any) => {
+    let val = event.target.value;
+    let prediction = parseInt(val);
+    this.setState( {prediction: prediction });
   }
 
   onCreateRoomClick = () => {
@@ -114,6 +126,7 @@ class App extends React.Component<{}, AppState> {
     this.setState({ webSocket: ws });
     ws.onopen = () => {
       console.debug('Connection established!');
+      this._retryAttempts = 0;
       this.sendServerMessage(message);
     };
     ws.onmessage = (msg) => {
@@ -124,9 +137,36 @@ class App extends React.Component<{}, AppState> {
     };
     ws.onerror = (msg) => {
       console.log(msg);
-      this.showErrorPopup(`Can't connect to game server`);
+      this.showErrorPopup(`Connection to game server lost. Click OK to retry...`);
+      setTimeout(() => {
+        this.retryConnection();
+      }, 2000); 
+    }
+    ws.onclose = (msg) => {
+      console.log(msg);
+      this.showErrorPopup(`Connection to game server lost. Click OK to retry...`);
+      setTimeout(() => {
+        this.retryConnection();
+      }, 2000); 
     }
     //TODO: add a connection timeout
+  }
+
+  retryConnection() {
+    this._retryAttempts = this._retryAttempts + 1;
+    if(this._retryAttempts >= this._maxRetryAttempts) {
+      this.showErrorPopup(`Can't connect to game server. Giving up!`);
+      this.setState({
+        currentGameState: ClientGameState.ChoosingName
+      });
+      return;
+    }
+    const rejoinMessage = {
+      action: MessageType.JoinRoom,
+      name: this.state.name,
+      roomCode: this.state.roomCode
+    };
+    this.openConnectionAndSendMessage(rejoinMessage);
   }
 
   /** Waiting Page */
@@ -156,15 +196,16 @@ class App extends React.Component<{}, AppState> {
   }
 
   onSetPrediction = () => {
-    if (this._judgementText.current == null) {
+    if (this._judgementText.current == null || this._judgementText.current.value === '') {
+      return;
+    }
+    if(this.state.prediction === null) {
       return;
     }
 
-    let prediction = this._judgementText.current.value;
-    prediction = prediction ? prediction : "";
     this.sendServerMessage({
       action: MessageType.SetJudgement,
-      prediction: parseInt(prediction)
+      prediction: this.state.prediction
     });
 
   }
@@ -194,7 +235,7 @@ class App extends React.Component<{}, AppState> {
   private renderPlayPage(predictionEditable: boolean) {
     return <Stack gap={10} padding={10} >
       <Stack horizontal gap={10}>
-        <TextField contentEditable={predictionEditable} componentRef={this._judgementText} placeholder={'Your Prediction'} />
+        <TextField contentEditable={predictionEditable} value={this.state.prediction ? this.state.prediction.toString() : ''} onChange={this.onPredictionTextChange} componentRef={this._judgementText} placeholder={'Your Prediction'} />
         <Button disabled={!predictionEditable} onClick={this.onSetPrediction}>Set Prediction</Button>
       </Stack>
       <ScoreCard scores={this.state.scores}></ScoreCard>
@@ -318,10 +359,16 @@ class App extends React.Component<{}, AppState> {
   }
 
   private handleGameStateInfoMessage(message: GameStateInfoMessage) {
+    if(this.state.currentGameState !== message.gameState && message.gameState === ClientGameState.PredictionPhase) {
+      this.setState({
+        prediction: null
+      })
+    }
     this.setState({
       trumpSuit: message.trumpSuit!,
       currentSuit: message.currentSuit!,
       currentPlayerName: message.currentPlayerName!,
+      firstTurnPlayerName: message.firstTurnPlayerName!,
       currentGameState: message.gameState
     });
   }

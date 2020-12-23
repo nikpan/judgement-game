@@ -1,5 +1,6 @@
+import WebSocket from 'ws';
 import { Suit, ICard } from "./card";
-import { ClientGameState, GameStateMessage, JoinCompleteMessage, MessageType, PlayerInfoMessageV2, PlayerListMessage, PlayerScoreMessage } from "./message";
+import { ClientGameState, GameStateMessage, MessageType, PlayerInfoMessageV2, PlayerListMessage, PlayerScoreMessage } from "./message";
 import { IPlayer } from "./player";
 import { ScoreCardV2 } from "./scorecardV2";
 import { TableManager } from "./tableManager";
@@ -8,6 +9,12 @@ export interface GameState {
     currentSuit: Suit;
     trumpSuit: Suit;
     clientState: ClientGameState;
+}
+
+export enum RoomState {
+    Locked = 'Locked',
+    Open = 'Open',
+    TempOpen = 'TempOpen'
 }
 
 export class Room {
@@ -19,6 +26,7 @@ export class Room {
     private _updateTimer: NodeJS.Timeout;
     private _timerStartTimestamp: number;
     private _playerListTimer: NodeJS.Timeout;
+    public roomState: RoomState;
 
     constructor(roomCode: string) {
         this._roomCode = roomCode;
@@ -30,6 +38,7 @@ export class Room {
         };
         this._scoreCard = new ScoreCardV2();
         this._tableManager = new TableManager(this._players, this._gameState, this._scoreCard);
+        this.roomState = RoomState.Open;
     }
 
     private sendPlayerListMessageToAll() {
@@ -112,6 +121,7 @@ export class Room {
         this._scoreCard.init(this._players);
         this._tableManager.startGame(dealerId);
         this.sendAllInfo();
+        this.roomState = RoomState.Locked;
     }
 
     private sendAllInfo() {
@@ -132,7 +142,39 @@ export class Room {
 
     public removePlayer(playerId: number) {
         var toRemove = this._players.findIndex(p => p.id === playerId);
-        this._players.splice(toRemove, 1);
+        if(this.roomState === RoomState.Open) {
+            this._players.splice(toRemove, 1);
+        }
+        else {
+            // TODO: set a time limit to wait for the temp removed player
+            this.roomState = RoomState.TempOpen;
+        }
+    }
+
+    public rejoin(playerName: string, socket: WebSocket) {
+        var player = this.getPlayerByName(playerName);
+        if(this.roomState === RoomState.TempOpen && player.socket.readyState === WebSocket.CLOSED) {
+            player.renewSocket(socket);
+        }
+        if(this.allPlayersConnected()) {
+            this.roomState === RoomState.Locked;
+        }
+    }
+
+    private allPlayersConnected() {
+        for (let index = 0; index < this._players.length; index++) {
+            const player = this._players[index];
+            if(player.socket.readyState === WebSocket.CLOSED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private getPlayerByName(playerName: string) {
+        var playerIndex = this._players.findIndex(p => p.name === playerName);
+        var player = this._players[playerIndex];
+        return player;
     }
 
     public join(player: IPlayer) {
@@ -163,19 +205,15 @@ export class Room {
 
     public playerStateUpdated() {
         const currentTimeStamp = Date.now();
-        console.log(`starting timer 3. timer: ${this._updateTimer}, startTimeStamp: ${this._timerStartTimestamp}, currentTimeStamp: ${currentTimeStamp}`);
         if( this._updateTimer && currentTimeStamp - this._timerStartTimestamp < 100) {
             clearTimeout(this._updateTimer);
-            console.log(`starting timer 4. timer: ${this._updateTimer}, startTimeStamp: ${this._timerStartTimestamp}, currentTimeStamp: ${currentTimeStamp}`);
         } 
         this.startTimer();
     }
     
     private startTimer() {
-        console.log('starting timer 1');
         this._timerStartTimestamp = Date.now();
         this._updateTimer = setTimeout(() => {
-            console.log('starting timer 2');
             this.sendAllInfo();
             this._timerStartTimestamp = 0;
             this._updateTimer = null;

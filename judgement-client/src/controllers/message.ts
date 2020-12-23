@@ -47,6 +47,7 @@ export interface GameStateInfoMessage extends IMessage {
     currentSuit: Suit | null;
     trumpSuit: Suit | null;
     currentPlayerName: string | null;
+    firstTurnPlayerName: string | null;
     gameState: ClientGameState;
 }
 

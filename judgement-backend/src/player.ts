@@ -5,7 +5,8 @@ import { Room } from "./room";
 import { getId } from "./util";
 
 export interface IPlayer {
-    dispose();
+    dispose: () => void;
+    renewSocket: (socket:WebSocket) => void;
     id: number;
     socket: WebSocket;
     name: string;
@@ -47,9 +48,28 @@ export class Player implements IPlayer {
         this.id = getId();
         socket.on('message', (message) => {
             try {
-                console.log('PlayerV2');
-                let json = JSON.parse(message.toString());
+                console.log('Player');
                 console.debug(message);
+                let json = JSON.parse(message.toString());
+                this.handleMessage(json);
+            } catch (error) {
+                console.log(`Failed to parse message from client ${message.toString()}. Exception: ${error}`);
+            }
+        });
+
+        socket.on('close', () => {
+            this._room.removePlayer(this.id);
+            console.log(`${this.name} has left`);
+        });
+    }
+
+    public renewSocket(socket: WebSocket) {
+        this.socket = socket;
+        socket.on('message', (message) => {
+            try {
+                console.log('Player');
+                console.debug(message);
+                let json = JSON.parse(message.toString());
                 this.handleMessage(json);
             } catch (error) {
                 console.log(`Failed to parse message from client ${message.toString()}. Exception: ${error}`);
