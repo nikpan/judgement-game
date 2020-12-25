@@ -46,8 +46,8 @@ export class TableManager {
     }
 
     public startGame(dealerId: number) {
-        // this._totalRounds = 52 % this._players.length;
-        this._totalRounds = 4;
+        this._totalRounds = Math.min(Math.floor(52 / this._players.length), 7);
+        // this._totalRounds = 4;
         this._roundsDone = 0;
         this._dealerId = dealerId;
         this._roundManager.startRound(this._dealerId, this.maxHandsInCurrentRound(), this.getCurrentTrumpSuit());
