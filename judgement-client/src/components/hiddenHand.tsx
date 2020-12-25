@@ -27,14 +27,15 @@ export default class HiddenHand extends React.Component<HiddenHandProps> {
       cards.push(<SpecialCard key={i} type={SpecialCardType.BlueBack}/>)
     }
     return (
-      <div>
-        <h2>{this.props.name}'s Hand</h2>
+      <div className='otherPlayerContainer'>
+        <h2 style={{textAlign:'center'}}>{this.props.name}</h2>
         <div className='player'>
-          <div className='playerHand'>
-            {cards}
-          </div>
+          <div style={{display:'flex', flexFlow:'row'}}>
+          <div className='handLeftBuffer'></div>
           <div className='playedCard'>
             {this.selectedCard()}
+          </div>
+          <div className='handRightBuffer'></div>
           </div>
         </div>
       </div>

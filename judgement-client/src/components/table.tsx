@@ -28,13 +28,15 @@ export default class Table extends React.Component<TableProps> {
   render() {
     return (
       <div className='playerTable'>
-        <Hand 
+        <div className='otherPlayersContainer'>
+          {this.renderOtherPlayers()}
+        </div>
+        <Hand
           name={this.props.name}
           cards={this.props.cards}
           selectedCard={this.props.selectedCard} 
           cardSelected={this.props.onCardClick}
         />
-        {this.renderOtherPlayers()}
       </div>
     )
   }

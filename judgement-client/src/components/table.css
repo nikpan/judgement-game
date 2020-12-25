@@ -1,3 +1,8 @@
 .playerTable {
   background-color: forestgreen;
 }
+
+.otherPlayersContainer {
+  display: flex;
+  flex-flow: row;
+}

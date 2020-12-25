@@ -28,9 +28,15 @@ export default class Hand extends React.Component<HandProps> {
     const cards = this.sortCards(this.props.cards);
     return (
       <div>
-        <h2>{this.props.name}'s Hand</h2>
+        <h2 style={{textAlign:'center'}} >{this.props.name}'s Hand</h2>
         <div className='player'>
+          <div className='playedCard'>
+            <div className='handLeftBuffer'></div>
+            {this.selectedCard()}
+            <div className='handRightBuffer'></div>
+          </div>
           <div className='playerHand'>
+            <div className='handLeftBuffer'></div>
             {cards.map((card, i) => 
               <Card
                 key={i}
@@ -39,9 +45,7 @@ export default class Hand extends React.Component<HandProps> {
                 cardSelected={this.cardSelected}
               />
               )}
-          </div>
-          <div className='playedCard'>
-            {this.selectedCard()}
+              <div className='handRightBuffer'></div>
           </div>
         </div>
       </div>

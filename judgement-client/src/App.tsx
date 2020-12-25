@@ -78,7 +78,8 @@ class App extends React.Component<{}, AppState> {
 
   onPredictionTextChange = (event: any) => {
     let val = event.target.value;
-    let prediction = parseInt(val);
+    let prediction: number | null = parseInt(val);
+    prediction = prediction == NaN ? null : prediction; 
     this.setState( {prediction: prediction });
   }
 
@@ -215,7 +216,7 @@ class App extends React.Component<{}, AppState> {
     const showHomePage = currentState === ClientGameState.ChoosingName || currentState === ClientGameState.Joining;
     const showWaitingPage = currentState === ClientGameState.WaitingToStartGame || currentState === ClientGameState.Starting;
     const showPlayPage = currentState === ClientGameState.PredictionPhase || currentState === ClientGameState.PlayPhase || currentState === ClientGameState.CalculatingWinner;
-    const predictionEditable = currentState === ClientGameState.PredictionPhase;
+    const predictionEditable = currentState === ClientGameState.PredictionPhase && this.state.currentPlayerName === this.state.name;
 
     return (
       <div>
@@ -235,7 +236,7 @@ class App extends React.Component<{}, AppState> {
   private renderPlayPage(predictionEditable: boolean) {
     return <Stack gap={10} padding={10} >
       <Stack horizontal gap={10}>
-        <TextField contentEditable={predictionEditable} value={this.state.prediction ? this.state.prediction.toString() : ''} onChange={this.onPredictionTextChange} componentRef={this._judgementText} placeholder={'Your Prediction'} />
+        <TextField contentEditable={predictionEditable} value={this.state.prediction != null ? this.state.prediction.toString() : ''} onChange={this.onPredictionTextChange} componentRef={this._judgementText} placeholder={'Your Prediction'} />
         <Button disabled={!predictionEditable} onClick={this.onSetPrediction}>Set Prediction</Button>
       </Stack>
       <ScoreCard scores={this.state.scores}></ScoreCard>
@@ -348,13 +349,18 @@ class App extends React.Component<{}, AppState> {
 
   private handlePlayerInfoMessageV2(message: PlayerInfoMessageV2) {
     let otherPlayerInfos = message.players;
-    let toRemove = otherPlayerInfos.findIndex((player: {
-      name: string;
-    }) => player.name === this.state.name);
-    let myInfo = otherPlayerInfos.splice(toRemove, 1)[0];
+    let myInfo;
+    while(true) {
+      myInfo = otherPlayerInfos.shift();
+      if(myInfo!.name === this.state.name) {
+        break;
+      }
+      otherPlayerInfos.push(myInfo!);
+    }
+
     this.setState({
       otherPlayers: otherPlayerInfos,
-      selectedCard: myInfo.selectedCard,
+      selectedCard: myInfo!.selectedCard,
     });
   }
 

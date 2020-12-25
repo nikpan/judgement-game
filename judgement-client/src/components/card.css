@@ -1,7 +1,7 @@
 .cardDiv {
-    /* height: 100px; */
     display: inline;
     padding: 0px 2px;
+    text-align: center;
 }
 
 .cardImg {

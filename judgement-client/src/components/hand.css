@@ -1,12 +1,26 @@
 .player {
   display: flex;
-  flex-flow: row;
+  flex-flow: column;
 }
 
 .playerHand {
-  flex-grow: 3;
+  display: flex;
 }
 
 .playedCard {
+  flex-grow: 0;
+  display: flex;
+}
+
+.otherPlayerContainer {
+  flex-grow: 1;
+  padding:5px
+}
+
+.handLeftBuffer {
+  flex-grow: 1;
+}
+
+.handRightBuffer {
   flex-grow: 1;
 }
