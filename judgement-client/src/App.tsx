@@ -17,6 +17,7 @@ import {
   PlayerInfoMessageV2,
   GameStateInfoMessage
 } from './controllers/message';
+import HomePage from './pages/HomePage';
 
 export interface AppState {
   webSocket: WebSocket | null;
@@ -36,10 +37,9 @@ export interface AppState {
 }
 
 class App extends React.Component<{}, AppState> {
-  private static readonly _wsConnectionUrl: string = 'ws://localhost:3001';
-  // private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
+  // private static readonly _wsConnectionUrl: string = 'ws://localhost:3001';
+  private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
   private _judgementText: React.RefObject<ITextField> = React.createRef<ITextField>();
-  private _roomCodeText: React.RefObject<ITextField> = React.createRef<ITextField>();
   private _retryAttempts: number = 0;
   private _maxRetryAttempts: number = 5;
   constructor(props: any) {
@@ -72,27 +72,22 @@ class App extends React.Component<{}, AppState> {
     }
   }
 
-  onNameTextChange = (event: any) => {
-    this.setState({ name: event.target.value });
-  }
-
   onPredictionTextChange = (event: any) => {
     let val = event.target.value;
     let prediction: number | null = parseInt(val);
-    prediction = prediction == NaN ? null : prediction; 
+    console.log(prediction);
+    prediction = isNaN(prediction) ? null : prediction; 
     this.setState( {prediction: prediction });
   }
 
-  onCreateRoomClick = () => {
-    if(this.state.name === '' || this.state.name === null) {
-      this.showErrorPopup(`Can't join room! Name empty`);
-      return;
-    }
-    
+  onCreateRoomClick = (name: string) => {
+    this.setState({
+      name: name
+    })
     this.closeConnection();
     const createRoomMessage = {
       action: MessageType.CreateRoom,
-      name: this.state.name
+      name: name
     };
     this.openConnectionAndSendMessage(createRoomMessage);
     this.setState({
@@ -100,21 +95,16 @@ class App extends React.Component<{}, AppState> {
     });
   }
 
-  onJoinRoomClick = () => {
-    if(this._roomCodeText.current === null || this._roomCodeText.current.value === '') {
-      this.showErrorPopup(`Can't join room! Room code empty`);
-      return;
-    }
-    if(this.state.name === '' || this.state.name === null) {
-      this.showErrorPopup(`Can't join room! Name empty`);
-      return;
-    }
-
+  onJoinRoomClick = (name: string, roomCode: string) => {
+    this.setState({
+      name: name,
+      roomCode: roomCode
+    });
     this.closeConnection();
     const joinMessage = {
       action: MessageType.JoinRoom,
-      name: this.state.name,
-      roomCode: this._roomCodeText.current.value
+      name: name,
+      roomCode: roomCode
     };
     this.openConnectionAndSendMessage(joinMessage);
     this.setState({
@@ -260,25 +250,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   private renderHomePage() {
-    return <Stack gap={10} padding={10} maxWidth={300}>
-      <Stack.Item align='stretch'>
-        <Stack horizontal grow gap={10}>
-          <Label>Name</Label>
-          <TextField value={this.state.name} onChange={this.onNameTextChange} placeholder='Your Name' />
-        </Stack>
-      </Stack.Item>
-      <Stack.Item align='stretch'>
-        <Stack>
-          <Button onClick={this.onCreateRoomClick}>Create Room</Button>
-        </Stack>
-      </Stack.Item>
-      <Stack.Item align='stretch'>
-        <Stack horizontal gap={10}>
-          <TextField componentRef={this._roomCodeText} placeholder='Room Code' />
-          <Button onClick={this.onJoinRoomClick}>Join Room</Button>
-        </Stack>
-      </Stack.Item>
-    </Stack>;
+    return <HomePage onCreateRoomClick={this.onCreateRoomClick} onJoinRoomClick={this.onJoinRoomClick} />;
   }
 
   /** Common functions */
