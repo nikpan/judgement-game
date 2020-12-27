@@ -1,11 +1,10 @@
 import { PrimaryButton as Button, ITextField, Label, Stack, TextField } from "office-ui-fabric-react";
 import React from "react";
-import { Utils } from "../components/utils/utils";
+import { Utils } from "../utils/utils";
 
 export interface HomePageProps {
   onCreateRoomClick: (name:string) => void;
   onJoinRoomClick: (name:string, roomCode:string) => void;
-
 }
 
 export default class HomePage extends React.Component<HomePageProps> {

@@ -1,10 +1,7 @@
 import React from 'react';
 import './App.css';
 import { ICard, Rank, Suit } from './components/card';
-import { TextField, PrimaryButton as Button, Stack, ITextField, Label } from 'office-ui-fabric-react';
-import ScoreCard, { PlayerScore } from './components/scorecard';
-import InfoTable from './components/infoTable';
-import Table from './components/table';
+import { PlayerScore } from './components/scorecard';
 import {
   Message,
   MessageType,
@@ -19,7 +16,8 @@ import {
 } from './controllers/message';
 import HomePage from './pages/HomePage';
 import WaitingPage from './pages/WaitingPage';
-import { Utils } from './components/utils/utils';
+import { Utils } from './utils/utils';
+import PlayPage from './pages/PlayPage';
 
 export interface AppState {
   webSocket: WebSocket | null;
@@ -39,9 +37,8 @@ export interface AppState {
 }
 
 class App extends React.Component<{}, AppState> {
-  // private static readonly _wsConnectionUrl: string = 'ws://localhost:3001';
-  private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
-  private _judgementText: React.RefObject<ITextField> = React.createRef<ITextField>();
+  private static readonly _wsConnectionUrl: string = 'ws://localhost:3001';
+  // private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
   private _retryAttempts: number = 0;
   private _maxRetryAttempts: number = 5;
   constructor(props: any) {
@@ -184,19 +181,14 @@ class App extends React.Component<{}, AppState> {
     });
   }
 
-  onSetPrediction = () => {
-    if (this._judgementText.current == null || this._judgementText.current.value === '') {
-      return;
-    }
-    if(this.state.prediction === null) {
-      return;
-    }
-
+  onSetPrediction = (prediction: number) => {
+    this.setState({
+      prediction: prediction
+    });
     this.sendServerMessage({
       action: MessageType.SetJudgement,
-      prediction: this.state.prediction
+      prediction: prediction
     });
-
   }
 
   render = () => {
@@ -222,19 +214,11 @@ class App extends React.Component<{}, AppState> {
   }
 
   private renderPlayPage(predictionEditable: boolean) {
-    return <Stack gap={10} padding={10} >
-      <Stack horizontal gap={10}>
-        <TextField contentEditable={predictionEditable} value={this.state.prediction != null ? this.state.prediction.toString() : ''} onChange={this.onPredictionTextChange} componentRef={this._judgementText} placeholder={'Your Prediction'} />
-        <Button disabled={!predictionEditable} onClick={this.onSetPrediction}>Set Prediction</Button>
-      </Stack>
-      <ScoreCard scores={this.state.scores}></ScoreCard>
-      <InfoTable {...this.state} />
-      <Table {...this.state} onCardClick={this.onCardClick} />
-    </Stack>;
+    return <PlayPage onCardClick={this.onCardClick} onSetPrediction={this.onSetPrediction} scores={this.state.scores} predictionEditable={predictionEditable} {...this.state}/>;
   }
 
   private renderWaitingPage() {
-    return <WaitingPage roomCode={this.state.roomCode} playerList={this.state.playerList} onStartGameClick={this.onStartGameClick} />
+    return <WaitingPage roomCode={this.state.roomCode} playerList={this.state.playerList} onStartGameClick={this.onStartGameClick} />;
   }
 
   private renderHomePage() {

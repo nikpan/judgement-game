@@ -1,7 +1,7 @@
 import React from 'react';
-import { ICard, Rank, Suit } from './components/card';
-import Table, { TableProps } from './components/table';
-import { PlayerInfo } from './controllers/message';
+import { ICard, Rank, Suit } from '../components/card';
+import Table, { TableProps } from '../components/table';
+import { PlayerInfo } from '../controllers/message';
 
 class TableTest extends React.Component<{}, {}> {
   constructor(props: any) {

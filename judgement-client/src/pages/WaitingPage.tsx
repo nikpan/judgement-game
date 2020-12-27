@@ -1,6 +1,6 @@
 import { PrimaryButton as Button, Label, Stack } from 'office-ui-fabric-react';
 import React from 'react';
-import { Utils } from '../components/utils/utils';
+import { Utils } from '../utils/utils';
 
 export interface WaitingPageProps {
   roomCode: string;
