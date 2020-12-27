@@ -1,8 +1,10 @@
-import { PrimaryButton as Button, Label, Stack } from 'office-ui-fabric-react';
+import { PrimaryButton as Button, Label, Stack, TextField } from 'office-ui-fabric-react';
 import React from 'react';
+import getImageSrc from '../components/imgLoader';
 import { Utils } from '../utils/utils';
 
 export interface WaitingPageProps {
+  name: string;
   roomCode: string;
   playerList: string[];
   onStartGameClick: () => void;
@@ -14,17 +16,51 @@ export default class WaitingPage extends React.Component<WaitingPageProps> {
   }
 
   render = () => {
-    return <Stack gap={10} padding={10} maxWidth={300}>
-      <Stack horizontal gap={10}>
-        <Label>Room Code: {this.props.roomCode}</Label>
-      </Stack>
-      <Stack horizontal gap={10}>
-        <Label>Players: {this.props.playerList.toString()}</Label>
-      </Stack>
-      <Stack horizontal gap={10}>
-        <Button onClick={this.onStartGameClick}>Start Game</Button>
-      </Stack>
-    </Stack>;
+    return (
+      <>
+        <div className='jHomeHeader'>
+          <span style={{ fontSize: '50px', fontWeight: 'bold' }}>THE</span>
+          <br />
+          <span style={{ fontSize: '75px', fontWeight: 'bold' }}>JUDGEMENT</span>
+          <br />
+          <span style={{ fontSize: '50px', fontWeight: 'bold' }}>GAME</span>
+          <br />
+          <img
+            src={getImageSrc('AS')}
+            className="cardImg"
+            alt="cardImage"
+            style={{
+              height: '75%',
+              width: '70%',
+              position: 'relative',
+              left: 200,
+              top: -50,
+              overflow: 'hidden'
+            }}
+          />
+        </div>
+        <div className='jHomeContainer'>
+          <div className='jRowItem'>
+            <TextField contentEditable={'false'} value={this.props.name} className='jTextField' />
+          </div>
+          <div className='jRowItem'>
+            <div style={{ display: 'flex' }}>
+              <div style={{ flexGrow: 1, paddingRight: 10 }}>
+                <TextField contentEditable={'false'} value={`Code: ${this.props.roomCode}`} className='jTextField' />
+              </div>
+              <div style={{ flexGrow: 1 }}>
+                <button className='jButton'>Share</button>
+              </div>
+            </div>
+          </div>
+          <div className='jRowItem'>
+            <div>
+              <button onClick={this.onStartGameClick} className='jButton'>Start Game</button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
   }
 
   onStartGameClick = () => {
