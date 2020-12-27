@@ -1,6 +1,8 @@
-import { PrimaryButton as Button, ITextField, Label, Stack, TextField } from "office-ui-fabric-react";
+import { PrimaryButton as Button, ITextField, Label, Stack, TextField, StackItem, FontWeights } from "office-ui-fabric-react";
 import React from "react";
+import './HomePage.css';
 import { Utils } from "../utils/utils";
+import getImageSrc from "../components/imgLoader";
 
 export interface HomePageProps {
   onCreateRoomClick: (name:string) => void;
@@ -17,25 +19,69 @@ export default class HomePage extends React.Component<HomePageProps> {
 
   render = () => {
     return (
-      <Stack gap={10} padding={10} maxWidth={300}>
-      <Stack.Item align='stretch'>
-        <Stack horizontal grow gap={10}>
-          <Label>Name</Label>
-          <TextField componentRef={this._nameText} placeholder='Your Name' />
-        </Stack>
-      </Stack.Item>
-      <Stack.Item align='stretch'>
-        <Stack>
-          <Button onClick={this.onCreateRoomClick}>Create Room</Button>
-        </Stack>
-      </Stack.Item>
-      <Stack.Item align='stretch'>
-        <Stack horizontal gap={10}>
-          <TextField componentRef={this._roomCodeText} placeholder='Room Code' />
-          <Button onClick={this.onJoinRoomClick}>Join Room</Button>
-        </Stack>
-      </Stack.Item>
-    </Stack>
+      <>
+      <div className='jHomeHeader'>
+        <span style={{fontSize:'50px', fontWeight:'bold'}}>THE</span>
+        <br />
+        <span style={{fontSize:'75px', fontWeight:'bold'}}>JUDGEMENT</span>
+        <br/> 
+        <span style={{fontSize:'50px', fontWeight:'bold'}}>GAME</span>
+        <br/>
+        <img 
+            src={getImageSrc('AS')} 
+            className="cardImg" 
+            alt="cardImage"
+            style={{
+              height:'75%',
+              width:'70%',
+              position:'relative',
+              left:200,
+              top:-50,
+              overflow:'hidden'
+            }} 
+          />
+      </div>
+      {/* <Stack gap={10} padding={20} className='jHomeContainer'>
+        <Stack.Item align='stretch' className='jRowItem'>
+            <TextField componentRef={this._nameText} placeholder='Your Name' className='jTextField' />
+        </Stack.Item>
+        <Stack.Item align='stretch' className='jRowItem'>
+          <Stack>
+            <Button onClick={this.onCreateRoomClick} className='jButton'>Create Room</Button>
+          </Stack>
+        </Stack.Item>
+        <Stack.Item align='stretch' className='jRowItem'>
+          <Stack horizontal gap={10} grow >
+            <Stack.Item grow='inherit'>
+              <TextField componentRef={this._roomCodeText} placeholder='Room Code' className='jTextField' />
+            </Stack.Item>
+            <Stack.Item grow='inherit' align='stretch'>
+              <Button onClick={this.onJoinRoomClick} className='jButton'>Join Room</Button>
+            </Stack.Item>
+          </Stack>
+        </Stack.Item>
+      </Stack> */}
+      <div className='jHomeContainer'>
+        <div className='jRowItem'>
+            <TextField componentRef={this._nameText} placeholder='Your Name' className='jTextField' />
+        </div>
+        <div className='jRowItem'>
+          <div>
+            <button onClick={this.onCreateRoomClick} className='jButton'>Create Room</button>
+          </div>
+        </div>
+        <div className='jRowItem'>
+          <div style={{display:'flex'}}>
+            <div style={{flexGrow:1, paddingRight: 10}}>
+              <TextField componentRef={this._roomCodeText} placeholder='Room Code' className='jTextField' />
+            </div>
+            <div style={{flexGrow:1}}>
+              <button onClick={this.onJoinRoomClick} className='jButton'>Join Room</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </>
     );
   }
 
