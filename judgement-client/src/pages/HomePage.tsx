@@ -42,7 +42,7 @@ export default class HomePage extends React.Component<HomePageProps> {
 
   onCreateRoomClick = () => {
     if(this._nameText.current === null || Utils.IsNullOrUndefined(this._nameText.current.value)) {
-      this.showErrorPopup(`Can't create room! Name empty`);
+      Utils.showErrorPopup(`Can't create room! Name empty`);
       return;
     }
 
@@ -52,11 +52,11 @@ export default class HomePage extends React.Component<HomePageProps> {
 
   onJoinRoomClick = () => {
     if(this._roomCodeText.current === null || Utils.IsNullOrUndefined(this._roomCodeText.current.value)) {
-      this.showErrorPopup(`Can't join room! Room code empty`);
+      Utils.showErrorPopup(`Can't join room! Room code empty`);
       return;
     }
     if(this._nameText.current === null || Utils.IsNullOrUndefined(this._nameText.current.value)) {
-      this.showErrorPopup(`Can't join room! Name empty`);
+      Utils.showErrorPopup(`Can't join room! Name empty`);
       return;
     }
 
@@ -64,9 +64,5 @@ export default class HomePage extends React.Component<HomePageProps> {
     const roomCode = this._roomCodeText.current.value!;
 
     this.props.onJoinRoomClick(name, roomCode);
-  }
-
-  showErrorPopup= (errMessage: string) => {
-    alert(errMessage);
   }
 }

@@ -18,6 +18,8 @@ import {
   GameStateInfoMessage
 } from './controllers/message';
 import HomePage from './pages/HomePage';
+import WaitingPage from './pages/WaitingPage';
+import { Utils } from './components/utils/utils';
 
 export interface AppState {
   webSocket: WebSocket | null;
@@ -128,14 +130,14 @@ class App extends React.Component<{}, AppState> {
     };
     ws.onerror = (msg) => {
       console.log(msg);
-      this.showErrorPopup(`Connection to game server lost. Click OK to retry...`);
+      Utils.showErrorPopup(`Connection to game server lost. Click OK to retry...`);
       setTimeout(() => {
         this.retryConnection();
       }, 2000); 
     }
     ws.onclose = (msg) => {
       console.log(msg);
-      this.showErrorPopup(`Connection to game server lost. Click OK to retry...`);
+      Utils.showErrorPopup(`Connection to game server lost. Click OK to retry...`);
       setTimeout(() => {
         this.retryConnection();
       }, 2000); 
@@ -146,7 +148,7 @@ class App extends React.Component<{}, AppState> {
   retryConnection() {
     this._retryAttempts = this._retryAttempts + 1;
     if(this._retryAttempts >= this._maxRetryAttempts) {
-      this.showErrorPopup(`Can't connect to game server. Giving up!`);
+      Utils.showErrorPopup(`Can't connect to game server. Giving up!`);
       this.setState({
         currentGameState: ClientGameState.ChoosingName
       });
@@ -162,10 +164,6 @@ class App extends React.Component<{}, AppState> {
 
   /** Waiting Page */
   onStartGameClick = () => {
-    if(this.state.playerList && this.state.playerList.length < 2) {
-      this.showErrorPopup(`Can't start game with just one player!`);
-      return;
-    }
     this.sendServerMessage({
       action: MessageType.StartGame
     });
@@ -236,17 +234,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   private renderWaitingPage() {
-    return <Stack gap={10} padding={10} maxWidth={300}>
-      <Stack horizontal gap={10}>
-        <Label>Room Code: {this.state.roomCode}</Label>
-      </Stack>
-      <Stack horizontal gap={10}>
-        <Label>Players: {this.state.playerList.toString()}</Label>
-      </Stack>
-      <Stack horizontal gap={10}>
-        <Button onClick={this.onStartGameClick}>Start Game</Button>
-      </Stack>
-    </Stack>;
+    return <WaitingPage roomCode={this.state.roomCode} playerList={this.state.playerList} onStartGameClick={this.onStartGameClick} />
   }
 
   private renderHomePage() {
@@ -256,16 +244,12 @@ class App extends React.Component<{}, AppState> {
   /** Common functions */
   private sendServerMessage(message: any) {
     if (this.state.webSocket == null) {
-      this.showErrorPopup(`Error: Can't send message because websocket is null`);
+      Utils.showErrorPopup(`Error: Can't send message because websocket is null`);
       return;
     }
     console.log('Sending Message');
     console.debug(message);
     this.state.webSocket.send(JSON.stringify(message));
-  }
-
-  private showErrorPopup(errorMessage: string) {
-    alert(errorMessage);
   }
 
   private handleServerMessage(msgData: Message) {
@@ -307,7 +291,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   private handleErrorMessage(message: ErrorMessage) {
-    this.showErrorPopup(`Error: ${message.code}`);
+    Utils.showErrorPopup(`Error: ${message.code}`);
   }
 
   private handlePlayerListMessage(message: PlayerListMessage) {
