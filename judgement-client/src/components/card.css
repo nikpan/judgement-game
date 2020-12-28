@@ -4,6 +4,13 @@
     text-align: center;
 }
 
+.specialCardDiv {
+    display: inline;
+    padding: 0px 2px;
+    text-align: center;
+    width: 20px;
+}
+
 .cardImg {
     height: 100px;
 }

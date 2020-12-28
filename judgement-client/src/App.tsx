@@ -37,8 +37,8 @@ export interface AppState {
 }
 
 class App extends React.Component<{}, AppState> {
-  // private static readonly _wsConnectionUrl: string = 'ws://localhost:3001';
-  private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
+  private static readonly _wsConnectionUrl: string = 'ws://localhost:3001';
+  // private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
   private _retryAttempts: number = 0;
   private _maxRetryAttempts: number = 5;
   constructor(props: any) {
@@ -200,9 +200,6 @@ class App extends React.Component<{}, AppState> {
 
     return (
       <div>
-        <h1>
-          Judgement Game {this.state.name ? `- ${this.state.name}` : ''}
-        </h1>
         {/* Home Page */}
         {showHomePage ? this.renderHomePage() : <></>}
         {/* Waiting Page */}

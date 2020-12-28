@@ -11,31 +11,39 @@ export interface HiddenHandProps {
 
 export default class HiddenHand extends React.Component<HiddenHandProps> {
   selectedCard = () => {
-    if (this.props.selectedCard) return (
-      <Card 
-        suit={this.props.selectedCard.suit} 
-        rank={this.props.selectedCard.rank} 
-      />
-    )
-    return null;
+    if (this.props.selectedCard) {
+      return (
+        <Card
+          suit={this.props.selectedCard.suit}
+          rank={this.props.selectedCard.rank}
+        />
+      )
+    }
+    else {
+      return (
+        <div style={{height:100, width:65, border:'1px black solid', borderRadius:5}}></div>
+      );
+    };
   }
 
   render() {
     const cardCount = this.props.cardCount;
     let cards = [];
     for (let i = 0; i < cardCount; i++) {
-      cards.push(<SpecialCard key={i} type={SpecialCardType.BlueBack}/>)
+      cards.push(<SpecialCard key={i} type={SpecialCardType.BlueBack} />)
     }
     return (
       <div className='otherPlayerContainer'>
-        <h2 style={{textAlign:'center'}}>{this.props.name}</h2>
+        <h2 style={{ textAlign: 'center' }}>{this.props.name}</h2>
         <div className='player'>
-          <div style={{display:'flex', flexFlow:'row'}}>
-          <div className='handLeftBuffer'></div>
-          <div className='playedCard'>
+          <div className='playerHand hiddenHand'>
+            <div className='handLeftBuffer'></div>
+            <div style={{display:'flex'}}>{cards}</div>
+            <div className='handRightBuffer'></div>
+          </div><div className='playedCard'>
+            <div className='handLeftBuffer'></div>
             {this.selectedCard()}
-          </div>
-          <div className='handRightBuffer'></div>
+            <div className='handRightBuffer'></div>
           </div>
         </div>
       </div>

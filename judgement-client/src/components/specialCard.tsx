@@ -17,7 +17,7 @@ export interface SpecialCardProps {
 export default class SpecialCard extends React.Component<SpecialCardProps> {
   render() {
     return (
-      <div className="cardDiv">
+      <div className="specialCardDiv">
         <img src={getImageSrc(this.props.type)} className='cardImg' alt='card back' /></div>
     )
   }

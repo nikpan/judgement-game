@@ -1,11 +1,11 @@
-import { Stack, TextField, PrimaryButton as Button, ITextField } from 'office-ui-fabric-react';
+import { Stack } from 'office-ui-fabric-react';
 import React from 'react';
 import { Suit, Rank, ICard } from '../components/card';
 import InfoTable from '../components/infoTable';
 import ScoreCard, { PlayerScore } from '../components/scorecard';
 import Table from '../components/table';
-import { Utils } from '../utils/utils';
 import { ClientGameState, PlayerInfo } from '../controllers/message';
+import PredictionSelector from '../components/predictionSelector';
 
 export interface PlayPageProps {
   predictionEditable: boolean;
@@ -24,37 +24,30 @@ export interface PlayPageProps {
 }
 
 export default class PlayPage extends React.Component<PlayPageProps> {
-  private _judgementText: React.RefObject<ITextField> = React.createRef<ITextField>();
-  
   constructor(props: any) {
     super(props);
   }
 
   render = () => {
     return (
-      <Stack gap={10} padding={10} >
-      <Stack horizontal gap={10}>
-        <TextField contentEditable={this.props.predictionEditable} componentRef={this._judgementText} placeholder={'Your Prediction'} />
-        <Button disabled={!this.props.predictionEditable} onClick={this.onSetPrediction}>Set Prediction</Button>
-      </Stack>
-      <ScoreCard scores={this.props.scores}></ScoreCard>
-      <InfoTable {...this.props} />
+    <Stack gap={10} padding={10} >
+      <div style={{padding:10}} className='jHomeHeader'>
+        <span style={{fontSize:'25px', fontWeight:'bold'}}>THE</span>
+        <br />
+        <span style={{fontSize:'35px', fontWeight:'bold'}}>JUDGEMENT</span>
+        <br/> 
+        <span style={{fontSize:'25px', fontWeight:'bold'}}>GAME</span>
+        <br/>
+      </div>
       <Table {...this.props} onCardClick={this.onCardClick} />
+      <InfoTable {...this.props} />
+      <PredictionSelector maxCount={7} onSetPrediction={this.onSetPrediction}></PredictionSelector>
+      <ScoreCard scores={this.props.scores}></ScoreCard>
     </Stack>
     )
   }
 
-  onSetPrediction = () => {
-    if (this._judgementText.current == null || Utils.IsNullOrUndefined(this._judgementText.current.value)) {
-      Utils.showErrorPopup(`Prediction can't be empty`);
-      return;
-    }
-    const prediction = parseInt(this._judgementText.current.value!);
-    if(isNaN(prediction)) {
-      Utils.showErrorPopup(`Prediction has to be a number`);
-      return;
-    }
-
+  onSetPrediction = (prediction: number) => {
     this.props.onSetPrediction(prediction);
   }
 

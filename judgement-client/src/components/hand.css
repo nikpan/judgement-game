@@ -7,6 +7,10 @@
   display: flex;
 }
 
+.hiddenHand {
+  padding-right: 45px;
+}
+
 .playedCard {
   flex-grow: 0;
   display: flex;

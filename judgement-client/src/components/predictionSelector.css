@@ -1,0 +1,38 @@
+.jPillButton {
+  /* border-radius: 10px; */
+  height: 70px;
+  margin-right: 10px;
+  /* border: 0; */
+  background:none;
+  outline:none;
+  color: black;
+  border: none;
+}
+
+.jActive {
+  background-color: peachpuff;
+  color: black;
+}
+
+.jPillButton:active, .jPillButton:focus .jPillButton:hover {
+  outline: none;
+}
+
+/* .jPillButton:hover {
+  background-color: whitesmoke;
+  color:black;
+} */
+
+.jPredSelectorContainer {
+  background-color: white;
+  border-radius: 50px;
+  border: 1px;
+  padding: 25px;
+  font-family: 'Segoe UI';
+}
+
+.jPredSelectorInner {
+  margin-top: 10px;
+  display: flex;
+  flex-flow: row;
+}

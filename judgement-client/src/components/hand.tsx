@@ -15,20 +15,26 @@ export default class Hand extends React.Component<HandProps> {
   };
   
   selectedCard = () => {
-    if (this.props.selectedCard) return (
-      <Card
-        suit={this.props.selectedCard.suit}
-        rank={this.props.selectedCard.rank}
-      />
-    )
-    return null;
+    if (this.props.selectedCard) {
+      return (
+        <Card
+          suit={this.props.selectedCard.suit}
+          rank={this.props.selectedCard.rank}
+        />
+      )
+    }
+    else {
+      return (
+        <div style={{height:100, width:65, paddingBottom:5, border:'1px black solid', borderRadius:5}}></div>
+      );
+    }
   }
 
   render() {
     const cards = this.sortCards(this.props.cards);
     return (
       <div>
-        <h2 style={{textAlign:'center'}} >{this.props.name}'s Hand</h2>
+        <h2 style={{textAlign:'center'}} >{this.props.name}</h2>
         <div className='player'>
           <div className='playedCard'>
             <div className='handLeftBuffer'></div>

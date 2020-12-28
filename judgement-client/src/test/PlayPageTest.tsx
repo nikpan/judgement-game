@@ -23,6 +23,10 @@ export default class PlayPageTest extends React.Component<{},{}> {
       {name: 'Jai', cardCount: 3, selectedCard: selectedCard},
       {name: 'Viru', cardCount: 3, selectedCard: null},
       {name: 'Basanti', cardCount: 3, selectedCard: null},
+      {name: 'Thakur', cardCount: 3, selectedCard: null},
+      {name: 'Samba', cardCount: 3, selectedCard: null},
+      {name: 'Ramlal', cardCount: 3, selectedCard: null},
+
     ];
     const roomCode = '12345';
     const playerList = ['Jai', 'Viru', 'Gabbar', 'Basanti']
@@ -44,7 +48,7 @@ export default class PlayPageTest extends React.Component<{},{}> {
     );
   }
 
-  dummyMethod = () => {
-
+  dummyMethod = (...args: any) => {
+    console.debug(args);
   }
 }
