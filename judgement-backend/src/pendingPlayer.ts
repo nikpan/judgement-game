@@ -56,6 +56,7 @@ export class PendingPlayer {
       }
       else if(room.roomState === RoomState.TempOpen) {
         room.rejoin(message.name, this.socket);
+        this._joined = true;
       }
     } catch (error) {
       console.log(error);

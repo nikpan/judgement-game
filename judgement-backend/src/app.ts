@@ -34,6 +34,11 @@ app.get('/rooms', (_req, res) => {
   res.send(RoomManager.getAllRoomInfo());
 });
 
+app.get('/delete-rooms', (_req, res) => {
+  RoomManager.deleteAllRooms();
+  res.send('Rooms deleted');
+});
+
 function normalizePort(val: string) {
   var port = parseInt(val, 10);
   if (isNaN(port)) {

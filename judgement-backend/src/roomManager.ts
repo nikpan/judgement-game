@@ -25,6 +25,8 @@ export class RoomManager {
           if (currentTime - roomInitTime > 3600000) {
             // 1 hour 
             room.dispose();
+            this.roomInitTimeMap.delete(roomCode);
+            this.roomMap.delete(roomCode);
           }
         }
       });
@@ -41,6 +43,14 @@ export class RoomManager {
       result += `Room Code: ${roomCode}. Players: ${room.getPlayerNameList().toString()} \n` ;
     });
     return result;
+  }
+
+  public static deleteAllRooms() {
+    this.roomMap.forEach((room, roomCode) => {
+      room.dispose();
+      this.roomInitTimeMap.delete(roomCode);
+      this.roomMap.delete(roomCode);
+    })
   }
 
   private static getNewCode(): string {

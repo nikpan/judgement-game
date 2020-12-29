@@ -91,7 +91,7 @@ export class Player implements IPlayer {
             this.handleJoinMessage(message);
         }
         if (message.action === MessageType.StartGame) {
-            this._room.startGame(this.id);
+            this.handleStartGameMessage();
         }
         if (message.action === MessageType.PlayCard) {
             this.handlePlayCardMessage(message);
@@ -101,13 +101,22 @@ export class Player implements IPlayer {
         }
     }
 
+    private handleStartGameMessage() {
+        try {
+            this._room.startGame(this.id);
+        } catch (e) {
+            console.debug(e);
+            this.sendErrorMessage(e.message);
+        }
+    }
+
     private handleSetJudgement(message: SetJudgementMessage) {
         try {
             this._room.setJudgement(this.id, message.prediction);
         }
         catch (e) {
             console.debug(e);
-            this.sendErrorMessage(e.message);
+            this.sendErrorMessage(`Couldn't Start Game: ${e.message}`);
         }
     }
 
@@ -128,9 +137,14 @@ export class Player implements IPlayer {
     }
 
     private handleJoinMessage(message: JoinMessage) {
-        this.name = message.name;
-        this.hand = [];
-        this._room.join(this);
+        try {
+            this.name = message.name;
+            this.hand = [];
+            this._room.join(this);
+        } catch (e) {
+            console.debug(e);
+            this.sendErrorMessage(`Couldn't Join: ${e.message}`);
+        }
     }
 
     private cardInHand(playedCard: ICard): boolean {
