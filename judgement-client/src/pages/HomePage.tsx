@@ -7,6 +7,7 @@ import getImageSrc from "../components/imgLoader";
 export interface HomePageProps {
   onCreateRoomClick: (name:string) => void;
   onJoinRoomClick: (name:string, roomCode:string) => void;
+  showErrorPopup: (message: string) => void;
 }
 
 export default class HomePage extends React.Component<HomePageProps> {
@@ -41,26 +42,6 @@ export default class HomePage extends React.Component<HomePageProps> {
             }} 
           />
       </div>
-      {/* <Stack gap={10} padding={20} className='jHomeContainer'>
-        <Stack.Item align='stretch' className='jRowItem'>
-            <TextField componentRef={this._nameText} placeholder='Your Name' className='jTextField' />
-        </Stack.Item>
-        <Stack.Item align='stretch' className='jRowItem'>
-          <Stack>
-            <Button onClick={this.onCreateRoomClick} className='jButton'>Create Room</Button>
-          </Stack>
-        </Stack.Item>
-        <Stack.Item align='stretch' className='jRowItem'>
-          <Stack horizontal gap={10} grow >
-            <Stack.Item grow='inherit'>
-              <TextField componentRef={this._roomCodeText} placeholder='Room Code' className='jTextField' />
-            </Stack.Item>
-            <Stack.Item grow='inherit' align='stretch'>
-              <Button onClick={this.onJoinRoomClick} className='jButton'>Join Room</Button>
-            </Stack.Item>
-          </Stack>
-        </Stack.Item>
-      </Stack> */}
       <div className='jHomeContainer'>
         <div className='jRowItem'>
             <TextField componentRef={this._nameText} placeholder='Your Name' className='jTextField' />
@@ -87,7 +68,7 @@ export default class HomePage extends React.Component<HomePageProps> {
 
   onCreateRoomClick = () => {
     if(this._nameText.current === null || Utils.IsNullOrUndefined(this._nameText.current.value)) {
-      Utils.showErrorPopup(`Can't create room! Name empty`);
+      this.props.showErrorPopup(`Can't create room! Name empty`);
       return;
     }
 
@@ -97,11 +78,11 @@ export default class HomePage extends React.Component<HomePageProps> {
 
   onJoinRoomClick = () => {
     if(this._roomCodeText.current === null || Utils.IsNullOrUndefined(this._roomCodeText.current.value)) {
-      Utils.showErrorPopup(`Can't join room! Room code empty`);
+      this.props.showErrorPopup(`Can't join room! Room code empty`);
       return;
     }
     if(this._nameText.current === null || Utils.IsNullOrUndefined(this._nameText.current.value)) {
-      Utils.showErrorPopup(`Can't join room! Name empty`);
+      this.props.showErrorPopup(`Can't join room! Name empty`);
       return;
     }
 

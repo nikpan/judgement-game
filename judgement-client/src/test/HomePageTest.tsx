@@ -8,11 +8,17 @@ export default class HomePageTest extends React.Component<{},{}> {
 
   render = () => {
     return (
-      <HomePage onCreateRoomClick={this.dummyMethod} onJoinRoomClick={this.dummyMethod} />
+      <HomePage 
+        onCreateRoomClick={this.dummyMethod} 
+        onJoinRoomClick={this.dummyMethod} 
+        showErrorPopup={this.dummyMethod} 
+      />
     );
   }
 
   dummyMethod = () => {
-
+    console.log('dummyMethod called');
+    setTimeout(() => {
+    }, 3000);
   }
 }

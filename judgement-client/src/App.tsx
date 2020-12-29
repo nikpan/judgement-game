@@ -18,6 +18,7 @@ import HomePage from './pages/HomePage';
 import WaitingPage from './pages/WaitingPage';
 import { Utils } from './utils/utils';
 import PlayPage from './pages/PlayPage';
+import ModalDialog from './components/modal';
 
 export interface AppState {
   webSocket: WebSocket | null;
@@ -34,6 +35,8 @@ export interface AppState {
   scores: PlayerScore[] | null;
   roomCode: string;
   playerList: string[];
+  modalHidden: boolean;
+  errorMessage: string;
 }
 
 class App extends React.Component<{}, AppState> {
@@ -57,7 +60,9 @@ class App extends React.Component<{}, AppState> {
       currentGameState: ClientGameState.ChoosingName,
       scores: null,
       roomCode: '',
-      playerList: []
+      playerList: [],
+      modalHidden: true,
+      errorMessage: ''
     };
   }
 
@@ -116,6 +121,7 @@ class App extends React.Component<{}, AppState> {
     this.setState({ webSocket: ws });
     ws.onopen = () => {
       console.debug('Connection established!');
+      (window as any)['jWebSocket'] = ws;
       this._retryAttempts = 0;
       this.sendServerMessage(message);
     };
@@ -126,29 +132,29 @@ class App extends React.Component<{}, AppState> {
       console.debug(message);
     };
     ws.onerror = (msg) => {
-      console.log(msg);
-      Utils.showErrorPopup(`Connection to game server lost. Click OK to retry...`);
-      setTimeout(() => {
-        this.retryConnection();
-      }, 2000); 
     }
     ws.onclose = (msg) => {
       console.log(msg);
-      Utils.showErrorPopup(`Connection to game server lost. Click OK to retry...`);
+      console.log('onclose');
+      this.showModal(`OnClose:Connection to game server lost. Retrying: ${this._retryAttempts}...`);
       setTimeout(() => {
         this.retryConnection();
-      }, 2000); 
+      }, 3000); 
     }
     //TODO: add a connection timeout
   }
 
   retryConnection() {
     this._retryAttempts = this._retryAttempts + 1;
+    this.hideModal();
     if(this._retryAttempts >= this._maxRetryAttempts) {
-      Utils.showErrorPopup(`Can't connect to game server. Giving up!`);
+      this.showModal(`Can't connect to game server. Giving up!`);
       this.setState({
         currentGameState: ClientGameState.ChoosingName
       });
+      setTimeout(() => {
+        this.hideModal();
+      }, 5000);
       return;
     }
     const rejoinMessage = {
@@ -206,31 +212,71 @@ class App extends React.Component<{}, AppState> {
         {showWaitingPage ? this.renderWaitingPage() : <></>}
         {/* Playing Page */}
         {showPlayPage ? this.renderPlayPage(predictionEditable) : <></>}
+        <ModalDialog hidden={this.state.modalHidden} message={this.state.errorMessage}></ModalDialog>
       </div>
     );
   }
 
   private renderPlayPage(predictionEditable: boolean) {
-    return <PlayPage onCardClick={this.onCardClick} onSetPrediction={this.onSetPrediction} scores={this.state.scores} predictionEditable={predictionEditable} {...this.state}/>;
+    return (
+      <PlayPage 
+        {...this.state}
+        onCardClick={this.onCardClick} 
+        onSetPrediction={this.onSetPrediction} 
+        predictionEditable={predictionEditable} 
+      />
+    );
   }
 
   private renderWaitingPage() {
-    return <WaitingPage name={this.state.name} roomCode={this.state.roomCode} playerList={this.state.playerList} onStartGameClick={this.onStartGameClick} />;
+    return (
+      <WaitingPage 
+        {...this.state}
+        onStartGameClick={this.onStartGameClick}
+        showErrorPopup={this.showAutoDismissModal}
+      />
+    );
   }
 
   private renderHomePage() {
-    return <HomePage onCreateRoomClick={this.onCreateRoomClick} onJoinRoomClick={this.onJoinRoomClick} />;
+    return (
+      <HomePage 
+        onCreateRoomClick={this.onCreateRoomClick} 
+        onJoinRoomClick={this.onJoinRoomClick}
+        showErrorPopup={this.showAutoDismissModal}
+      />
+    );
   }
 
   /** Common functions */
   private sendServerMessage(message: any) {
     if (this.state.webSocket == null) {
-      Utils.showErrorPopup(`Error: Can't send message because websocket is null`);
+      this.showModal(`Error: Can't send message because websocket is null`);
       return;
     }
     console.log('Sending Message');
     console.debug(message);
     this.state.webSocket.send(JSON.stringify(message));
+  }
+
+  showAutoDismissModal = (message: string) => {
+    this.showModal(message);
+    setTimeout(() => {
+      this.hideModal();
+    }, 3000);
+  }
+
+  private showModal(message: string) {
+    this.setState({
+      modalHidden: false,
+      errorMessage: message
+    });
+  }
+
+  private hideModal() {
+    this.setState({
+      modalHidden: true
+    });
   }
 
   private handleServerMessage(msgData: Message) {
@@ -272,7 +318,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   private handleErrorMessage(message: ErrorMessage) {
-    Utils.showErrorPopup(`Error: ${message.code}`);
+    this.showAutoDismissModal(`Error: ${message.code}`);
   }
 
   private handlePlayerListMessage(message: PlayerListMessage) {

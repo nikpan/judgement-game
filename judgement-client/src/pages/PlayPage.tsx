@@ -30,7 +30,7 @@ export default class PlayPage extends React.Component<PlayPageProps> {
 
   render = () => {
     return (
-    <Stack gap={10} padding={10} >
+    <Stack gap={10} >
       <div style={{padding:10}} className='jHomeHeader'>
         <span style={{fontSize:'25px', fontWeight:'bold'}}>THE</span>
         <br />

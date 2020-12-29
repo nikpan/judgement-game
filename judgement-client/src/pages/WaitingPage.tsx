@@ -8,6 +8,7 @@ export interface WaitingPageProps {
   roomCode: string;
   playerList: string[];
   onStartGameClick: () => void;
+  showErrorPopup: (message: string) => void;
 }
 
 export default class WaitingPage extends React.Component<WaitingPageProps> {
@@ -48,9 +49,10 @@ export default class WaitingPage extends React.Component<WaitingPageProps> {
               <div style={{ flexGrow: 1, paddingRight: 10 }}>
                 <TextField contentEditable={'false'} value={`Code: ${this.props.roomCode}`} className='jTextField' />
               </div>
-              <div style={{ flexGrow: 1 }}>
+              {/* TODO: Implement Share feature */}
+              {/* <div style={{ flexGrow: 1 }}>
                 <button className='jButton'>Share</button>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className='jRowItem'>
@@ -65,7 +67,7 @@ export default class WaitingPage extends React.Component<WaitingPageProps> {
 
   onStartGameClick = () => {
     if(this.props.playerList && this.props.playerList.length < 2) {
-      Utils.showErrorPopup(`Can't start game with just one player!`);
+      this.props.showErrorPopup(`Can't start game with just one player!`);
       return;
     }
     this.props.onStartGameClick();

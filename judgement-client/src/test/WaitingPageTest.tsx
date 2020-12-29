@@ -11,7 +11,13 @@ export default class WaitingPageTest extends React.Component<{},{}> {
     const roomCode = '12345';
     const playerList = ['Jai', 'Viru', 'Gabbar', 'Basanti']
     return (
-      <WaitingPage name={name} roomCode={roomCode} playerList={playerList} onStartGameClick={this.dummyMethod} />
+      <WaitingPage 
+        name={name} 
+        roomCode={roomCode} 
+        playerList={playerList} 
+        onStartGameClick={this.dummyMethod} 
+        showErrorPopup={this.dummyMethod}
+      />
     );
   }
 
