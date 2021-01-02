@@ -14,10 +14,10 @@ export interface InfoTableProps {
 export default class InfoTable extends React.Component<InfoTableProps> {
   render() {
     let infoStyles = {
-      fontSize: 20
+      fontSize: '3vw'
     };
     return (
-      <Stack horizontal gap={10}>
+      <Stack horizontal gap={10} padding={10}>
         <Text style={infoStyles}>Trump Suit {this.suitToUnicode(this.props.trumpSuit)}</Text>
         <Text style={infoStyles}>Current Suit {this.suitToUnicode(this.props.currentSuit)}</Text>            
         <Text style={infoStyles}>Game State? <b>{this.props.currentGameState ? this.props.currentGameState : "None"}</b></Text>

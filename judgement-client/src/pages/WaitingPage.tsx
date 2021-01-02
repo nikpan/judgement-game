@@ -7,6 +7,7 @@ export interface WaitingPageProps {
   name: string;
   roomCode: string;
   playerList: string[];
+  showStartGame: boolean;
   onStartGameClick: () => void;
   showErrorPopup: (message: string) => void;
 }
@@ -42,12 +43,14 @@ export default class WaitingPage extends React.Component<WaitingPageProps> {
         </div>
         <div className='jHomeContainer'>
           <div className='jRowItem'>
-            <TextField contentEditable={'false'} value={this.props.name} className='jTextField' />
+            <div style={{ flexGrow: 1, paddingRight: 10, textAlign: 'center'}}>
+              <span className='jTextField'><b>Name: </b>{this.props.name}</span>
+            </div>
           </div>
           <div className='jRowItem'>
             <div style={{ display: 'flex' }}>
-              <div style={{ flexGrow: 1, paddingRight: 10 }}>
-                <TextField contentEditable={'false'} value={`Code: ${this.props.roomCode}`} className='jTextField' />
+              <div style={{ flexGrow: 1, paddingRight: 10, textAlign: 'center'}}>
+                <span className='jTextField'><b>Code: </b>{this.props.roomCode}</span>
               </div>
               {/* TODO: Implement Share feature */}
               {/* <div style={{ flexGrow: 1 }}>
@@ -56,6 +59,11 @@ export default class WaitingPage extends React.Component<WaitingPageProps> {
             </div>
           </div>
           <div className='jRowItem'>
+            <div style={{ flexGrow: 1, paddingRight: 10, textAlign: 'center'}}>
+              <span className='jTextField'><b>Players: </b>{this.props.playerList.join(' ')}</span>
+            </div>
+          </div>
+          <div className='jRowItem' style={{display: this.props.showStartGame ? '' : 'none'}}>
             <div>
               <button onClick={this.onStartGameClick} className='jButton'>Start Game</button>
             </div>

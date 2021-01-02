@@ -1,5 +1,5 @@
 import React from "react";
-import { DetailsList, DetailsListLayoutMode, IColumn } from "office-ui-fabric-react";
+import './scorecard.css';
 
 export interface PlayerScore {
   playerName: string;
@@ -56,44 +56,48 @@ export default class ScoreCard extends React.Component<ScoreCardProps> {
     )
   }
   
-  render() {
+  renderScorecard = () => {
     let scores = this.props.scores;
-    let columns: IColumn[] = [];
-    let items:any[] = [];
-    if(scores) {
-      let i=0;
-      scores.forEach(sc => {
-        columns.push({
-          key: 'column' + i,
-          name: sc.playerName,
-          fieldName: sc.playerName,
-          minWidth: 100,
-          maxWidth: 200,
-          isResizable: true
-        });
-        i+=1;
-      });
-      
-      let length = scores && scores[0] && scores[0].scores && scores[0].scores.length ? scores[0].scores.length : 0;
-      for (let i = 0; i < length; i++) {
-        items.push({});
-        scores.forEach(sc=> {
-          items[i][sc.playerName] = this.renderScore(sc.scores[i], sc.scores[i].isFinished);
-        })
-      }
-      items.push({});
-      scores.forEach(sc => {
-        items[length][sc.playerName] = this.renderTotal(sc.total);
-      })
-    }
-
+    const columns: any[] = [];
+    scores && scores!.forEach(sc => {
+      columns.push(this.renderColumn(sc));
+    });
     return (
-        <DetailsList
-          items={items}
-          columns={columns}
-          setKey="set"
-          layoutMode={DetailsListLayoutMode.justified}
-         />
+      <div className='scorecard-container'>
+        <div className='scorecard-title'>Points Table</div>
+        <div className='scorecardV2' style={{display:'flex'}}>
+          {columns}
+        </div>
+      </div>
+    )
+  }
+
+  private renderColumn(playerScore: PlayerScore): any {
+    let scores: JSX.Element[] = [];
+    playerScore.scores.forEach(sc => {
+      scores.push(this.renderScore(sc, sc.isFinished));
+      scores.push(<br/>);
+    });
+    return (
+      <div className='scorecard-column' style={{flexGrow: 1}}>
+        <div>
+          <span>{playerScore.playerName}</span>
+        </div>
+        <div>
+          {scores}
+        </div>
+        <div>
+          {this.renderTotal(playerScore.total)}
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <div>
+        {this.renderScorecard()}
+      </div>
     )
   }
 }

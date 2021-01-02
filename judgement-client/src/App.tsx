@@ -40,10 +40,11 @@ export interface AppState {
 }
 
 class App extends React.Component<{}, AppState> {
-  private static readonly _wsConnectionUrl: string = 'ws://localhost:3001';
-  // private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
+  // private static readonly _wsConnectionUrl: string = 'ws://localhost:3001';
+  private static readonly _wsConnectionUrl: string = 'wss://judgementgame-backend.azurewebsites.net'
   private _retryAttempts: number = 0;
   private _maxRetryAttempts: number = 5;
+  private _isHost: boolean = false;
   constructor(props: any) {
     super(props);
     this.state = {
@@ -85,6 +86,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   onCreateRoomClick = (name: string) => {
+    this._isHost = true;
     this.setState({
       name: name
     })
@@ -93,13 +95,14 @@ class App extends React.Component<{}, AppState> {
       action: MessageType.CreateRoom,
       name: name
     };
-    this.openConnectionAndSendMessage(createRoomMessage);
+    this.openConnectionAndSendMessage(createRoomMessage, false);
     this.setState({
       currentGameState: ClientGameState.Joining
     });
   }
 
   onJoinRoomClick = (name: string, roomCode: string) => {
+    this._isHost = false;
     this.setState({
       name: name,
       roomCode: roomCode
@@ -110,19 +113,20 @@ class App extends React.Component<{}, AppState> {
       name: name,
       roomCode: roomCode
     };
-    this.openConnectionAndSendMessage(joinMessage);
+    this.openConnectionAndSendMessage(joinMessage, true);
     this.setState({
       currentGameState: ClientGameState.Joining
     });
   }
 
-  openConnectionAndSendMessage = (message: Message) => {
+  openConnectionAndSendMessage = (message: Message, retry: boolean) => {
     const ws = new WebSocket(App._wsConnectionUrl);
     this.setState({ webSocket: ws });
     ws.onopen = () => {
       console.debug('Connection established!');
       (window as any)['jWebSocket'] = ws;
       this._retryAttempts = 0;
+      this.hideModal();
       this.sendServerMessage(message);
     };
     ws.onmessage = (msg) => {
@@ -136,17 +140,21 @@ class App extends React.Component<{}, AppState> {
     ws.onclose = (msg) => {
       console.log(msg);
       console.log('onclose');
-      this.showModal(`OnClose:Connection to game server lost. Retrying: ${this._retryAttempts}...`);
-      setTimeout(() => {
-        this.retryConnection();
-      }, 3000); 
+      if(retry) {
+        this.showModal(`OnClose:Connection to game server lost. Retrying: ${this._retryAttempts}...`);
+        setTimeout(() => {
+          this.retryConnection();
+        }, 3000); 
+      }
+      else {
+        this.showAutoDismissModal(`Can't connect to game server. Try again`);
+      }
     }
     //TODO: add a connection timeout
   }
 
   retryConnection() {
     this._retryAttempts = this._retryAttempts + 1;
-    this.hideModal();
     if(this._retryAttempts >= this._maxRetryAttempts) {
       this.showModal(`Can't connect to game server. Giving up!`);
       this.setState({
@@ -154,6 +162,7 @@ class App extends React.Component<{}, AppState> {
       });
       setTimeout(() => {
         this.hideModal();
+        this._retryAttempts = 0;
       }, 5000);
       return;
     }
@@ -162,7 +171,7 @@ class App extends React.Component<{}, AppState> {
       name: this.state.name,
       roomCode: this.state.roomCode
     };
-    this.openConnectionAndSendMessage(rejoinMessage);
+    this.openConnectionAndSendMessage(rejoinMessage, true);
   }
 
   /** Waiting Page */
@@ -232,6 +241,7 @@ class App extends React.Component<{}, AppState> {
     return (
       <WaitingPage 
         {...this.state}
+        showStartGame={this._isHost}
         onStartGameClick={this.onStartGameClick}
         showErrorPopup={this.showAutoDismissModal}
       />

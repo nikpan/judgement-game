@@ -28,11 +28,13 @@
   border-radius: 50px;
   border: 1px;
   padding: 25px;
-  font-family: 'Segoe UI';
+  display: flex;
+  flex-flow: column;
+  /* font-family: 'Segoe UI'; */
 }
 
 .jPredSelectorInner {
   margin-top: 10px;
   display: flex;
-  flex-flow: row;
+  flex-flow: row nowrap;
 }

@@ -3,7 +3,7 @@
   height: 50px; */
   border-radius: 75px;
   height: 150px;
-  font-size: 50px;
+  font-size: 3vw;
 }
 
 .jButton {
@@ -13,7 +13,8 @@
   /* font-size: large; */
   border-radius: 75px;
   height: 150px;
-  font-size: 50px;
+  /* font-size: 50px; */
+  font-size: 3vw;
   background-color: #0078d7;
   border: 1px solid #717574;
   color: white;
@@ -38,33 +39,34 @@
   /* padding: 10px 20%; */
   /* font-size: large; */
   padding: 30px 20%;
-  font-size: 50px;
+  font-size: 3vw;
 }
 
 .jTextField input,
 .jTextField input::placeholder {
   text-align :center;
   /* font-size: large; */
-  font-size: 50px;
+  font-size: 3vw;
 }
 
 .jTextField input,
 .jTextField input::-ms-input-placeholder { 
   text-align: center;      /* for IE 10-11 */
   /* font-size: large; */
-  font-size: 50px;
+  font-size: 3vw;
 }
 
 .jTextField input,
 .jTextField input::-webkit-input-placeholder { 
   text-align: center;      /* for IE Edge */
   /* font-size: large; */
-  font-size: 50px;
+  font-size: 3vw;
 }
 
 .jHomeHeader {
   padding: 20%;
-  font-family: 'Segoe UI';
+  font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
   overflow: hidden;
   background-color: peachpuff;
 }
