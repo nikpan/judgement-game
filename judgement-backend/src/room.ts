@@ -155,6 +155,7 @@ export class Room {
         var player = this.getPlayerByName(playerName);
         if(this.roomState === RoomState.TempOpen && player.socket.readyState === WebSocket.CLOSED) {
             player.renewSocket(socket);
+            this.sendAllInfo();
         }
         if(this.allPlayersConnected()) {
             this.roomState === RoomState.Locked;

@@ -80,6 +80,7 @@ export class Player implements IPlayer {
             this._room.removePlayer(this.id);
             console.log(`${this.name} has left`);
         });
+        this.sendHand();
     }
 
     public dispose() {
@@ -106,7 +107,7 @@ export class Player implements IPlayer {
             this._room.startGame(this.id);
         } catch (e) {
             console.debug(e);
-            this.sendErrorMessage(e.message);
+            this.sendErrorMessage(`Couldn't Start Game: ${e.message}`);
         }
     }
 
@@ -116,7 +117,7 @@ export class Player implements IPlayer {
         }
         catch (e) {
             console.debug(e);
-            this.sendErrorMessage(`Couldn't Start Game: ${e.message}`);
+            this.sendErrorMessage(`Couldn't Set Judgement: ${e.message}`);
         }
     }
 
@@ -131,8 +132,8 @@ export class Player implements IPlayer {
             this._room.playCard(this.id, playedCard);
             this.removeCardFromHand(playedCard);
             this.sendHand();
-        } catch (error) {
-            this.sendErrorMessage(`Couldn't Play Card: ${error.message}`);
+        } catch (e) {
+            this.sendErrorMessage(`Couldn't Play Card: ${e.message}`);
         }
     }
 
