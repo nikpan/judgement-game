@@ -1,9 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
 import * as serviceWorker from './serviceWorker';
-//import TableTest from './TableTest';
+import App from './App';
+import TableTest from './test/TableTest';
+import HomePageTest from './test/HomePageTest';
+import WaitingPageTest from './test/WaitingPageTest';
+import PlayPageTest from './test/PlayPageTest';
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
