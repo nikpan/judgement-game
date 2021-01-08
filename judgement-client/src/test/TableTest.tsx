@@ -22,6 +22,7 @@ class TableTest extends React.Component<{}, {}> {
       cards: [sampleCard, sampleCard, sampleCard],
       name: 'Foo',
       selectedCard: sampleCard,
+      currentPlayerName: 'Foo',
       onCardClick: this.onCardClick,
       otherPlayers: [sampleOtherPlayer, sampleOtherPlayer, sampleOtherPlayer]
     }

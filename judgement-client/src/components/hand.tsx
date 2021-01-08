@@ -6,6 +6,7 @@ export interface HandProps {
   cards: ICard[];
   name: string;
   selectedCard: ICard | null;
+  active: boolean;
   cardSelected: (suit:Suit, rank:Rank) => void;
 }
 
@@ -32,9 +33,13 @@ export default class Hand extends React.Component<HandProps> {
 
   render() {
     const cards = this.sortCards(this.props.cards);
+    const nameStyles: React.CSSProperties = { 
+      textAlign: 'center',
+      textShadow: this.props.active ? 'white 1px 0 10px' : 'none'
+    };
     return (
       <div>
-        <h2 style={{textAlign:'center'}} >{this.props.name}</h2>
+        <h2 style={nameStyles} >{this.props.name}</h2>
         <div className='player'>
           <div className='playedCard'>
             <div className='handLeftBuffer'></div>

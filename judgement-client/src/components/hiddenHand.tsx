@@ -7,6 +7,7 @@ export interface HiddenHandProps {
   cardCount: number;
   name: string;
   selectedCard: ICard | null;
+  active: boolean;
 }
 
 export default class HiddenHand extends React.Component<HiddenHandProps> {
@@ -32,9 +33,13 @@ export default class HiddenHand extends React.Component<HiddenHandProps> {
     for (let i = 0; i < cardCount; i++) {
       cards.push(<SpecialCard key={i} type={SpecialCardType.BlueBack} />)
     }
+    const nameStyles: React.CSSProperties = { 
+      textAlign: 'center',
+      textShadow: this.props.active ? 'white 1px 0 10px' : 'none'
+    };
     return (
       <div className='otherPlayerContainer'>
-        <h2 style={{ textAlign: 'center' }}>{this.props.name}</h2>
+        <h2 style={nameStyles}>{this.props.name}</h2>
         <div className='player'>
           <div className='playerHand hiddenHand'>
             <div className='handLeftBuffer'></div>

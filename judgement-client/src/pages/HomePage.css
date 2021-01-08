@@ -6,6 +6,10 @@
   font-size: 3vw;
 }
 
+.jButton:active, .jButton:focus {
+  outline: none;
+}
+
 .jButton {
   width: 100%;
   /* border-radius: 25px; */
