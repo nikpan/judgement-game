@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import { ICard } from "./card";
+import Logger from './logger';
 import { MessageType, SetJudgementMessage, PlayCardMessage, JoinMessage, Message } from "./message";
 import { Room } from "./room";
 import { getId } from "./util";
@@ -48,18 +49,19 @@ export class Player implements IPlayer {
         this.id = getId();
         socket.on('message', (message) => {
             try {
-                console.log('Player');
+                Logger.log(`Player::${this.name} on message start`);
                 console.debug(message);
                 let json = JSON.parse(message.toString());
                 this.handleMessage(json);
+                Logger.log(`Player::${this.name} on message end`);
             } catch (error) {
                 console.log(`Failed to parse message from client ${message.toString()}. Exception: ${error}`);
             }
         });
 
         socket.on('close', () => {
+            Logger.log(`${this.name} has left`);
             this._room.removePlayer(this.id);
-            console.log(`${this.name} has left`);
         });
     }
 
@@ -178,7 +180,7 @@ export class Player implements IPlayer {
     }
 
     public sendMessage(message: Message) {
-        if (this.socket.OPEN) {
+        if (this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(message));
         }
         else {

@@ -1,3 +1,4 @@
+import Logger from "./logger";
 import { IPlayer } from "./player";
 import { Score } from "./scorecard";
 
@@ -35,7 +36,7 @@ export class ScoreCardV2 {
     private getLatestPlayerScore(playerId: number) {
         let playerScores = this.getPlayerScores(playerId);
         if (playerScores.length === 0) {
-            console.log(`ScoreCardError::Can't get latest scores because scores array empty`);
+            Logger.log(`ScoreCardError::Can't get latest scores because scores array empty`);
             throw new Error('ScoreArrayEmpty');
         }
         let latestPlayerScore = playerScores[playerScores.length - 1];
@@ -45,7 +46,7 @@ export class ScoreCardV2 {
     private getPlayerScores(playerId: number) {
         let playerScoreIndex = this._scores.findIndex(sc => sc.playerId === playerId);
         if (playerScoreIndex == -1) {
-            console.log("ScoreCardError::Can't set judgement for unknown player " + playerId);
+            Logger.log("ScoreCardError::Can't set judgement for unknown player " + playerId);
             throw new Error('UnknownPlayer');
         }
 

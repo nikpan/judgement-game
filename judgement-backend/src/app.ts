@@ -3,6 +3,7 @@ import WebSocket from 'ws';
 import express from 'express';
 import { PendingPlayer } from './pendingPlayer';
 import { RoomManager } from './roomManager';
+import Logger from './logger';
 
 const app = express();
 const port = normalizePort(process.env.PORT || '3001');
@@ -13,7 +14,7 @@ const wss: WebSocket.Server = new WebSocket.Server({ server });
 
 let pendingPlayerList = [];
 wss.on('connection', function connection(ws) {
-  console.log('A new connection!');
+  Logger.log('A new connection!');
   let pendingPlayer = new PendingPlayer(ws);
   pendingPlayerList.push(pendingPlayer);
 });
@@ -51,9 +52,9 @@ function normalizePort(val: string) {
 }
 
 function onError(error: Error): void {
-  console.log('Error: ' + error);
+  Logger.log('Error: ' + error);
 }
 
 function onListening(): void {
-  console.log('Listening...');
+  Logger.log('Listening...');
 }

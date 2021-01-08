@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import { Suit, ICard } from "./card";
+import Logger from './logger';
 import { ClientGameState, GameStateMessage, MessageType, PlayerInfoMessageV2, PlayerListMessage, PlayerScoreMessage } from "./message";
 import { IPlayer } from "./player";
 import { ScoreCardV2 } from "./scorecardV2";
@@ -143,16 +144,19 @@ export class Room {
     public removePlayer(playerId: number) {
         var toRemove = this._players.findIndex(p => p.id === playerId);
         if(this.roomState === RoomState.Open) {
+            Logger.log(`Room::removePlayer from Open Room`);
             this._players.splice(toRemove, 1);
         }
         else {
             // TODO: set a time limit to wait for the temp removed player
+            Logger.log(`Room::removePlayer from non-Open Room`);
             this.roomState = RoomState.TempOpen;
         }
     }
 
     public rejoin(playerName: string, socket: WebSocket) {
         var player = this.getPlayerByName(playerName);
+        Logger.log(`Room::rejoin RoomState:${this.roomState} WebSocket readystate: ${player.socket.readyState}`);
         if(this.roomState === RoomState.TempOpen && player.socket.readyState === WebSocket.CLOSED) {
             player.renewSocket(socket);
             this.sendAllInfo();

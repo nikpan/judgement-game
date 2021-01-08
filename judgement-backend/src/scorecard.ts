@@ -1,3 +1,5 @@
+import Logger from "./logger";
+
 /** All scores for one player */
 export interface JudgementScore {
   playerName: string;
@@ -57,11 +59,11 @@ class ScoreCard implements IScoreCard {
   setJudgement(playerName: string, prediction: number) {
     let playerScoreIndex = this._scores.findIndex(sc => sc.playerName === playerName);
     if (playerScoreIndex == -1) {
-      console.log("ScoreCardError::Can't set judgement for unknown player " + playerName);
+      Logger.log("ScoreCardError::Can't set judgement for unknown player " + playerName);
       throw new Error('UnknownPlayer');
     }
     if (playerScoreIndex !== this._currentPlayerIndex) {
-      console.log(`ScorecardError::Can't set judgement because not ${playerName} turn`);
+      Logger.log(`ScorecardError::Can't set judgement because not ${playerName} turn`);
       throw new Error('NotYourTurnToJudgement');
     }
 
@@ -69,14 +71,14 @@ class ScoreCard implements IScoreCard {
     if (playerScore.scores[this._currentRoundIndex]) {
       let latestScore = playerScore.scores[this._currentRoundIndex];
       if (playerScoreIndex === this._dealerIndex && this.getRemainingHandsInRound(playerName) === prediction) {
-        console.log("ScorecardError::Can't set judgement because predication cannot match total hands");
+        Logger.log("ScorecardError::Can't set judgement because predication cannot match total hands");
         throw new Error("Can't match total hands");
       }
       latestScore.judgement = prediction;
       this._currentPlayerIndex = (this._currentPlayerIndex + 1) % this._scores.length;
     }
     else {
-      console.log("ScorecardError::Can't set judgement because score array is empty");
+      Logger.log("ScorecardError::Can't set judgement because score array is empty");
       throw new Error('ScoreArrayEmpty');
     }
   }
@@ -102,7 +104,7 @@ class ScoreCard implements IScoreCard {
   scoreWinner(playerName: string) {
     let playerScoreIndex = this._scores.findIndex(sc => sc.playerName === playerName);
     if (playerScoreIndex == -1) {
-      console.log("ScorecardError::Can't score winner for unknown player " + playerName);
+      Logger.log("ScorecardError::Can't score winner for unknown player " + playerName);
       return;
     }
 
@@ -116,7 +118,7 @@ class ScoreCard implements IScoreCard {
       }
     }
     else {
-      console.log("ScorecardError::Can't score winner because score array is empty");
+      Logger.log("ScorecardError::Can't score winner because score array is empty");
     }
   }
 

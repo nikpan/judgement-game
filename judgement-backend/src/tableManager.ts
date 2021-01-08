@@ -1,4 +1,5 @@
 import { ICard, Suit } from "./card";
+import Logger from "./logger";
 import { IPlayer } from "./player";
 import { GameState } from "./room";
 import { RoundManager } from "./roundManager";
@@ -61,7 +62,7 @@ export class TableManager {
                 this._roundManager.startRound(this._dealerId, this.maxHandsInCurrentRound(), this.getCurrentTrumpSuit());
             }, 5000);
         }
-        console.log('All Rounds Done!');
+        Logger.log('All Rounds Done!');
     }
 
     private maxHandsInCurrentRound() {
