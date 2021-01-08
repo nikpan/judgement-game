@@ -50,6 +50,7 @@ export default class PredictionSelector extends React.Component<PredictionSelect
     for (let i = 0; i <= this.props.maxCount; i++) {
       selectors.push(
         <PillButton 
+          key={i.toString()}
           active={this.state.selectedItem===i.toString()} 
           text={i.toString()} 
           onClick={this.togglePills(i.toString())}>

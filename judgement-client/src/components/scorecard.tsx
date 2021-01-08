@@ -19,10 +19,15 @@ export interface ScoreCardProps {
 
 export default class ScoreCard extends React.Component<ScoreCardProps> {
   renderScore(score: Score, isRoundFinished: boolean) {
-    if(!isRoundFinished) {
+    if(!isRoundFinished && score.judgement != -1) {
       return (
         <span>{score.hands}/{score.judgement}</span>
         )
+    }
+    else if(!isRoundFinished && score.judgement == -1) {
+      return (
+        <span><b>Unset</b></span>
+      )
     }
     else {
       let green = {
