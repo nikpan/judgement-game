@@ -22,7 +22,7 @@ export default class HiddenHand extends React.Component<HiddenHandProps> {
     }
     else {
       return (
-        <div style={{height:100, width:65, border:'1px black solid', borderRadius:5}}></div>
+        <div style={{height:250, width:165, border:'1px black solid', borderRadius:5}}></div>
       );
     };
   }
@@ -33,13 +33,15 @@ export default class HiddenHand extends React.Component<HiddenHandProps> {
     for (let i = 0; i < cardCount; i++) {
       cards.push(<SpecialCard key={i} type={SpecialCardType.BlueBack} />)
     }
-    const nameStyles: React.CSSProperties = { 
-      textAlign: 'center',
-      textShadow: this.props.active ? 'white 1px 0 10px' : 'none'
-    };
+    let nameStyles = 'playerName';
+    nameStyles += this.props.active ? ' currentPlayer' : '';
     return (
       <div className='otherPlayerContainer'>
-        <h2 style={nameStyles}>{this.props.name}</h2>
+        <div style={{display:'flex'}}>
+          <div className='handLeftBuffer'></div>
+          <div><span className={nameStyles}>{this.props.name}</span></div>
+          <div className='handRightBuffer'></div>
+        </div>
         <div className='player'>
           <div className='playerHand hiddenHand'>
             <div className='handLeftBuffer'></div>

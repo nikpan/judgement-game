@@ -45,6 +45,7 @@ class App extends React.Component<{}, AppState> {
   private _retryAttempts: number = 0;
   private _maxRetryAttempts: number = 5;
   private _isHost: boolean = false;
+  private _isClosing: boolean = false;
   constructor(props: any) {
     super(props);
     this.state = {
@@ -128,6 +129,10 @@ class App extends React.Component<{}, AppState> {
       this._retryAttempts = 0;
       this.hideModal();
       this.sendServerMessage(message);
+      window.addEventListener('beforeunload', _ev => {
+        this._isClosing = true;
+        ws.close();
+      });
     };
     ws.onmessage = (msg) => {
       var message = JSON.parse(msg.data);
@@ -140,6 +145,9 @@ class App extends React.Component<{}, AppState> {
     ws.onclose = (msg) => {
       console.log(msg);
       console.log('onclose');
+      if(this._isClosing) {
+        return;
+      }
       if(retry) {
         this.showModal(`OnClose:Connection to game server lost. Retrying: ${this._retryAttempts}...`);
         setTimeout(() => {

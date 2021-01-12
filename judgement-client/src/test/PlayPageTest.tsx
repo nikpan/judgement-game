@@ -12,7 +12,7 @@ export default class PlayPageTest extends React.Component<{},{}> {
   render = () => {
     const name = 'Gabbar';
     const selectedCard: ICard = {suit: Suit.Spades, rank: 'A'};
-    const cards: ICard[] = [selectedCard, selectedCard, selectedCard];
+    const cards: ICard[] = [selectedCard, selectedCard, selectedCard, selectedCard, selectedCard, selectedCard];
     const score1: Score = {
       hands: 3, isFinished: false, judgement: 3
     };

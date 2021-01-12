@@ -33,13 +33,15 @@ export default class Hand extends React.Component<HandProps> {
 
   render() {
     const cards = this.sortCards(this.props.cards);
-    const nameStyles: React.CSSProperties = { 
-      textAlign: 'center',
-      textShadow: this.props.active ? 'white 1px 0 10px' : 'none'
-    };
+    let nameStyles = 'playerName';
+    nameStyles += this.props.active ? ' currentPlayer' : '';
     return (
-      <div>
-        <h2 style={nameStyles} >{this.props.name}</h2>
+      <div style={{marginTop:50}}>
+        <div style={{display:'flex'}}>
+          <div className='handLeftBuffer'></div>
+          <div className={nameStyles}><span>{this.props.name}</span></div>
+          <div className='handRightBuffer'></div>
+        </div>
         <div className='player'>
           <div className='playedCard'>
             <div className='handLeftBuffer'></div>
