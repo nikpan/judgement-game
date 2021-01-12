@@ -55,7 +55,7 @@ export class Player implements IPlayer {
                 this.handleMessage(json);
                 Logger.log(`Player::${this.name} on message end`);
             } catch (error) {
-                console.log(`Failed to parse message from client ${message.toString()}. Exception: ${error}`);
+                Logger.log(`Failed to parse message from client ${message.toString()}. Exception: ${error}`);
             }
         });
 
@@ -69,18 +69,18 @@ export class Player implements IPlayer {
         this.socket = socket;
         socket.on('message', (message) => {
             try {
-                console.log('Player');
-                console.debug(message);
+                Logger.log('Player');
+                Logger.debug(message);
                 let json = JSON.parse(message.toString());
                 this.handleMessage(json);
             } catch (error) {
-                console.log(`Failed to parse message from client ${message.toString()}. Exception: ${error}`);
+                Logger.log(`Failed to parse message from client ${message.toString()}. Exception: ${error}`);
             }
         });
 
         socket.on('close', () => {
             this._room.removePlayer(this.id);
-            console.log(`${this.name} has left`);
+            Logger.log(`${this.name} has left`);
         });
         this.sendHand();
     }
@@ -108,7 +108,7 @@ export class Player implements IPlayer {
         try {
             this._room.startGame(this.id);
         } catch (e) {
-            console.debug(e);
+            Logger.debug(e);
             this.sendErrorMessage(`Couldn't Start Game: ${e.message}`);
         }
     }
@@ -118,7 +118,7 @@ export class Player implements IPlayer {
             this._room.setJudgement(this.id, message.prediction);
         }
         catch (e) {
-            console.debug(e);
+            Logger.debug(e);
             this.sendErrorMessage(`Couldn't Set Judgement: ${e.message}`);
         }
     }
@@ -145,7 +145,7 @@ export class Player implements IPlayer {
             this.hand = [];
             this._room.join(this);
         } catch (e) {
-            console.debug(e);
+            Logger.debug(e);
             this.sendErrorMessage(`Couldn't Join: ${e.message}`);
         }
     }
@@ -184,7 +184,7 @@ export class Player implements IPlayer {
             this.socket.send(JSON.stringify(message));
         }
         else {
-            console.log(`Error: Player::sendMessage Can't send message because socket is not open. Player:${this.name}`);
+            Logger.log(`Error: Player::sendMessage Can't send message because socket is not open. Player:${this.name}`);
         }
     }
 }
