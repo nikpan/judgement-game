@@ -7,3 +7,5 @@ A web application to play the card game Judgement (aka Kachufool - [wiki link](h
 ![LobbyPage](https://github.com/nikpan/judgement-game/blob/master/LobbyPage.PNG?raw=true)
 ## Game Page
 ![GamePage](https://github.com/nikpan/judgement-game/blob/master/GamePage.PNG?raw=true)
+
+UX Design Credit - [Sushant Darake](https://www.behance.net/sushantdarake)
